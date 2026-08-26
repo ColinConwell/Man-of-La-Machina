@@ -1,3 +1,35 @@
 # Sensitive
+config.json
 .env.local
 credentials/
+
+# Project
+context/data/
+
+# IDE + AI
+.vscode/
+.agents/
+.cursor/
+.claude/
+.codex/
+.gemini/
+.cursorignore
+AGENTS.md
+CLAUDE.md
+
+# Jupyter
+.ipynb_checkpoints
+
+# OS-generated
+.DS_Store
+.DS_Store?
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.egg-info/

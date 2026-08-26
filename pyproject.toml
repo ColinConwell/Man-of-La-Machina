@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "man-of-la-machina"
+version = "0.1.0"
+description = "Interactive components for Don Qui-CoPilot: Man of La Machina"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+authors = [
+    { name = "Colin Conwell", email = "conwell@mit.edu" },
+]
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-python-client>=2.160.0",
+    "google-auth>=2.37.0",
+    "google-auth-httplib2>=0.2.0",
+    "rich>=13.9.0",
+]
+
+[project.scripts]
+download-gdrive = "library.gdrive:main"
+generate-config = "library.config:main"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/library",
+    "/scripts",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["library"]

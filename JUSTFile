@@ -1,0 +1,37 @@
+# Don-QuiCoPilot / Man of La Machina
+# https://github.com/colinconwell/Man-of-La-Machina
+
+python := "python3"
+venv := ".venv"
+venv_python := venv / "bin" / "python"
+venv_pip := venv / "bin" / "pip"
+
+# --- Setup + DevOps ---
+
+# Create the virtualenv and install the project in editable mode
+setup:
+    {{ python }} -m venv {{ venv }}
+    {{ venv_pip }} install -e .
+
+# --- Config ---
+
+# Write default downloads settings into config.json (other sections are kept)
+generate-config *args:
+    {{ venv_python }} scripts/generate_config.py {{ args }}
+
+# Prompt for each downloads field, then write config.json
+generate-config-interactive *args:
+    {{ venv_python }} scripts/generate_config.py --interactive {{ args }}
+
+# --- Downloads ---
+
+# Download the Don-QuiCopilot Google Drive folder into context/data
+# Extra flags pass through, e.g. `just download-data --dry-run`
+download-data *args:
+    {{ venv_python }} scripts/download_gdrive.py {{ args }}
+
+# --- Maintenance ---
+
+# Remove the virtualenv
+clean-venv:
+    rm -rf {{ venv }}
