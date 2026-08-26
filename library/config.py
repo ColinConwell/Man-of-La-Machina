@@ -53,6 +53,7 @@ DOWNLOADS_DEFAULTS: dict[str, Any] = {
     "max_size_mb": DEFAULT_MAX_SIZE_MB,
     "exclude_extensions": list(VIDEO_EXTENSIONS),
     "include_extensions": [],
+    "filters": [],
 }
 
 SECTION_DEFAULTS: dict[str, dict[str, Any]] = {
@@ -71,6 +72,7 @@ DOWNLOAD_FIELD_HELP: dict[str, str] = {
     "max_size_mb": "Skip files larger than this many MB (0 = no limit)",
     "exclude_extensions": "Comma-separated extensions to skip",
     "include_extensions": "If set, only download these extensions",
+    "filters": "gitignore-style patterns relative to the Drive folder root",
 }
 
 
@@ -122,6 +124,59 @@ def normalize_extensions(value: Any) -> list[str]:
     return normalized
 
 
+def normalize_patterns(value: Any) -> list[str]:
+    if value is None or value is False:
+        return []
+    if isinstance(value, str):
+        parts = value.splitlines() if "\n" in value else value.split(",")
+    elif isinstance(value, (list, tuple)):
+        parts = []
+        for item in value:
+            text = str(item)
+            if "\n" in text:
+                parts.extend(text.splitlines())
+            else:
+                parts.append(text)
+    else:
+        raise ValueError(f"Could not parse gitignore filters from {value!r}")
+    patterns: list[str] = []
+    for part in parts:
+        pattern = part.strip()
+        if pattern and pattern not in patterns:
+            patterns.append(pattern)
+    return patterns
+
+
+def compile_gitignore(patterns: list[str]):
+    from pathspec import PathSpec
+
+    return PathSpec.from_lines("gitwildmatch", patterns)
+
+
+def matching_filter(
+    patterns: list[str],
+    rel_path: str,
+    *,
+    is_dir: bool = False,
+) -> str | None:
+    """Return the last matching gitignore pattern if *rel_path* is ignored."""
+    if not patterns:
+        return None
+    spec = compile_gitignore(patterns)
+    candidates = [rel_path.replace("\\", "/").lstrip("./")]
+    if is_dir:
+        directory = candidates[0].rstrip("/") + "/"
+        if directory not in candidates:
+            candidates.append(directory)
+    ignored = False
+    matched: str | None = None
+    for pattern in spec.patterns:
+        if any(pattern.match_file(candidate) for candidate in candidates):
+            ignored = bool(pattern.include)
+            matched = getattr(pattern, "pattern", None) or str(pattern)
+    return matched if ignored else None
+
+
 def merge_section(section: str, overrides: dict[str, Any] | None = None) -> dict[str, Any]:
     merged = deepcopy(SECTION_DEFAULTS.get(section, {}))
     if overrides:
@@ -133,6 +188,7 @@ def merge_section(section: str, overrides: dict[str, Any] | None = None) -> dict
         merged["include_extensions"] = normalize_extensions(
             merged.get("include_extensions")
         )
+        merged["filters"] = normalize_patterns(merged.get("filters"))
         max_size = merged.get("max_size_mb", DEFAULT_MAX_SIZE_MB)
         merged["max_size_mb"] = float(max_size) if max_size not in (None, "") else 0
         impersonate = merged.get("impersonate", True)
@@ -192,9 +248,11 @@ def _format_default(value: Any) -> str:
     return str(value)
 
 
-def _parse_prompted(current: Any, typed: str) -> Any:
+def _parse_prompted(key: str, current: Any, typed: str) -> Any:
     if typed == "":
         return current
+    if key == "filters":
+        return normalize_patterns(typed)
     if isinstance(current, bool):
         lowered = typed.lower()
         if lowered in {"1", "true", "yes", "y", "on"}:
@@ -223,7 +281,7 @@ def prompt_section(section: str, current: dict[str, Any]) -> dict[str, Any]:
     for key, value in current.items():
         label = help_map.get(key, key)
         typed = Prompt.ask(f"{label} ({key})", default=_format_default(value))
-        updated[key] = _parse_prompted(value, typed if typed is not None else "")
+        updated[key] = _parse_prompted(key, value, typed if typed is not None else "")
     return merge_section(section, updated)
 
 
@@ -243,6 +301,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Section to write (default: downloads)",
     )
     parser.add_argument(
+        "--example",
+        action="store_true",
+        help="Print an example config to stdout (does not write a file)",
+    )
+    parser.add_argument(
         "--interactive",
         action="store_true",
         help="Prompt for each field in the section",
@@ -258,6 +321,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-size-mb", type=float, default=None)
     parser.add_argument("--exclude-extensions", default=None)
     parser.add_argument("--include-extensions", default=None)
+    parser.add_argument(
+        "--filter",
+        action="append",
+        dest="filters",
+        default=None,
+        help="gitignore-style pattern (repeatable; replaces config filters)",
+    )
     parser.set_defaults(recursive=None)
     return parser
 
@@ -272,6 +342,7 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, Any]:
         "max_size_mb": args.max_size_mb,
         "exclude_extensions": args.exclude_extensions,
         "include_extensions": args.include_extensions,
+        "filters": args.filters,
     }
     overrides = {key: value for key, value in mapping.items() if value is not None}
     if args.overwrite:
@@ -283,11 +354,27 @@ def _cli_overrides(args: argparse.Namespace) -> dict[str, Any]:
     return overrides
 
 
+def example_config() -> dict[str, Any]:
+    data = {section: merge_section(section) for section in SECTION_DEFAULTS}
+    downloads = data.get("downloads")
+    if isinstance(downloads, dict):
+        downloads["filters"] = [
+            "# gitignore-style patterns, relative to the Drive folder root",
+            "# Active Creative Projects/",
+            "# !Active Creative Projects/**/*.docx",
+        ]
+    return data
+
+
 def main(argv: list[str] | None = None) -> int:
     from rich.console import Console
     from rich.json import JSON
 
     args = build_parser().parse_args(argv)
+    console = Console()
+    if args.example:
+        console.print(JSON.from_data(example_config()))
+        return 0
     path = Path(args.config).expanduser()
     current = load_section(path, args.section)
     current.update(_cli_overrides(args))
@@ -295,7 +382,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.interactive:
         current = prompt_section(args.section, current)
     data = write_section(path, args.section, current)
-    console = Console()
     console.print(f"Wrote [cyan]{path}[/cyan] section [cyan]{args.section}[/cyan]:")
     console.print(JSON.from_data(data))
     return 0

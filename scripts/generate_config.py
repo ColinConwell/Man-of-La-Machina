@@ -4,6 +4,7 @@
 Examples:
   python scripts/generate_config.py
   python scripts/generate_config.py --interactive
+  python scripts/generate_config.py --example
   python scripts/generate_config.py --section downloads --output-dir context/data
 """
 

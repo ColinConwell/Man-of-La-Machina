@@ -23,6 +23,10 @@ generate-config *args:
 generate-config-interactive *args:
     {{ venv_python }} scripts/generate_config.py --interactive {{ args }}
 
+# Print an example config to stdout
+generate-config-example:
+    {{ venv_python }} scripts/generate_config.py --example
+
 # --- Downloads ---
 
 # Download the Don-QuiCopilot Google Drive folder into context/data

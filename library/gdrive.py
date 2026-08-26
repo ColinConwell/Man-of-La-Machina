@@ -40,7 +40,9 @@ from library.config import (
     DEFAULT_MAX_SIZE_MB,
     VIDEO_EXTENSIONS,
     load_section,
+    matching_filter,
     normalize_extensions,
+    normalize_patterns,
     resolve_impersonate,
     service_account_email,
 )
@@ -117,6 +119,7 @@ class DownloadConfig:
     max_size_mb: float
     exclude_extensions: list[str]
     include_extensions: list[str]
+    filters: list[str]
 
 
 @dataclass
@@ -172,6 +175,11 @@ def resolve_config(args: argparse.Namespace) -> DownloadConfig:
         if args.include_extensions is None
         else _cli_list(args.include_extensions)
     )
+    filters = (
+        stored["filters"]
+        if args.filters is None
+        else normalize_patterns(args.filters)
+    )
     impersonate_value = (
         stored["impersonate"] if args.impersonate is None else args.impersonate
     )
@@ -194,6 +202,7 @@ def resolve_config(args: argparse.Namespace) -> DownloadConfig:
         max_size_mb=float(max_size_mb or 0),
         exclude_extensions=exclude_extensions or [],
         include_extensions=include_extensions or [],
+        filters=filters or [],
     )
 
 
@@ -238,6 +247,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--include-extensions",
         default=None,
         help="If set, only download these extensions",
+    )
+    parser.add_argument(
+        "--filter",
+        action="append",
+        dest="filters",
+        default=None,
+        help="gitignore-style pattern relative to the folder root (repeatable)",
     )
     parser.set_defaults(recursive=None)
     return parser
@@ -343,7 +359,16 @@ def _item_size(item: dict[str, Any]) -> int | None:
     return int(raw)
 
 
-def skip_reason(config: DownloadConfig, name: str, mime_type: str, size: int | None) -> str | None:
+def skip_reason(
+    config: DownloadConfig,
+    name: str,
+    mime_type: str,
+    size: int | None,
+    rel_path: str,
+) -> str | None:
+    ignored = matching_filter(config.filters, rel_path)
+    if ignored:
+        return f"filter {ignored}"
     extension = _item_extension(name, mime_type)
     if config.include_extensions and extension not in config.include_extensions:
         return f"extension {extension or 'none'} not in include list"
@@ -407,6 +432,20 @@ def collect_files(
             mime_type = item.get("mimeType", "")
             if mime_type == FOLDER_MIME:
                 child_dir = current_dest / _safe_name(name)
+                rel_dir = child_dir.relative_to(dest).as_posix()
+                folder_filter = matching_filter(config.filters, rel_dir, is_dir=True)
+                if folder_filter:
+                    planned.append(
+                        PlannedFile(
+                            file_id=item["id"],
+                            name=name,
+                            mime_type=mime_type,
+                            size=None,
+                            dest=child_dir,
+                            skip_reason=f"filter {folder_filter}",
+                        )
+                    )
+                    continue
                 if config.recursive:
                     walk(item["id"], child_dir)
                 continue
@@ -416,7 +455,8 @@ def collect_files(
             )
             local_used.add(path.name)
             size = _item_size(item)
-            reason = skip_reason(config, name, mime_type, size)
+            rel_path = path.relative_to(dest).as_posix()
+            reason = skip_reason(config, name, mime_type, size, rel_path)
             if path.exists() and not config.overwrite and reason is None:
                 reason = "already exists"
             planned.append(
@@ -451,6 +491,7 @@ def describe_config(config: DownloadConfig) -> None:
         ("max_size_mb", f"{config.max_size_mb:g}" if config.max_size_mb else "none"),
         ("exclude_extensions", ",".join(config.exclude_extensions) or "none"),
         ("include_extensions", ",".join(config.include_extensions) or "all"),
+        ("filters", ", ".join(config.filters) or "none"),
     ]
     for key, value in rows:
         table.add_row(key, value)

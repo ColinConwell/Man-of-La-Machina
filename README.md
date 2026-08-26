@@ -3,3 +3,5 @@
 Interactive components for the evolving *Don Qui-CoPilot: Man of La Machina* art project, a generative-adversarial collaboration (or perhaps a kind of sympoesis) between humans and machines.
 
 More material to appear here soon (pending human review).
+
+For a preview of the performance art, please visit this [Youtube link](https://maps.app.goo.gl/f7tNnYUXrs3uYhv98)
