@@ -17,6 +17,8 @@ git diff --cached --check
 git push
 ```
 
+This working checkout also uses the repository's pre-commit guard. Enable it on another checkout with `git config core.hooksPath .githooks`. The guard prints paths and reasons, never matching private text.
+
 ## Server configuration
 
 Only Railway receives these values; no `VITE_` variables contain secrets:
@@ -56,6 +58,8 @@ Hosted admission defaults allow four simultaneous generations, 60 live generatio
 - Web service: `5a896b72-5a41-4c60-8384-2af009c7ab1a`
 - Private bucket: `d3689940-2dbe-4e24-a2c4-a79309c41e2c`
 - Railway hostname: `web-production-09abd.up.railway.app`
+
+The Railway service is connected directly to `ColinConwell/Man-of-La-Machina`, branch `main`, for automatic code deployments. GitHub Actions runs the public-tree guard, fixture-based backend tests and frontend build without receiving bucket credentials or content.
 
 Porkbun's apex ALIAS is changed from parking to the Railway-provided target. A `www` CNAME points to its Railway target. Existing mail, nameserver and verification records are preserved.
 
