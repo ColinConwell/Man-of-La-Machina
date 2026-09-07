@@ -104,6 +104,7 @@ export function TimelineExplorer({
           <>
             <div
               className="timeline-axis"
+              role="group"
               aria-label={
                 calendar
                   ? "Chronological axis; real date spacing"
