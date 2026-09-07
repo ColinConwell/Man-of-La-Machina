@@ -57,8 +57,8 @@ export function HistoricalMessage({
   rangeAction?: (id: string, end: boolean) => void;
 }) {
   const name =
-    message.speaker === "beaven"
-      ? "Beaven"
+    message.speaker === "human"
+      ? message.speaker_label
       : message.speaker === "mirrows"
         ? "Copilot / Mirrows"
         : "Unresolved speaker";

@@ -13,6 +13,10 @@ test("complete-history, arbitrary boundaries, resolution, search and deep links"
   page,
 }) => {
   await page.goto("/");
+  const experience = await (await page.request.get("/api/v1/experience")).json();
+  await expect(page.locator(".threshold-copy")).toContainText(
+    experience.profile.human_label,
+  );
   await page
     .getByRole("button", { name: /From the beginning · April 1/ })
     .click();
@@ -22,6 +26,9 @@ test("complete-history, arbitrary boundaries, resolution, search and deep links"
   await expect(page.locator(".scene-heading")).toContainText("APR 1, 2026", {
     ignoreCase: true,
   });
+  await expect(page.locator(".message-meta strong").first()).toHaveText(
+    experience.profile.human_label,
+  );
   const original = new URL(page.url()).searchParams.get("entry");
   for (const scale of [
     "chapter",
@@ -36,7 +43,7 @@ test("complete-history, arbitrary boundaries, resolution, search and deep links"
   }
   await expect(page.getByLabel("Ordinal conversation axis")).toBeVisible();
   await page
-    .getByRole("button", { name: "Turn 5 · beaven, 1 turns", exact: true })
+    .getByRole("button", { name: /^Turn 5 · .+, 1 turns$/, exact: true })
     .click();
   expect(new URL(page.url()).searchParams.get("entry")).not.toBe(original);
   const url = page.url();
@@ -83,7 +90,7 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
     .getByRole("button", { name: "Preview context", exact: true })
     .click();
   await expect(page.getByTestId("manifest-hash")).not.toHaveText(before!);
-  await page.getByLabel("Replace the selected Beaven turn").check();
+  await page.getByLabel("Replace the selected human turn").check();
   await page
     .getByRole("button", { name: "Preview context", exact: true })
     .click();
@@ -226,6 +233,7 @@ test("theme contrast and provider-failure recovery", async ({ page }) => {
         generation_id: "failure-test",
         manifest_id: "failure-manifest",
         stream_url: "/api/v1/test-failure-stream",
+        visitor_text: "An invented failure recovery test.",
       }),
     }),
   );

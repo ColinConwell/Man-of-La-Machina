@@ -91,12 +91,12 @@ export function ContextWorkbench({
         <label className="facet">
           <input
             type="checkbox"
-            disabled={cutoff?.speaker !== "beaven"}
-            checked={options.replace_cutoff && cutoff?.speaker === "beaven"}
+            disabled={cutoff?.speaker !== "human"}
+            checked={options.replace_cutoff && cutoff?.speaker === "human"}
             onChange={(e) => setOptions({ replace_cutoff: e.target.checked })}
           />
           <span>
-            Replace the selected Beaven turn
+            Replace the selected human turn
             <small>Otherwise, your intervention follows the cutoff.</small>
           </span>
         </label>

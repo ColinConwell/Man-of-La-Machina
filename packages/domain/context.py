@@ -29,8 +29,8 @@ def build_context(
     policy = bundle.profile.policy
     threads = {t.id: t for t in bundle.threads}
     current_thread = threads[cutoff.thread_id]
-    if options.replace_cutoff and cutoff.speaker != "beaven":
-        raise ValueError("Only a recorded Beaven turn can be replaced.")
+    if options.replace_cutoff and cutoff.speaker != "human":
+        raise ValueError("Only a recorded human turn can be replaced.")
     if set(options.excluded_ids) - by_id.keys():
         raise ValueError(
             "An excluded message ID does not exist in this content version."
@@ -38,7 +38,7 @@ def build_context(
     eligible = [
         m
         for m in bundle.messages
-        if m.ordinal <= cutoff.ordinal and m.speaker in ("beaven", "mirrows")
+        if m.ordinal <= cutoff.ordinal and m.speaker in ("human", "mirrows")
     ]
     exclusions = []
     history = []
@@ -87,7 +87,7 @@ def build_context(
                 id=m.id,
                 source_id=m.provenance.source_id,
                 source_version=m.content_hash,
-                role="user" if m.speaker == "beaven" else "assistant",
+                role="user" if m.speaker == "human" else "assistant",
                 origin="historical",
                 body=m.body,
                 position=0,

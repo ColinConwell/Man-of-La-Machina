@@ -70,7 +70,7 @@ export function useBranch() {
     setBusy(true);
     setError("");
     setStreamText("");
-    setPendingText(s.text);
+    setPendingText("Preparing your intervention…");
     s.setTab("branch");
     try {
       const b = await ensure();
@@ -78,6 +78,7 @@ export function useBranch() {
         generation_id: string;
         manifest_id: string;
         stream_url: string;
+        visitor_text: string;
       }>(`/branches/${b.id}/messages`, {
         text: s.text,
         options: s.options,
@@ -85,6 +86,8 @@ export function useBranch() {
         request_id: crypto.randomUUID(),
       });
       if (current !== epoch.current) return;
+      setPendingText(run.visitor_text);
+      s.setText(run.visitor_text);
       const events = new EventSource(run.stream_url);
       eventSource.current = events;
       events.addEventListener("delta", (e) => {

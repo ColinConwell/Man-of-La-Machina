@@ -33,6 +33,21 @@ def is_content_bundle(data: bytes) -> bool:
     )
 
 
+def is_alias_config(data: bytes) -> bool:
+    try:
+        obj = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return False
+    return (
+        isinstance(obj, dict)
+        and isinstance(obj.get("people"), list)
+        and any(
+            isinstance(person, dict) and "names" in person and "alias" in person
+            for person in obj["people"]
+        )
+    )
+
+
 def main():
     paths = (
         subprocess.check_output(["git", "ls-files", "--cached", "-z"])
@@ -65,6 +80,8 @@ def main():
         data = subprocess.check_output(["git", "show", ":" + name])
         if is_content_bundle(data):
             problems.append(name + ": transcript or branch bundle")
+        if is_alias_config(data):
+            problems.append(name + ": private alias configuration")
         if re.search(
             rb"(?:sk-proj-|sk-ant-api\d+-|ghp_|pk1_|sk1_)[A-Za-z0-9_-]{24,}", data
         ):

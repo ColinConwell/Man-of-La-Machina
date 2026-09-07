@@ -1,5 +1,26 @@
 import pytest
+import json
 from packages.domain.models import *
+
+
+@pytest.fixture(autouse=True)
+def isolated_alias_configuration(monkeypatch):
+    # Real names and locally chosen aliases must never enter test snapshots or CI.
+    monkeypatch.setenv(
+        "MACHINA_ALIASES_JSON",
+        json.dumps(
+            {
+                "version": 1,
+                "people": [
+                    {
+                        "names": ["Aster Riley", "Aster", "Riley"],
+                        "alias": "The Visitor",
+                        "role": "participant",
+                    }
+                ],
+            }
+        ),
+    )
 
 
 @pytest.fixture
@@ -16,7 +37,7 @@ def bundle():
             thread_id="t",
             sequence=i,
             ordinal=i,
-            speaker="beaven" if i % 2 == 0 else "mirrows",
+            speaker="human" if i % 2 == 0 else "mirrows",
             body=f"Invented turn {i}",
             raw_body=f"Invented turn {i}",
             content_hash=digest(f"Invented turn {i}"),

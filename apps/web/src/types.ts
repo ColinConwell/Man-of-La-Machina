@@ -12,7 +12,8 @@ export interface HistoricalMessage {
   thread_id: string;
   sequence: number;
   ordinal: number;
-  speaker: "beaven" | "mirrows" | "unknown" | "system";
+  speaker: "human" | "mirrows" | "unknown" | "system";
+  speaker_label: string;
   body: string;
   origin: "historical";
   recorded_at: string | null;
@@ -62,6 +63,7 @@ export interface Experience {
   profile: {
     id: string;
     name: string;
+    human_label: string;
     default_start: string;
     start_options: Start[];
     branch_turn_limit: number;

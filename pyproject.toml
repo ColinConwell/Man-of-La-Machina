@@ -30,6 +30,7 @@ download-gdrive = "library.gdrive:main"
 generate-config = "library.config:main"
 
 [tool.hatch.build.targets.sdist]
+exclude = ["**/*.local.*", "**/.env*", "**/test-results/**", "**/playwright-report/**", "**/node_modules/**", "**/dist/**"]
 include = [
     "/library",
     "/scripts",

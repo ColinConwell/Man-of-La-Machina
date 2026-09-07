@@ -11,6 +11,7 @@ import secrets
 import time
 from urllib.parse import urlparse
 from fastapi import FastAPI, HTTPException, Request, Query
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
@@ -30,6 +31,7 @@ from apps.api.contracts import (
 )
 from packages.domain.repository import ContentRepository
 from packages.content.storage import load_private_bundle
+from packages.content.aliases import AliasRewriter, load_aliases
 from apps.api.limits import GenerationLimits
 from packages.domain.context import build_context
 from packages.domain.providers import (
@@ -99,7 +101,11 @@ class Sessions:
         }
 
 
-def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
+def create_app(
+    bundle: Bundle | None = None,
+    provider_factory=get_provider,
+    aliases: AliasRewriter | None = None,
+):
     @asynccontextmanager
     async def lifespan(app):
         async def sweep():
@@ -132,8 +138,10 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
         and repo.bundle.mode != "public"
     ):
         raise ValueError("Public mode requires an approved public bundle")
-    sessions = Sessions(repo.bundle.profile.session_ttl_seconds)
     hosted = os.getenv("MACHINA_DEPLOYMENT") == "hosted"
+    aliases = aliases if aliases is not None else load_aliases(required=hosted)
+    repo = ContentRepository(aliases.bundle(repo.bundle))
+    sessions = Sessions(repo.bundle.profile.session_ttl_seconds)
     generation_limits = GenerationLimits(
         per_hour=int(os.getenv("MACHINA_LIVE_GENERATIONS_PER_HOUR", "60")),
         per_owner=int(os.getenv("MACHINA_SESSION_GENERATIONS_PER_HOUR", "20")),
@@ -197,7 +205,22 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
 
     @app.exception_handler(ValueError)
     async def invalid(request, exc):
-        return JSONResponse({"detail": str(exc)}, status_code=422)
+        return JSONResponse({"detail": aliases.text(str(exc))}, status_code=422)
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request, exc):
+        # Validation errors must not reflect submitted names or private input.
+        return JSONResponse({"detail": "Invalid request parameters"}, status_code=422)
+
+    def display_message(m):
+        label = (
+            repo.bundle.profile.human_label
+            if m.speaker == "human"
+            else "Copilot / Mirrows"
+            if m.speaker == "mirrows"
+            else "Unresolved speaker"
+        )
+        return DisplayMessage(**m.model_dump(), speaker_label=label)
 
     def message(id):
         if id not in repo.messages:
@@ -306,7 +329,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             ]
         return dict(
             thread=repo.threads[id],
-            messages=[DisplayMessage(**m.model_dump()) for m in items],
+            messages=[display_message(m) for m in items],
             total=len(all_messages),
             has_before=bool(items and items[0].sequence > 0),
             has_after=bool(items and items[-1].sequence < len(all_messages) - 1),
@@ -345,7 +368,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
     ):
         m = message(id)
         return [
-            DisplayMessage(**x.model_dump())
+            display_message(x)
             for x in repo.bundle.messages
             if x.thread_id == m.thread_id
             and (
@@ -416,20 +439,28 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             payload.options,
             payload.settings,
             b["messages"],
-            payload.text,
+            aliases.text(payload.text),
         )
 
     async def generate(b, j, provider, visitor):
         started = time.perf_counter()
         output = ""
+        filtered = aliases.stream()
+
+        def emit(text):
+            nonlocal output
+            if text:
+                output += text
+                j["events"].append(("delta", {"text": text}))
+
         try:
             j["status"] = "streaming"
             async for event in provider.stream(j["manifest"]):
                 if event.type == "delta":
-                    output += event.text
-                    j["events"].append(("delta", {"text": event.text}))
+                    emit(filtered.feed(event.text))
                 elif event.metadata:
-                    j["provider_metadata"].update(event.metadata)
+                    j["provider_metadata"].update(aliases.tree(event.metadata))
+            emit(filtered.feed("", final=True))
             model = BranchMessage(
                 id=uid("generated"),
                 sequence=len(b["messages"]) + 1,
@@ -454,6 +485,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
                 )
             )
         except asyncio.CancelledError:
+            emit(filtered.interrupt())
             already_cancelled = j["status"] == "cancelled"
             j["status"] = "cancelled"
             j["error_category"] = "cancelled"
@@ -469,6 +501,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
                     )
                 )
         except Exception as exc:
+            emit(filtered.interrupt())
             category = (
                 exc.category if isinstance(exc, ProviderError) else "internal_error"
             )
@@ -483,7 +516,9 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             j["safety_outcome"] = (
                 "provider_refusal" if category == "refusal" else "unknown"
             )
-            j["events"].append(("failure", {"category": category, "message": msg}))
+            j["events"].append(
+                ("failure", {"category": category, "message": aliases.text(msg)})
+            )
         finally:
             b["active"] = None
             j["latency_ms"] = round((time.perf_counter() - started) * 1000)
@@ -515,7 +550,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             payload.options,
             payload.settings,
             b["messages"],
-            payload.text,
+            aliases.text(payload.text),
         )
         if hosted:
             if (
@@ -536,7 +571,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             sequence=len(b["messages"]),
             speaker="visitor",
             origin="visitor",
-            body=payload.text.strip(),
+            body=aliases.text(payload.text.strip()),
             generation_id=gid,
             created_at=now(),
         )
@@ -583,6 +618,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
             "generation_id": gid,
             "manifest_id": manifest.id,
             "stream_url": api + f"/branches/{id}/generations/{gid}/stream",
+            "visitor_text": visitor.body,
         }
         b["requests"][payload.request_id] = {
             "fingerprint": fingerprint,
@@ -642,7 +678,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
         return dict(
             branch=sessions.public(b),
             generations=[job_record(sessions.jobs[gid]) for gid in b["generation_ids"]],
-            notice="Visitor and generated material are counterfactual. Recorded material retains documentary provenance.",
+            notice="Visitor and generated material are counterfactual. Personal names use aliases. Context receipts describe the aliased material actually sent to the provider.",
         )
 
     @app.get(api + "/review")

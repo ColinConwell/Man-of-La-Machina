@@ -2,6 +2,8 @@
 
 Setup, configuration, content preparation, and verification for the interactive prototype. For the project's artistic framing, see the [project overview](../README.md). For the deployed service and private content releases, see [hosting](HOSTING.md).
 
+Personal-name substitutions are configured privately; see [editing aliases locally and on Railway](ALIASES.md).
+
 ## Run the prototype
 
 From the repository root, with Python 3.11+ and Node.js 20.19+:

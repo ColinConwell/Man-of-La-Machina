@@ -39,6 +39,7 @@ dist/
 # Interactive prototype (private normalized corpus and visitor sessions)
 content/generated/
 content/curation/*.local.json
+**/*.local.*
 node_modules/
 apps/web/dist/
 playwright-report/

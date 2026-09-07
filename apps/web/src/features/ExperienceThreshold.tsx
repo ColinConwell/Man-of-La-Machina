@@ -17,8 +17,9 @@ export function ExperienceThreshold({
           could turn another way.
         </h1>
         <p>
-          A counterfactual documentary drawn from Beaven’s conversations with
-          Copilot, the companion he came to call Mirrows.
+          A counterfactual documentary drawn from the conversations of{" "}
+          {experience.profile.human_label} with Copilot, the companion he came
+          to call Mirrows.
         </p>
         <p>
           Enter the record. Choose what the model knows. Write the next human

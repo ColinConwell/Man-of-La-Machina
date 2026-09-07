@@ -14,6 +14,7 @@ from packages.domain.models import (
 
 class DisplayMessage(HistoricalMessage):
     raw_body: str = Field(exclude=True, repr=False)
+    speaker_label: str
 
 
 class ThreadPage(Frozen):
@@ -112,3 +113,4 @@ class GenerationStart(Frozen):
     generation_id: str
     manifest_id: str
     stream_url: str
+    visitor_text: str

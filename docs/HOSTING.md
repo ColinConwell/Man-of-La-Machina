@@ -31,6 +31,8 @@ Only Railway receives these values; no `VITE_` variables contain secrets:
 
 Railway/Porkbun management tokens are not needed by the application and are not deployed. Bucket credentials are specific to this bucket. A GitHub application deployment does not rebuild, upload or overwrite content.
 
+`MACHINA_ALIASES_JSON` holds the private personal-name configuration. Hosted startup requires it. The application applies it after loading the original bundle and before serving text or constructing model context. Edit the Railway variable and redeploy to change aliases independently of code and content releases; see [private aliases](ALIASES.md). The served content version includes this projection and therefore differs from the original stored release below.
+
 The initial content version is `325ae43dd6bf48dabd2b`, with object checksum `5a0ff67cf783cc09f25d7f91ca2bf649c9de459a0ac6689c7a629c2cd07162c7`. The original review flags remain intact. Hosted mode is an exploration prototype; it does not declare author review completed or bypass the separate `public` curation validation gate.
 
 ## Update the content privately

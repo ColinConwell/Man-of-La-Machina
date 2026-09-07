@@ -17,7 +17,7 @@ def test_docx_tables_labels_ambiguity_and_stability(tmp_path):
     a = import_thread(p, "stable-source", "t", "2026-04-01", start_paragraph=1)
     b = import_thread(p, "stable-source", "t", "2026-04-01", start_paragraph=1)
     assert [m.id for m in a[1]] == [m.id for m in b[1]]
-    assert [m.speaker for m in a[1]] == ["unknown", "beaven", "mirrows"]
+    assert [m.speaker for m in a[1]] == ["unknown", "human", "mirrows"]
     assert a[1][1].body == "I could take the train."
     assert {w["code"] for w in a[2]} == {"unknown-speaker", "embedded-media-unreviewed"}
 
@@ -53,7 +53,7 @@ def test_real_slice_optional():
         if m.id
         == next(a.entry_message_id for a in b.anchors if a.id == "rain-in-spain")
     )
-    assert m.sequence == 2 and m.speaker == "beaven"
+    assert m.sequence == 2 and m.speaker == "human"
     before = next(
         x for x in b.messages if x.thread_id == m.thread_id and x.sequence == 1
     )

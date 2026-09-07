@@ -111,7 +111,7 @@ def import_thread(
             lines = []
             start = i
             name = (match or inline).group(1).upper()
-            speaker = "beaven" if name == "BEAVEN" else "mirrows"
+            speaker = "human" if name == "BEAVEN" else "mirrows"
             if inline:
                 lines.append(inline.group(2))
         else:

@@ -21,7 +21,7 @@ class ContentRepository:
             for m in bundle.messages:
                 if m.thread_id != t.id:
                     continue
-                if m.speaker == "beaven" or index < 0:
+                if m.speaker == "human" or index < 0:
                     index += 1
                 self.exchange[m.id] = index
 
@@ -95,7 +95,7 @@ class ContentRepository:
             label = (
                 t.title
                 if granularity in ("journey", "thread")
-                else f"Turn {first.sequence + 1} · {first.speaker}"
+                else f"Turn {first.sequence + 1} · {self.bundle.profile.human_label if first.speaker == 'human' else first.speaker}"
                 if granularity == "message"
                 else f"Exchange {self.exchange[first.id] + 1}"
                 if granularity == "exchange"
