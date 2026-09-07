@@ -51,6 +51,16 @@ The service runs one replica because branches and SSE jobs live in process memor
 
 Hosted admission defaults allow four simultaneous generations, 60 live generation attempts per hour across the running service, 20 per session per hour, and five active branches per session. Demo requests do not consume live allowances. The hourly limits can be changed with `MACHINA_LIVE_GENERATIONS_PER_HOUR` and `MACHINA_SESSION_GENERATIONS_PER_HOUR`; these in-memory limits reset when the service restarts and are not a provider billing cap.
 
+Run the complete deterministic browser suite against the hosted site with:
+
+```sh
+PLAYWRIGHT_BASE_URL=https://man-of-la-machina.com npm run test:e2e --prefix apps/web
+```
+
+Browser failure traces may contain viewed passages; keep them ignored and local.
+
+Deployment verification covered 29 passing backend tests, all four browser scenarios against the live domain, and a completed live provider continuation. Both custom domains have valid HTTPS certificates. Anonymous bucket requests return 403; private file, raw bundle, curator and OpenAPI paths return 404. A second GitHub push automatically deployed successfully with the same pinned content release.
+
 ## Infrastructure
 
 - Railway project: `dba7650e-7c6d-443a-817b-4ba75275efb2`

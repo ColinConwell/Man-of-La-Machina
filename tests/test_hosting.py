@@ -41,6 +41,8 @@ def test_hosted_boundary_and_private_files(bundle, monkeypatch):
         assert r.json()["mode"] == "hosted"
         assert "Secure" in r.headers["set-cookie"]
         assert r.headers["x-robots-tag"] == "noindex, nofollow, noarchive"
+        health = c.head("/api/v1/health")
+        assert health.status_code == 200 and health.content == b""
         for path in [
             "/api/v1/review",
             "/openapi.json",

@@ -212,7 +212,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
 
     api = "/api/v1"
 
-    @app.get(api + "/health")
+    @app.api_route(api + "/health", methods=["GET", "HEAD"])
     def health():
         return {"status": "ok", "content_version": repo.bundle.content_version}
 
@@ -659,7 +659,7 @@ def create_app(bundle: Bundle | None = None, provider_factory=get_provider):
     if dist.exists():
         app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
 
-        @app.get("/")
+        @app.api_route("/", methods=["GET", "HEAD"])
         def index():
             return FileResponse(dist / "index.html")
 
