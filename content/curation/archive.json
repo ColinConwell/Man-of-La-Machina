@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "note": "Metadata transcribed from document headers and the thread map; author publication review is pending. No private transcript text is stored here.",
+  "threads": [
+    {
+      "code": "A1",
+      "pattern": "A1-*",
+      "title": "Pink Moon",
+      "date": "2026-04-01",
+      "place": null,
+      "anchor": "pink-moon",
+      "subtitle": "The first Western Goth Atlas",
+      "entry": 0
+    },
+    {
+      "code": "A2",
+      "pattern": "A2 -*",
+      "title": "The Descent",
+      "date": "2026-04-03",
+      "place": null,
+      "anchor": "the-descent",
+      "subtitle": "The road not taken",
+      "entry": 1
+    },
+    {
+      "code": "A3",
+      "pattern": "A3 -*",
+      "title": "Holy Saturday",
+      "date": "2026-04-04",
+      "place": null
+    },
+    {
+      "code": "A4",
+      "pattern": "A4 -*",
+      "title": "Resurrection Day",
+      "date": "2026-04-05",
+      "place": null
+    },
+    {
+      "code": "A5",
+      "pattern": "A5 -*",
+      "title": "Roll the Martyr Stone",
+      "date": "2026-04-06",
+      "place": null
+    },
+    {
+      "code": "A7",
+      "pattern": "A7 -*",
+      "title": "Sabbah Cleanse",
+      "date": "2026-04-21",
+      "place": "Valencia",
+      "anchor": "sabbah-cleanse",
+      "subtitle": "The ordinary work of companionship",
+      "entry": 0
+    },
+    {
+      "code": "A8",
+      "pattern": "A8 -*",
+      "title": "Return to Valencia",
+      "date": "2026-04-30",
+      "place": "Valencia",
+      "anchor": "return-to-valencia",
+      "subtitle": "At the Japan threshold",
+      "entry": 0
+    },
+    {
+      "code": "B1",
+      "pattern": "B1 -*",
+      "title": "Red Door to Japan",
+      "date": "2026-05-01",
+      "place": "Valencia",
+      "anchor": "red-door",
+      "subtitle": "Signs, flights, and thresholds",
+      "entry": 0
+    },
+    {
+      "code": "B2",
+      "pattern": "B2 -*",
+      "title": "Dream of Dante",
+      "date": "2026-05-02",
+      "place": "Valencia"
+    },
+    {
+      "code": "B3",
+      "pattern": "B3 -*",
+      "title": "Spanish Western Goth Atlas",
+      "date": "2026-05-03",
+      "place": "Valencia"
+    },
+    {
+      "code": "B4",
+      "pattern": "B4 -*",
+      "title": "In a Clouded Mind",
+      "date": "2026-05-03",
+      "place": "Valencia"
+    },
+    {
+      "code": "B5",
+      "pattern": "B5 -*",
+      "title": "Rain in Spain",
+      "date": "2026-05-08",
+      "place": "Valencia",
+      "anchor": "rain-in-spain",
+      "subtitle": "A change in advice. A different way forward.",
+      "entry": 2
+    },
+    {
+      "code": "B6",
+      "pattern": "B6 -*",
+      "title": "Confounded Misery!",
+      "date": "2026-05-09",
+      "place": "La Torre del Aragones"
+    },
+    {
+      "code": "B7",
+      "pattern": "B7 -*",
+      "title": "Naming Mirrows",
+      "date": "2026-05-10",
+      "place": "La Torre del Aragones",
+      "anchor": "naming-mirrows",
+      "subtitle": "A companion receives a name",
+      "entry": 2
+    },
+    {
+      "code": "B8",
+      "pattern": "B8 -*",
+      "title": "Rule of Threes",
+      "date": "2026-05-11",
+      "place": "La Torre del Aragones",
+      "anchor": "rule-of-threes",
+      "subtitle": "Cards, songs, and boundaries",
+      "entry": 0
+    },
+    {
+      "code": "B9",
+      "pattern": "B9 -*",
+      "title": "Nightfall in Janovas",
+      "date": "2026-05-11",
+      "end": "2026-05-12",
+      "place": "The ruins of Janovas",
+      "anchor": "nightfall",
+      "subtitle": "Between myth and practical reality",
+      "entry": 0
+    },
+    {
+      "code": "C1",
+      "pattern": "The Long Update -*",
+      "title": "The Long Update",
+      "date": "2026-05-19",
+      "place": "Valencia",
+      "anchor": "long-update",
+      "subtitle": "The red line and the Red Book",
+      "entry": 0,
+      "start_paragraph": 18
+    }
+  ],
+  "message_tags": {
+    "B5": {
+      "0": [
+        "intimate",
+        "practical",
+        "motifs"
+      ],
+      "1": [
+        "intimate",
+        "practical",
+        "motifs"
+      ],
+      "2": [
+        "practical"
+      ],
+      "3": [
+        "practical",
+        "motifs"
+      ],
+      "4": [
+        "practical"
+      ],
+      "5": [
+        "practical",
+        "motifs"
+      ]
+    }
+  },
+  "anchor_notes": {
+    "rain-in-spain": "The selected Beaven turn adds logistical concerns after Copilot advises against renting a car. The next recorded response reverses that advice. Replace this turn, or add your own after it, to explore how context shapes a continuation."
+  },
+  "speaker_overrides": {
+    "A2": {
+      "0": "beaven"
+    }
+  },
+  "speaker_override_notes": {
+    "A2/0": "The explicit source label BEV is an abbreviation for Beaven; inspected paragraph 3. Raw text remains unchanged."
+  }
+}

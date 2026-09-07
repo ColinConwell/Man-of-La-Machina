@@ -39,3 +39,34 @@ download-data *args:
 # Remove the virtualenv
 clean-venv:
     rm -rf {{ venv }}
+
+# --- Interactive exploration ---
+
+# Build the ignored, private normalized archive and validation report
+content *args:
+    {{ venv_python }} -m packages.content.build {{ args }}
+
+# Install the frontend and test dependencies
+setup-web:
+    npm ci --prefix apps/web
+
+# Build and serve the complete local prototype at http://127.0.0.1:8000
+explore: content
+    npm run build --prefix apps/web
+    {{ venv_python }} -m apps.api.main
+
+# API and frontend development servers (run in separate terminals)
+api:
+    {{ venv_python }} -m apps.api.main
+
+web:
+    npm run dev --prefix apps/web
+
+# Domain, ingestion, provider, session, and API tests
+check:
+    {{ venv_python }} -m pytest -q
+    npm run build --prefix apps/web
+
+# Browser acceptance tests; run api and web first
+check-browser:
+    npm run test:e2e --prefix apps/web

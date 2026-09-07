@@ -1,0 +1,29 @@
+{
+  "id": "context-lab",
+  "version": 1,
+  "name": "Context Lab",
+  "status": "prototype",
+  "css_tokens": "themes/context-lab/tokens.css",
+  "typography": {
+    "body": "system-ui",
+    "display": "system-monospace",
+    "assets": [],
+    "licensing": "Uses browser/system fonts; no redistributed font files"
+  },
+  "icons": {
+    "family": "Lucide",
+    "variant": "outline",
+    "license": "ISC"
+  },
+  "transcript_renderer": "diagnostic",
+  "timeline_renderer": "chronological-or-ordinal",
+  "media_frame": "adjacent-document",
+  "motion_preset": "subtle-respects-reduced-motion",
+  "soundscape": {
+    "enabled": false
+  },
+  "color_schemes": [
+    "light"
+  ],
+  "contrast": "WCAG AA checks run against the prototype; see docs/VERIFICATION.md"
+}

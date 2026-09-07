@@ -18,6 +18,11 @@ dependencies = [
     "google-auth-httplib2>=0.2.0",
     "pathspec>=0.12.1",
     "rich>=13.9.0",
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "pydantic>=2.9,<3",
+    "httpx>=0.28,<1",
+    "python-dotenv>=1,<2",
 ]
 
 [project.scripts]
@@ -28,7 +33,21 @@ generate-config = "library.config:main"
 include = [
     "/library",
     "/scripts",
+    "/apps/api",
+    "/apps/__init__.py",
+    "/apps/web",
+    "/packages",
+    "/content/curation",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["library"]
+packages = ["library", "packages", "apps"]
+exclude = ["apps/web"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pytest-asyncio>=0.24,<2"]
+hosting = ["boto3>=1.36,<2"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"

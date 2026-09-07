@@ -4,7 +4,9 @@ config.json
 credentials/
 
 # Project
-context/*data/
+PLAN.md
+context
+manuscript
 
 # IDE + AI
 .vscode/
@@ -33,3 +35,16 @@ __pycache__/
 .ruff_cache/
 dist/
 *.egg-info/
+
+# Interactive prototype (private normalized corpus and visitor sessions)
+content/generated/
+content/curation/*.local.json
+node_modules/
+apps/web/dist/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+
+*.tsbuildinfo

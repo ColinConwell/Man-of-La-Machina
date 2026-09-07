@@ -1,0 +1,28 @@
+name: Application checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep documentary content out of Git
+        run: python3 scripts/check_public_tree.py
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.6.6"
+          python-version: "3.12"
+      - run: uv sync --frozen --extra dev --extra hosting
+      - name: Test with invented fixtures
+        run: uv run --no-sync pytest -q
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --prefix apps/web
+      - run: npm run build --prefix apps/web

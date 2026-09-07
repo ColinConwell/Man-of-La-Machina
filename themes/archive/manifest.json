@@ -1,0 +1,29 @@
+{
+  "id": "archive",
+  "version": 1,
+  "name": "Archive",
+  "status": "prototype",
+  "css_tokens": "themes/archive/tokens.css",
+  "typography": {
+    "body": "Georgia",
+    "display": "Georgia",
+    "assets": [],
+    "licensing": "Uses browser/system fonts; no redistributed font files"
+  },
+  "icons": {
+    "family": "Lucide",
+    "variant": "outline",
+    "license": "ISC"
+  },
+  "transcript_renderer": "editorial",
+  "timeline_renderer": "chronological-or-ordinal",
+  "media_frame": "adjacent-document",
+  "motion_preset": "subtle-respects-reduced-motion",
+  "soundscape": {
+    "enabled": false
+  },
+  "color_schemes": [
+    "light"
+  ],
+  "contrast": "WCAG AA checks run against the prototype; see docs/VERIFICATION.md"
+}
