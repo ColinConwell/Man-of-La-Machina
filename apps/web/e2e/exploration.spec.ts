@@ -13,9 +13,11 @@ test("complete-history, arbitrary boundaries, resolution, search and deep links"
   page,
 }) => {
   await page.goto("/");
-  const experience = await (await page.request.get("/api/v1/experience")).json();
+  const experience = await (
+    await page.request.get("/api/v1/experience")
+  ).json();
   await expect(page.locator(".threshold-copy")).toContainText(
-    experience.profile.human_label,
+    "Every conversation is a fork in the road",
   );
   await page
     .getByRole("button", { name: /From the beginning · April 1/ })
@@ -72,6 +74,15 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
   page,
 }) => {
   await enter(page);
+  await expect(
+    page.getByLabel("Replace the selected human turn"),
+  ).toBeDisabled();
+  const start = new URL(page.url()).searchParams.get("entry");
+  const next = await (
+    await page.request.get(`/api/v1/continuations/${start}`)
+  ).json();
+  // Replacing a human reply is still supported after entering on the agent advice.
+  await page.goto(`/?entry=${next[0].id}&anchor=rain-in-spain`);
   await page
     .getByLabel("Write your next turn", { exact: true })
     .fill("I want to rest tonight. What would keep the decision small?");

@@ -4,6 +4,8 @@ Setup, configuration, content preparation, and verification for the interactive 
 
 Personal-name substitutions are configured privately; see [editing aliases locally and on Railway](ALIASES.md).
 
+Beginning candidates and source demarcations have a separate [local annotation tool](BEGINNINGS.md), launched with `just curate`.
+
 ## Run the prototype
 
 From the repository root, with Python 3.11+ and Node.js 20.19+:
@@ -28,9 +30,9 @@ For development, run `just api` and `just web` in separate terminals and use **h
 
 ## Explore
 
-1. Choose April 1 or the May 8 *Rain in Spain* pause.
+1. Choose April 1, the May 8 *Rain in Spain* advice, or May 10 *Naming Mirrows*.
 2. Navigate through configured anchors, all threads, search, or the timeline. Change resolution from journey to individual message without changing the cutoff. Every normalized turn has an **Enter here** action. **List & range** offers date filtering and keyboard-accessible interval selection.
-3. In **Context**, select scene/thread/chapter/journey breadth, withhold tagged groups or individual messages, and optionally replace the selected Beaven turn. **More context controls** exposes the context beginning and saved presets.
+3. In **Context**, select scene/thread/chapter/journey breadth and see how many eligible turns fit the context budget. Withhold tagged groups or individual messages, and optionally replace a selected human turn. **More context controls** exposes the context beginning and saved presets.
 4. Write your human turn. **Preview context** shows the exact ordered material and SHA-256 receipt. **Generation settings** selects a provider and editable model ID. Demo mode is the initial default.
 5. Generate a streamed companion response. Continue for up to five exchanges, inspect any generated turn’s receipt, and open **Compare** or **Artifacts**.
 6. **Export branch & receipts** preserves your experiment as JSON. **Reset** erases the current server branch. Sessions expire after two hours and disappear on server shutdown; no visitor text is stored in browser local storage or an on-disk application log.

@@ -6,6 +6,8 @@ export function useBranch() {
   const state = useExperience();
   const [branch, setBranch] = useState<Branch | null>(null);
   const [preview, setPreview] = useState<Manifest | null>(null);
+  const [previewError, setPreviewError] = useState("");
+  const [previewRevision, setPreviewRevision] = useState(0);
   const [receipt, setReceipt] = useState<Manifest | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -16,7 +18,47 @@ export function useBranch() {
   const pendingBranch = useRef<Promise<Branch> | null>(null);
   useEffect(() => {
     setPreview(null);
-  }, [state.options, state.settings, state.text]);
+    setPreviewError("");
+    if (!state.entered || !state.entry || busy) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const activeBranch = branch?.id === state.branchId ? branch : null;
+        const result = await api<Manifest>(
+          activeBranch
+            ? `/branches/${activeBranch.id}/context/preview`
+            : "/context/preview",
+          {
+            method: "POST",
+            signal: controller.signal,
+            body: JSON.stringify({
+              ...(!activeBranch ? { entry_message_id: state.entry } : {}),
+              options: state.options,
+              settings: state.settings,
+              text: state.text,
+            }),
+          },
+        );
+        if (!controller.signal.aborted) setPreview(result);
+      } catch (e) {
+        if (!controller.signal.aborted) setPreviewError((e as Error).message);
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [
+    state.entered,
+    state.entry,
+    state.options,
+    state.settings,
+    state.text,
+    state.branchId,
+    branch,
+    busy,
+    previewRevision,
+  ]);
   useEffect(() => () => eventSource.current?.close(), []);
   async function ensure() {
     const s = useExperience.getState();
@@ -44,24 +86,8 @@ export function useBranch() {
     pendingBranch.current = promise;
     return promise;
   }
-  async function previewContext() {
-    setError("");
-    setBusy(true);
-    const current = epoch.current;
-    try {
-      const b = await ensure();
-      const s = useExperience.getState();
-      const m = await post<Manifest>(`/branches/${b.id}/context/preview`, {
-        text: s.text,
-        options: s.options,
-        settings: s.settings,
-      });
-      if (current === epoch.current) setPreview(m);
-    } catch (e) {
-      if (current === epoch.current) setError((e as Error).message);
-    } finally {
-      if (current === epoch.current) setBusy(false);
-    }
+  function previewContext() {
+    if (!preview) setPreviewRevision((n) => n + 1);
   }
   async function submit() {
     const s = useExperience.getState();
@@ -191,6 +217,7 @@ export function useBranch() {
   return {
     branch,
     preview,
+    previewError,
     receipt,
     setReceipt,
     busy,

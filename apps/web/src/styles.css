@@ -229,11 +229,32 @@ label > select {
   align-items: center;
   gap: 28px;
 }
+.theme-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+}
+.theme-size {
+  visibility: hidden;
+  padding: 8px 25px 8px 8px;
+  white-space: nowrap;
+}
+.theme-picker > svg {
+  position: absolute;
+  right: 5px;
+  pointer-events: none;
+}
 .theme-picker select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  appearance: none;
+  padding: 8px 25px 8px 8px;
   background: transparent;
   border: 0;
   font-size: 13px;
-  min-width: 115px;
+  min-width: 0;
   margin: 0;
 }
 .mode-indicator {
@@ -623,6 +644,18 @@ label > select {
 }
 .facet-group {
   margin: 30px 0 22px;
+}
+.context-coverage {
+  padding: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.context-coverage p {
+  margin: 4px 0;
+}
+.context-coverage small {
+  display: block;
+  color: var(--muted);
 }
 .facet-group h3 {
   font-size: 17px;
@@ -1378,10 +1411,9 @@ label > select {
     width: 100%;
     justify-content: space-between;
   }
+  .theme-picker,
   .theme-picker select {
-    padding: 0;
     font-size: 11px;
-    min-width: 100px;
   }
   .reset {
     font-size: 11px;

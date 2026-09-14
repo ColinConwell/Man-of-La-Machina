@@ -53,7 +53,7 @@ def test_real_slice_optional():
         if m.id
         == next(a.entry_message_id for a in b.anchors if a.id == "rain-in-spain")
     )
-    assert m.sequence == 2 and m.speaker == "human"
+    assert m.sequence == 1 and m.speaker == "mirrows"
     before = next(
         x for x in b.messages if x.thread_id == m.thread_id and x.sequence == 1
     )

@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Local beginning annotations</title>
+    <style nonce="__NONCE__">
+      body {
+        font: 16px system-ui;
+        margin: 24px;
+        color: #24241f;
+        background: #faf9f5;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 28px;
+      }
+      label {
+        display: block;
+        margin: 14px 0;
+      }
+      input:not([type="checkbox"]),
+      select,
+      textarea {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 8px;
+        font: inherit;
+      }
+      textarea {
+        min-height: 85px;
+      }
+      button {
+        padding: 9px 13px;
+        cursor: pointer;
+      }
+      article {
+        border-top: 1px solid #bbb;
+        padding: 16px 0;
+      }
+      article.selected {
+        border-left: 4px solid #995137;
+        padding-left: 14px;
+      }
+      pre {
+        white-space: pre-wrap;
+        font: 16px/1.6 Georgia;
+        overflow-wrap: anywhere;
+      }
+      small {
+        color: #555;
+      }
+      #status {
+        min-height: 24px;
+      }
+      aside {
+        position: sticky;
+        top: 16px;
+        align-self: start;
+      }
+      #boundary {
+        overflow-wrap: anywhere;
+      }
+      details {
+        margin: 12px 0;
+      }
+      @media (max-width: 750px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Beginning annotations · Local development</h1>
+    <p>
+      Review source turns and mark where an experience could begin. Private
+      notes stay in the ignored local catalog. This tool is excluded from the
+      website.
+    </p>
+    <p id="status" role="status"></p>
+    <main>
+      <aside>
+        <label>Candidate<select id="candidate"></select></label>
+        <button id="new">Add candidate at a turn</button>
+        <label>Public title<input id="title" maxlength="200" /></label>
+        <label
+          >Public description<textarea
+            id="description"
+            maxlength="1000"
+          ></textarea>
+        </label>
+        <label
+          ><input id="selected" type="checkbox" /> Offer as a beginning</label
+        >
+        <label
+          >Context begins<select id="mode">
+            <option value="inherit_history">Inherit eligible history</option>
+            <option value="begin_context_here">Begin here</option>
+            <option value="curated_context">Include curated context</option>
+          </select></label
+        >
+        <label
+          >Private annotation<textarea id="note" maxlength="12000"></textarea>
+        </label>
+        <p id="boundary"></p>
+        <label>Default beginning<select id="default"></select></label>
+        <button id="save">Save private catalog</button>
+        <button id="reload">Reload saved catalog</button>
+        <p>
+          <small
+            >Saving updates this local file only. Restart the local experience
+            API to apply the boundaries. Server publication is a separate
+            content configuration step.</small
+          >
+        </p>
+      </aside>
+      <section aria-label="Source material">
+        <label>Source conversation<select id="thread"></select></label>
+        <label
+          >Find within conversation<input id="search" type="search"
+        /></label>
+        <div id="messages"></div>
+      </section>
+    </main>
+    <script nonce="__NONCE__">
+      const $ = (id) => document.getElementById(id),
+        token = "__NONCE__";
+      let catalog,
+        revision,
+        threads = [],
+        entryThreads = {},
+        messages = [],
+        active = 0,
+        requestNumber = 0,
+        dirty = false;
+      async function api(path, method = "GET", body) {
+        const r = await fetch("/api/" + path, {
+          method,
+          headers: {
+            "X-Curator-Token": token,
+            "Content-Type": "application/json",
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const v = await r.json();
+        if (!r.ok)
+          throw Error(
+            typeof v.detail === "string" ? v.detail : "Invalid catalog fields",
+          );
+        return v;
+      }
+      function status(text) {
+        $("status").textContent = text;
+      }
+      function option(value, text) {
+        const el = document.createElement("option");
+        el.value = value;
+        el.textContent = text;
+        return el;
+      }
+      function defaults() {
+        const s = $("default");
+        s.replaceChildren(
+          ...catalog.candidates
+            .filter((c) => c.selected)
+            .map((c) => option(c.id, c.title)),
+        );
+        s.value = catalog.default_start;
+      }
+      function edit() {
+        if (!catalog) return;
+        const c = catalog.candidates[active];
+        Object.assign(c, {
+          title: $("title").value,
+          description: $("description").value,
+          selected: $("selected").checked,
+          context_mode: $("mode").value,
+          private_note: $("note").value,
+        });
+        dirty = true;
+        $("candidate").options[active].textContent = c.title;
+        defaults();
+      }
+      function form() {
+        const c = catalog.candidates[active];
+        $("title").value = c.title;
+        $("description").value = c.description;
+        $("selected").checked = c.selected;
+        $("mode").value = c.context_mode;
+        $("note").value = c.private_note;
+        $("boundary").textContent = "Boundary: " + c.entry_message_id;
+        defaults();
+        render();
+      }
+      function render() {
+        const query = $("search").value.toLowerCase();
+        $("messages").replaceChildren();
+        for (const m of messages) {
+          if (query && !m.body.toLowerCase().includes(query)) continue;
+          const article = document.createElement("article");
+          article.className =
+            m.id === catalog.candidates[active].entry_message_id
+              ? "selected"
+              : "";
+          const heading = document.createElement("h2");
+          heading.textContent = `Turn ${m.sequence + 1} · ${m.speaker}`;
+          const meta = document.createElement("small");
+          meta.textContent = m.locator;
+          const action = document.createElement("button");
+          action.textContent = "Begin at this turn";
+          action.onclick = () => {
+            const c = catalog.candidates[active];
+            if (c.anchor_id) {
+              if (entryThreads[c.entry_message_id] !== $("thread").value) {
+                status(
+                  "Add a separate candidate to mark another conversation.",
+                );
+                return;
+              }
+            }
+            c.entry_message_id = m.id;
+            dirty = true;
+            form();
+            status("Boundary selected. Save to keep this change.");
+          };
+          const detail = document.createElement("details");
+          detail.open = article.className === "selected";
+          const summary = document.createElement("summary");
+          summary.textContent = m.body.slice(0, 160);
+          const text = document.createElement("pre");
+          text.textContent = m.body;
+          detail.append(summary, text);
+          article.append(
+            heading,
+            meta,
+            document.createElement("br"),
+            action,
+            detail,
+          );
+          $("messages").append(article);
+        }
+      }
+      async function loadThread() {
+        const n = ++requestNumber;
+        messages = [];
+        render();
+        try {
+          const result = await api(
+            "threads/" + encodeURIComponent($("thread").value),
+          );
+          if (n !== requestNumber) return;
+          messages = result;
+          render();
+        } catch (e) {
+          status(e.message);
+        }
+      }
+      async function selectCandidate() {
+        active = Number($("candidate").value);
+        messages = [];
+        form();
+        const c = catalog.candidates[active];
+        $("thread").value = entryThreads[c.entry_message_id];
+        await loadThread();
+      }
+      async function reload() {
+        try {
+          const v = await api("catalog");
+          catalog = v.catalog;
+          revision = v.revision;
+          threads = v.threads;
+          entryThreads = v.entry_threads;
+          active = Math.min(active, catalog.candidates.length - 1);
+          $("candidate").replaceChildren(
+            ...catalog.candidates.map((c, i) => option(i, c.title)),
+          );
+          $("candidate").value = active;
+          $("thread").replaceChildren(
+            ...threads.map((t) =>
+              option(t.id, t.chapter_code + " · " + t.title),
+            ),
+          );
+          dirty = false;
+          await selectCandidate();
+          status("Loaded private candidate catalog.");
+        } catch (e) {
+          status(e.message);
+        }
+      }
+      for (const id of ["title", "description", "selected", "mode", "note"])
+        $(id).addEventListener("input", edit);
+      $("default").onchange = () => {
+        catalog.default_start = $("default").value;
+        dirty = true;
+      };
+      $("candidate").onchange = selectCandidate;
+      $("thread").onchange = loadThread;
+      $("search").oninput = render;
+      $("new").onclick = () => {
+        if (!messages.length) return;
+        const c = {
+          id: "candidate-" + crypto.randomUUID(),
+          title: "New beginning",
+          description: "",
+          entry_message_id: messages[0].id,
+          anchor_id: null,
+          selected: false,
+          context_mode: "inherit_history",
+          private_note: "",
+        };
+        catalog.candidates.push(c);
+        active = catalog.candidates.length - 1;
+        $("candidate").append(option(active, c.title));
+        $("candidate").value = active;
+        dirty = true;
+        form();
+      };
+      $("save").onclick = async () => {
+        const controls = [
+          ...document.querySelectorAll("input,select,textarea,button"),
+        ];
+        controls.forEach((el) => (el.disabled = true));
+        try {
+          edit();
+          const v = await api("catalog", "PUT", { revision, catalog });
+          revision = v.revision;
+          catalog = v.catalog;
+          dirty = false;
+          status("Saved privately. Restart the local experience API to apply.");
+        } catch (e) {
+          status(e.message);
+        } finally {
+          controls.forEach((el) => (el.disabled = false));
+        }
+      };
+      $("reload").onclick = () => {
+        if (!dirty || confirm("Discard unsaved changes and reload?")) reload();
+      };
+      window.addEventListener("beforeunload", (e) => {
+        if (dirty) {
+          e.preventDefault();
+          e.returnValue = "";
+        }
+      });
+      reload();
+    </script>
+  </body>
+</html>

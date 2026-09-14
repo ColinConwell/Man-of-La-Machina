@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from apps.api.main import create_app
 from packages.content.storage import decode_bundle, load_private_bundle
-from scripts.check_public_tree import forbidden_path, is_content_bundle
+from scripts.check_public_tree import forbidden_path, is_content_bundle, is_private_catalog
 from apps.api.limits import GenerationLimits
 from fastapi import HTTPException
 
@@ -50,6 +50,11 @@ def test_hosted_boundary_and_private_files(bundle, monkeypatch):
             "/content/generated/bundle.json",
             "/context/raw_data",
             "/docs",
+            "/curator",
+            "/api/catalog",
+            "/api/v1/beginnings/candidates",
+            "/content/curation/beginnings.local.json",
+            "/tools/curator/index.html",
         ]:
             assert c.get(path).status_code == 404
         assert (
@@ -80,6 +85,7 @@ def test_repository_content_guard():
     assert not forbidden_path("apps/api/main.py")
     assert is_content_bundle(b'{"messages":[],"content_version":"test"}')
     assert not is_content_bundle(b'{"threads":[],"note":"Metadata only"}')
+    assert is_private_catalog(b'{"candidates":[{"private_note":"Invented annotation"}]}')
 
 
 def test_hosted_generation_allowances_expire_and_do_not_grow_on_rejection():

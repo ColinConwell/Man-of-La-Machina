@@ -7,6 +7,7 @@ export function ContextWorkbench({
   experience,
   cutoff,
   manifest,
+  previewError,
   onPreview,
   busy,
   onRestart,
@@ -14,6 +15,7 @@ export function ContextWorkbench({
   experience: Experience;
   cutoff?: HistoricalMessage;
   manifest: Manifest | null;
+  previewError: string;
   onPreview: () => void;
   busy: boolean;
   onRestart: () => void;
@@ -22,6 +24,13 @@ export function ContextWorkbench({
     useExperience();
   const [preset, setPreset] = useState("");
   const [notice, setNotice] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
+  const descriptions = {
+    scene: `Up to ${experience.profile.policy.scene_messages} recent turns in this conversation.`,
+    thread: "This conversation up to the selected turn.",
+    chapter: "Conversations in this chapter up to the selected turn.",
+    journey: "The recorded journey up to the selected turn.",
+  };
   const presets = JSON.parse(
     localStorage.getItem("machina-presets") || "{}",
   ) as Record<string, typeof options>;
@@ -55,6 +64,59 @@ export function ContextWorkbench({
             </label>
           ))}
         </fieldset>
+        <div
+          className="context-coverage"
+          role="status"
+          aria-live="polite"
+          data-testid="context-coverage"
+        >
+          <strong>
+            {options.breadth[0].toUpperCase() + options.breadth.slice(1)}{" "}
+            context
+          </strong>
+          <small>{descriptions[options.breadth]}</small>
+          {manifest && manifest.options.breadth === options.breadth ? (
+            <>
+              <p>
+                {manifest.included_history_count} of{" "}
+                {manifest.eligible_history_count} eligible recorded turns
+                included.
+              </p>
+              {manifest.eligible_history_count >
+                manifest.included_history_count && (
+                <small>
+                  {manifest.eligible_history_count -
+                    manifest.included_history_count}{" "}
+                  earlier turns exceed the context budget. Wider scopes can
+                  produce the same context when that budget is full.
+                </small>
+              )}
+              {options.context_mode === "begin_context_here" && (
+                <small>History before this beginning is withheld.</small>
+              )}
+              {options.breadth === "scene" &&
+                (cutoff?.sequence ?? 0) <
+                  experience.profile.policy.scene_messages && (
+                  <small>
+                    Scene and Thread cover the same turns this early in the
+                    conversation.
+                  </small>
+                )}
+            </>
+          ) : (
+            <p>
+              {previewError ||
+                (busy
+                  ? "Generating with the selected context…"
+                  : "Updating context…")}
+            </p>
+          )}
+          {previewError && (
+            <button className="text-button" onClick={onPreview}>
+              Retry context preview
+            </button>
+          )}
+        </div>
         <div className="facet-group">
           <h3>Retain in context</h3>
           {experience.tags.map((t) => (
@@ -174,7 +236,10 @@ export function ContextWorkbench({
         <div className="preview-action">
           <button
             className="secondary"
-            onClick={onPreview}
+            onClick={() => {
+              setShowPreview(true);
+              onPreview();
+            }}
             disabled={busy || !cutoff}
           >
             <Eye size={16} /> Preview context
@@ -281,7 +346,7 @@ export function ContextWorkbench({
           </p>
         </details>
       </fieldset>
-      {manifest ? (
+      {manifest && showPreview ? (
         <ContextManifest manifest={manifest} preview />
       ) : (
         <div className="receipt-empty">

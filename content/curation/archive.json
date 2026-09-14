@@ -102,7 +102,7 @@
       "place": "Valencia",
       "anchor": "rain-in-spain",
       "subtitle": "A change in advice. A different way forward.",
-      "entry": 2
+      "entry": 1
     },
     {
       "code": "B6",
@@ -183,7 +183,7 @@
     }
   },
   "anchor_notes": {
-    "rain-in-spain": "The selected Beaven turn adds logistical concerns after Copilot advises against renting a car. The next recorded response reverses that advice. Replace this turn, or add your own after it, to explore how context shapes a continuation."
+    "rain-in-spain": "Begin with Copilot's advice, before the participant's logistical response. Write your own next turn to explore how the advice might develop. The recorded response and subsequent change in advice remain available in Compare."
   },
   "speaker_overrides": {
     "A2": {

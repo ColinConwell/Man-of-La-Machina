@@ -70,6 +70,7 @@ export interface Experience {
     enabled_themes: string[];
     default_theme: string;
     allowed_granularities: string[];
+    policy: { scene_messages: number };
   };
   content_version: string;
   mode: string;
@@ -130,6 +131,8 @@ export interface ManifestItem {
   tags: string[];
 }
 export interface Manifest {
+  eligible_history_count: number;
+  included_history_count: number;
   id: string;
   hash: string;
   content_version: string;

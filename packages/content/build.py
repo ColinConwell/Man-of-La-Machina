@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3
 from packages.content.importer import import_thread, extract_docx
 from packages.content.validation import validate, assert_valid
+from packages.content.beginnings import apply_catalog, default_catalog
 from packages.domain.models import *
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -201,6 +202,8 @@ def build(root=ROOT, slice_only=False, mode="curator", overlay_path=None):
         profile=profile.model_dump(),
         issues=issues,
     )
+    initial = Bundle.model_validate({**payload, "content_version": "pending"})
+    payload = apply_catalog(initial, default_catalog(initial)).model_dump(exclude={"content_version"})
     if overlay_path:
         overlay = json.loads(Path(overlay_path).read_text())
         # Explicit ID remapping supports reformatted documents. All references must be updated by the curator.

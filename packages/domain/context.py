@@ -220,6 +220,8 @@ def build_context(
         exclusions=tuple(exclusions),
         token_estimate=sum(i.token_estimate for i in ordered),
         max_input_tokens=policy.max_input_tokens,
+        eligible_history_count=len(history),
+        included_history_count=sum(i.origin == "historical" for i in ordered),
     )
     serial = {
         k: (

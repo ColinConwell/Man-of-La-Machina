@@ -70,3 +70,12 @@ check:
 # Browser acceptance tests; run api and web first
 check-browser:
     npm run test:e2e --prefix apps/web
+
+# Standalone local annotation tool; never part of the hosted app
+curate:
+    {{ venv_python }} -m tools.curator
+
+# Self-contained browser regression suite with invented source material
+check-controls:
+    npm run build --prefix apps/web
+    MACHINA_BROWSER_FIXTURE=1 npm run test:e2e --prefix apps/web

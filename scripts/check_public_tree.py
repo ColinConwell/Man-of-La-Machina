@@ -48,6 +48,18 @@ def is_alias_config(data: bytes) -> bool:
     )
 
 
+def is_private_catalog(data: bytes) -> bool:
+    try:
+        obj = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return False
+    return (
+        isinstance(obj, dict)
+        and isinstance(obj.get("candidates"), list)
+        and any(isinstance(c, dict) and "private_note" in c for c in obj["candidates"])
+    )
+
+
 def main():
     paths = (
         subprocess.check_output(["git", "ls-files", "--cached", "-z"])
@@ -82,6 +94,8 @@ def main():
             problems.append(name + ": transcript or branch bundle")
         if is_alias_config(data):
             problems.append(name + ": private alias configuration")
+        if is_private_catalog(data):
+            problems.append(name + ": private beginning catalog")
         if re.search(
             rb"(?:sk-proj-|sk-ant-api\d+-|ghp_|pk1_|sk1_)[A-Za-z0-9_-]{24,}", data
         ):

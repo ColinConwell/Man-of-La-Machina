@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { RotateCcw, X, ArrowUpRight, PanelRightOpen } from "lucide-react";
+import {
+  RotateCcw,
+  X,
+  ArrowUpRight,
+  PanelRightOpen,
+  ChevronDown,
+} from "lucide-react";
 import { api, dateLabel } from "./api";
 import type {
   Anchor,
@@ -115,6 +121,10 @@ export default function App() {
         <div className="header-actions">
           <label className="theme-picker">
             <span className="sr-only">Theme</span>
+            <span className="theme-size" aria-hidden="true">
+              {names[s.theme] || s.theme}
+            </span>
+            <ChevronDown size={13} aria-hidden="true" />
             <select
               aria-label="Theme"
               value={s.theme}
@@ -139,11 +149,15 @@ export default function App() {
           <span className="mode-indicator">
             <i />{" "}
             {exp.data?.mode === "hosted"
-              ? "Exploration prototype"
+              ? "Exploration Prototype"
               : exp.data?.mode === "curator"
-                ? "Local curator"
+                ? "Local Curator"
                 : "Exhibition"}{" "}
-            / {s.settings.provider === "demo" ? "Demo" : s.settings.provider}
+            /{" "}
+            {s.settings.provider === "demo"
+              ? "Demo"
+              : exp.data?.providers.find((p) => p.id === s.settings.provider)
+                  ?.name || s.settings.provider}
           </span>
         </div>
       </header>
@@ -308,6 +322,7 @@ export default function App() {
                 experience={exp.data!}
                 cutoff={cutoff}
                 manifest={branch.preview}
+                previewError={branch.previewError}
                 onPreview={branch.previewContext}
                 busy={branch.busy}
                 onRestart={restart}

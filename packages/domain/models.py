@@ -284,6 +284,8 @@ class Manifest(Frozen):
     exclusions: tuple[dict, ...]
     token_estimate: int
     max_input_tokens: int
+    eligible_history_count: int = 0
+    included_history_count: int = 0
     token_estimator: str = "utf8-bytes-upper-bound-v1"
 
 
@@ -291,6 +293,10 @@ class PreviewRequest(Frozen):
     text: str = Field(default="", max_length=24000)
     options: ContextOptions = ContextOptions()
     settings: GenerationSettings = GenerationSettings()
+
+
+class EntryPreviewRequest(PreviewRequest):
+    entry_message_id: str
 
 
 class CreateBranch(Frozen):

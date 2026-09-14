@@ -11,15 +11,11 @@ export function ExperienceThreshold({
   return (
     <main id="main-content" tabIndex={-1} className="threshold">
       <div className="threshold-copy">
-        <h1>
-          Every conversation
-          <br />
-          could turn another way.
-        </h1>
+        <h1>Every conversation is a fork in the road</h1>
         <p>
-          A counterfactual documentary drawn from the conversations of{" "}
-          {experience.profile.human_label} with Copilot, the companion he came
-          to call Mirrows.
+          An interactive exploration of one human's journey, the chatbot that
+          guided it, and the power of language in shaping the journeys of
+          tomorrow.
         </p>
         <p>
           Enter the record. Choose what the model knows. Write the next human

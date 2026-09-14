@@ -32,6 +32,7 @@ from apps.api.contracts import (
 from packages.domain.repository import ContentRepository
 from packages.content.storage import load_private_bundle
 from packages.content.aliases import AliasRewriter, load_aliases
+from packages.content.beginnings import apply_catalog, load_catalog
 from apps.api.limits import GenerationLimits
 from packages.domain.context import build_context
 from packages.domain.providers import (
@@ -128,6 +129,8 @@ def create_app(
             os.getenv("MACHINA_BUNDLE", str(ROOT / "content/generated/bundle.json"))
         )
     )
+    if not bundle:
+        repo = ContentRepository(apply_catalog(repo.bundle, load_catalog(repo.bundle)))
     if not bundle and os.getenv("MACHINA_PROFILE"):
         configured = Profile.model_validate_json(
             Path(os.environ["MACHINA_PROFILE"]).read_text()
@@ -439,6 +442,19 @@ def create_app(
             payload.options,
             payload.settings,
             b["messages"],
+            aliases.text(payload.text),
+        )
+
+    @app.post(api + "/context/preview", response_model=Manifest)
+    def entry_preview(payload: EntryPreviewRequest):
+        message(payload.entry_message_id)
+        validate_settings(payload.settings)
+        return build_context(
+            repo.bundle,
+            payload.entry_message_id,
+            payload.options,
+            payload.settings,
+            [],
             aliases.text(payload.text),
         )
 
