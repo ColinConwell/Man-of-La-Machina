@@ -33,6 +33,11 @@ from packages.domain.repository import ContentRepository
 from packages.content.storage import load_private_bundle
 from packages.content.aliases import AliasRewriter, load_aliases
 from packages.content.beginnings import apply_catalog, load_catalog
+from packages.content.editorial import (
+    EditorialRelease,
+    load_editorial,
+    reading_document,
+)
 from apps.api.limits import GenerationLimits
 from packages.domain.context import build_context
 from packages.domain.providers import (
@@ -106,6 +111,7 @@ def create_app(
     bundle: Bundle | None = None,
     provider_factory=get_provider,
     aliases: AliasRewriter | None = None,
+    editorial: EditorialRelease | None = None,
 ):
     @asynccontextmanager
     async def lifespan(app):
@@ -143,6 +149,28 @@ def create_app(
         raise ValueError("Public mode requires an approved public bundle")
     hosted = os.getenv("MACHINA_DEPLOYMENT") == "hosted"
     aliases = aliases if aliases is not None else load_aliases(required=hosted)
+    # Injected test archives never read the owner's private manuscript.
+    editorial = (
+        editorial
+        if editorial is not None
+        else load_editorial()
+        if bundle is None
+        else None
+    )
+    reading = {
+        name: reading_document(document, aliases)
+        for name in ("about", "essay")
+        if editorial and (document := getattr(editorial, name))
+    }
+
+    def editorial_flags():
+        return {
+            "about": "about" in reading,
+            "essay": "essay" in reading
+            and os.getenv("MACHINA_ESSAY_ENABLED", "false").lower()
+            in {"true", "1", "yes"},
+        }
+
     repo = ContentRepository(aliases.bundle(repo.bundle))
     sessions = Sessions(repo.bundle.profile.session_ttl_seconds)
     generation_limits = GenerationLimits(
@@ -266,7 +294,14 @@ def create_app(
             available_documents=sum(
                 d.origin == "document" for d in repo.bundle.documents
             ),
+            editorial=editorial_flags(),
         )
+
+    @app.get(api + "/editorial/{page}")
+    def editorial_page(page: str):
+        if not editorial_flags().get(page, False):
+            raise HTTPException(404, "This reading is unavailable")
+        return reading[page]
 
     @app.get(api + "/threads", response_model=list[ThreadSummary])
     def threads():

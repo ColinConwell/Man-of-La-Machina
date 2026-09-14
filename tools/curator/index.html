@@ -3,84 +3,232 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Local beginning annotations</title>
+    <title>Annotate + Demarcate</title>
     <style nonce="__NONCE__">
+      :root {
+        color-scheme: light;
+        --ink: #292820;
+        --muted: #66645a;
+        --line: #d8d5c9;
+        --accent: #91472f;
+        --paper: #fffefa;
+      }
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font: 16px system-ui;
-        margin: 24px;
-        color: #24241f;
-        background: #faf9f5;
+        font: 14px/1.6 system-ui;
+        margin: 0;
+        padding: 32px 40px;
+        color: var(--ink);
+        background: #f2f0e8;
       }
       h1 {
-        font-size: 24px;
+        font: 500 32px/1.25 Georgia;
+        margin: 0 0 10px;
+      }
+      body > p {
+        color: var(--muted);
+        max-width: 90ch;
       }
       main {
         display: grid;
-        grid-template-columns: 340px 1fr;
+        grid-template-columns: 320px minmax(0, 1fr);
         gap: 28px;
+        align-items: start;
+      }
+      aside,
+      .source-panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px;
+      }
+      aside {
+        position: sticky;
+        top: 20px;
+        max-height: calc(100vh - 40px);
+        overflow: auto;
       }
       label {
         display: block;
-        margin: 14px 0;
+        margin: 0 0 16px;
+        font-weight: 600;
+        font-size: 12px;
+        letter-spacing: 0.02em;
       }
       input:not([type="checkbox"]),
       select,
       textarea {
         display: block;
-        box-sizing: border-box;
         width: 100%;
-        padding: 8px;
-        font: inherit;
+        padding: 9px 10px;
+        margin-top: 6px;
+        font: 400 14px/1.4 system-ui;
+        color: var(--ink);
+        background: #fff;
+        border: 1px solid #c7c3b7;
+        border-radius: 5px;
       }
       textarea {
         min-height: 85px;
+        resize: vertical;
+      }
+      input[type="checkbox"] {
+        accent-color: var(--accent);
       }
       button {
-        padding: 9px 13px;
+        padding: 9px 12px;
         cursor: pointer;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        background: #f8f6ef;
+        color: var(--ink);
+        font: 500 12px/1.4 system-ui;
+      }
+      button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      #new {
+        margin: 0 0 20px;
+      }
+      #save {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+        margin-bottom: 8px;
+      }
+      #boundary {
+        font:
+          11px/1.6 ui-monospace,
+          monospace;
+        overflow-wrap: anywhere;
+        padding: 10px;
+        background: #f3f1e9;
+        border-radius: 5px;
       }
       article {
-        border-top: 1px solid #bbb;
-        padding: 16px 0;
+        border-top: 1px solid var(--line);
+        padding: 20px 0;
       }
       article.selected {
-        border-left: 4px solid #995137;
-        padding-left: 14px;
+        border-left: 3px solid var(--accent);
+        padding-left: 18px;
+        background: linear-gradient(90deg, #f8f1e8, transparent);
+      }
+      article h2 {
+        font: 500 21px/1.4 Georgia;
+        margin: 0 0 4px;
+      }
+      article > small {
+        font:
+          10px/1.5 ui-monospace,
+          monospace;
+      }
+      article > button {
+        margin: 10px 0;
       }
       pre {
         white-space: pre-wrap;
-        font: 16px/1.6 Georgia;
+        font: 17px/1.8 Georgia;
         overflow-wrap: anywhere;
       }
       small {
-        color: #555;
-      }
-      #status {
-        min-height: 24px;
-      }
-      aside {
-        position: sticky;
-        top: 16px;
-        align-self: start;
-      }
-      #boundary {
-        overflow-wrap: anywhere;
+        color: var(--muted);
       }
       details {
         margin: 12px 0;
       }
-      @media (max-width: 750px) {
+      summary {
+        cursor: pointer;
+      }
+      #status {
+        min-height: 28px;
+        margin: 18px 0;
+        color: var(--accent);
+      }
+      .source-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      #source-status {
+        display: block;
+        min-height: 24px;
+      }
+      dialog {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+        color: var(--ink);
+        max-width: 880px;
+        width: calc(100vw - 32px);
+        max-height: 88vh;
+        padding: 28px;
+        box-shadow: 0 12px 50px #0003;
+      }
+      dialog::backdrop {
+        background: #24201888;
+      }
+      dialog header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      dialog h2 {
+        font: 500 24px Georgia;
+        margin: 0;
+      }
+      .preview-note {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      #source-paragraphs p {
+        display: grid;
+        grid-template-columns: 50px minmax(0, 1fr);
+        gap: 12px;
+        font: 17px/1.7 Georgia;
+        white-space: pre-wrap;
+      }
+      #source-paragraphs small {
+        font:
+          11px/1.7 ui-monospace,
+          monospace;
+      }
+      @media (max-width: 850px) {
+        body {
+          padding: 20px;
+        }
         main {
           grid-template-columns: 1fr;
         }
         aside {
           position: static;
+          max-height: none;
+        }
+        h1 {
+          font-size: 26px;
+        }
+        aside,
+        .source-panel {
+          padding: 18px;
         }
       }
     </style>
   </head>
   <body>
-    <h1>Beginning annotations · Local development</h1>
+    <h1>Annotate + Demarcate • Local Development</h1>
     <p>
       Review source turns and mark where an experience could begin. Private
       notes stay in the ignored local catalog. This tool is excluded from the
@@ -90,31 +238,31 @@
     <main>
       <aside>
         <label>Candidate<select id="candidate"></select></label>
-        <button id="new">Add candidate at a turn</button>
-        <label>Public title<input id="title" maxlength="200" /></label>
+        <button id="new">Add Candidate at a Turn</button>
+        <label>Public Title<input id="title" maxlength="200" /></label>
         <label
-          >Public description<textarea
+          >Public Description<textarea
             id="description"
             maxlength="1000"
           ></textarea>
         </label>
         <label
-          ><input id="selected" type="checkbox" /> Offer as a beginning</label
+          ><input id="selected" type="checkbox" /> Offer as a Beginning</label
         >
         <label
-          >Context begins<select id="mode">
-            <option value="inherit_history">Inherit eligible history</option>
-            <option value="begin_context_here">Begin here</option>
-            <option value="curated_context">Include curated context</option>
+          >Context Begins<select id="mode">
+            <option value="inherit_history">Inherit Eligible History</option>
+            <option value="begin_context_here">Begin Here</option>
+            <option value="curated_context">Include Curated Context</option>
           </select></label
         >
         <label
-          >Private annotation<textarea id="note" maxlength="12000"></textarea>
+          >Private Annotation<textarea id="note" maxlength="12000"></textarea>
         </label>
         <p id="boundary"></p>
-        <label>Default beginning<select id="default"></select></label>
-        <button id="save">Save private catalog</button>
-        <button id="reload">Reload saved catalog</button>
+        <label>Default Beginning<select id="default"></select></label>
+        <button id="save">Save Private Catalog</button>
+        <button id="reload">Reload Saved Catalog</button>
         <p>
           <small
             >Saving updates this local file only. Restart the local experience
@@ -123,14 +271,31 @@
           >
         </p>
       </aside>
-      <section aria-label="Source material">
-        <label>Source conversation<select id="thread"></select></label>
+      <section aria-label="Source Material" class="source-panel">
+        <label>Source Conversation<select id="thread"></select></label>
         <label
-          >Find within conversation<input id="search" type="search"
+          >Find Within Conversation<input id="search" type="search"
         /></label>
+        <div class="source-actions" aria-label="Source Actions">
+          <button id="preview-source">Preview in App</button>
+          <button id="reveal-source">Reveal in Finder</button>
+          <button id="open-source">Open Original</button>
+        </div>
+        <small id="source-status"></small>
         <div id="messages"></div>
       </section>
     </main>
+    <dialog id="source-preview" aria-labelledby="source-preview-title">
+      <header>
+        <h2 id="source-preview-title">Source Preview</h2>
+        <button id="close-preview">Close Preview</button>
+      </header>
+      <p class="preview-note">
+        A text preview in source paragraph order, with personal names
+        pseudonymized. Open Original to see the original document layout.
+      </p>
+      <div id="source-paragraphs"></div>
+    </dialog>
     <script nonce="__NONCE__">
       const $ = (id) => document.getElementById(id),
         token = "__NONCE__";
@@ -212,11 +377,11 @@
               ? "selected"
               : "";
           const heading = document.createElement("h2");
-          heading.textContent = `Turn ${m.sequence + 1} · ${m.speaker}`;
+          heading.textContent = `Turn ${m.sequence + 1} · ${m.speaker === "human" ? "Human" : m.speaker === "mirrows" ? "Copilot / Mirrows" : "Unresolved Speaker"}`;
           const meta = document.createElement("small");
           meta.textContent = m.locator;
           const action = document.createElement("button");
-          action.textContent = "Begin at this turn";
+          action.textContent = "Begin at This Turn";
           action.onclick = () => {
             const c = catalog.candidates[active];
             if (c.anchor_id) {
@@ -252,6 +417,7 @@
       async function loadThread() {
         const n = ++requestNumber;
         messages = [];
+        $("source-status").textContent = "";
         render();
         try {
           const result = await api(
@@ -304,12 +470,67 @@
       };
       $("candidate").onchange = selectCandidate;
       $("thread").onchange = loadThread;
+      $("close-preview").onclick = () => $("source-preview").close();
+      $("preview-source").onclick = async () => {
+        const tid = $("thread").value;
+        try {
+          const source = await api(
+            "threads/" + encodeURIComponent(tid) + "/source",
+          );
+          if (tid !== $("thread").value) return;
+          $("source-preview-title").textContent = source.title;
+          $("source-paragraphs").replaceChildren(
+            ...source.paragraphs.map((item) => {
+              const p = document.createElement("p");
+              p.id = "source-p" + item.index;
+              const label = document.createElement("small");
+              label.textContent = "¶ " + item.index;
+              const text = document.createElement("span");
+              text.textContent = item.text;
+              p.append(label, text);
+              return p;
+            }),
+          );
+          $("source-preview").showModal();
+          const boundary =
+            catalog.candidates[active].entry_message_id.match(/-p(\d+)$/);
+          if (boundary)
+            $("source-p" + boundary[1])?.scrollIntoView({ block: "center" });
+          $("source-status").textContent = source.matches_archive
+            ? ""
+            : "This source has changed since import; check paragraph boundaries before saving.";
+        } catch (e) {
+          $("source-status").textContent = e.message;
+        }
+      };
+      for (const [id, action] of [
+        ["reveal-source", "reveal"],
+        ["open-source", "open"],
+      ]) {
+        $(id).onclick = async () => {
+          try {
+            await api(
+              "threads/" +
+                encodeURIComponent($("thread").value) +
+                "/source/" +
+                action,
+              "POST",
+            );
+            $("source-status").textContent =
+              action === "reveal"
+                ? "Revealed in Finder."
+                : "Opened in the default document app.";
+          } catch (e) {
+            $("source-status").textContent = e.message;
+          }
+        };
+      }
       $("search").oninput = render;
       $("new").onclick = () => {
         if (!messages.length) return;
         const c = {
           id: "candidate-" + crypto.randomUUID(),
-          title: "New beginning",
+          title: "New Beginning",
           description: "",
           entry_message_id: messages[0].id,
           anchor_id: null,

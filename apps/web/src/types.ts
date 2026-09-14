@@ -84,6 +84,7 @@ export interface Experience {
   tags: { id: string; label: string }[];
   available_summaries: number;
   available_documents: number;
+  editorial: { about?: boolean; essay?: boolean };
 }
 export interface Position {
   message_id: string;

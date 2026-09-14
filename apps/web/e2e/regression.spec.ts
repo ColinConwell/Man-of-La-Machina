@@ -173,30 +173,41 @@ test("local annotation tool edits, saves, and reloads a private boundary", async
   await expect(page.getByRole("status")).toContainText(
     "Loaded private candidate catalog",
   );
+  await expect(
+    page.getByRole("heading", {
+      name: "Annotate + Demarcate • Local Development",
+    }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Preview in App" }).click();
+  await expect(page.getByRole("dialog")).toContainText(
+    "Invented original source paragraph.",
+  );
+  await page.getByRole("button", { name: "Close Preview" }).click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
   await page
     .getByRole("combobox", { name: "Candidate", exact: true })
     .selectOption("2");
-  await expect(page.getByLabel("Source conversation")).toHaveValue("thread-b5");
+  await expect(page.getByLabel("Source Conversation")).toHaveValue("thread-b5");
   await page
-    .getByLabel("Private annotation")
+    .getByLabel("Private Annotation")
     .fill("An invented browser annotation.");
   await page
     .locator("article")
     .nth(3)
-    .getByRole("button", { name: "Begin at this turn" })
+    .getByRole("button", { name: "Begin at This Turn" })
     .click();
   await expect(page.locator("#boundary")).toContainText("test-2-3");
-  await page.getByRole("button", { name: "Save private catalog" }).click();
+  await page.getByRole("button", { name: "Save Private Catalog" }).click();
   await expect(page.getByRole("status")).toContainText("Saved privately");
   await page.reload();
   await page
     .getByRole("combobox", { name: "Candidate", exact: true })
     .selectOption("2");
-  await expect(page.getByLabel("Private annotation")).toHaveValue(
+  await expect(page.getByLabel("Private Annotation")).toHaveValue(
     "An invented browser annotation.",
   );
   await expect(page.locator("#boundary")).toContainText("test-2-3");
-  await page.getByLabel("Find within conversation").fill("turn 7:");
+  await page.getByLabel("Find Within Conversation").fill("turn 7:");
   await expect(page.locator("article")).toHaveCount(1);
   await expect(page.locator("article")).toContainText("Turn 8");
   // Main experience never mounts development routes.

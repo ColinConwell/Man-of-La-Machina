@@ -17,6 +17,10 @@ jobs:
           version: "0.6.6"
           python-version: "3.12"
       - run: uv sync --frozen --extra dev --extra hosting
+      - name: Install Pandoc for editable-manuscript conversion tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc
       - name: Test with invented fixtures
         run: uv run --no-sync pytest -q
       - uses: actions/setup-node@v4

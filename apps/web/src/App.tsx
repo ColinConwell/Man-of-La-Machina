@@ -26,6 +26,12 @@ import { BranchComposer, BranchConversation } from "./features/BranchComposer";
 import { ContinuationComparison } from "./features/ContinuationComparison";
 import { ArtifactViewer } from "./features/ArtifactViewer";
 import { TimelineExplorer } from "./features/TimelineExplorer";
+import { EditorialReader } from "./features/EditorialReader";
+type Page = "explore" | "about" | "essay";
+function currentPage(): Page {
+  const value = new URLSearchParams(location.search).get("page");
+  return value === "about" || value === "essay" ? value : "explore";
+}
 const names: Record<string, string> = {
   archive: "Archive",
   "western-gothic": "Western Gothic",
@@ -33,6 +39,33 @@ const names: Record<string, string> = {
 };
 export default function App() {
   const s = useExperience();
+  const [page, setPage] = useState<Page>(currentPage);
+  const pageURL = (next: Page) => {
+    const url = new URL(location.href);
+    url.hash = "";
+    if (next === "explore") url.searchParams.delete("page");
+    else url.searchParams.set("page", next);
+    return url.pathname + url.search;
+  };
+  function openPage(next: Page) {
+    history.pushState(null, "", pageURL(next));
+    setPage(next);
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() =>
+      document.getElementById("main-content")?.focus(),
+    );
+  }
+  useEffect(() => {
+    const onPop = () => setPage(currentPage());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  useEffect(() => {
+    document.title =
+      page === "explore"
+        ? "Man of La Machina"
+        : `${page === "about" ? "About" : "Read the Essay"} · Man of La Machina`;
+  }, [page]);
   const readingSurface = useRef<HTMLDivElement>(null);
   const transcriptOffset = useRef(0);
   function goToTab(tab: string) {
@@ -99,6 +132,7 @@ export default function App() {
       s.setEntered(false);
       s.setText("");
       history.replaceState(null, "", location.pathname);
+      setPage("explore");
     } catch {
       /* Error shown above. */
     }
@@ -112,7 +146,7 @@ export default function App() {
   return (
     <>
       <a href="#main-content" className="skip-link">
-        Skip to conversation
+        Skip to content
       </a>
       <header className="masthead">
         <button className="wordmark" onClick={resetAll}>
@@ -161,6 +195,37 @@ export default function App() {
           </span>
         </div>
       </header>
+      <nav className="primary-nav" aria-label="Primary navigation">
+        {(
+          [
+            ["explore", "Explore", true],
+            ["about", "About", exp.data?.editorial?.about],
+            ["essay", "Read the Essay", exp.data?.editorial?.essay],
+          ] as const
+        )
+          .filter(([, , enabled]) => enabled)
+          .map(([target, label]) => (
+            <a
+              key={target}
+              href={pageURL(target)}
+              aria-current={page === target ? "page" : undefined}
+              onClick={(event) => {
+                if (
+                  event.button === 0 &&
+                  !event.metaKey &&
+                  !event.ctrlKey &&
+                  !event.shiftKey &&
+                  !event.altKey
+                ) {
+                  event.preventDefault();
+                  openPage(target);
+                }
+              }}
+            >
+              {label}
+            </a>
+          ))}
+      </nav>
       {exp.isPending ? (
         <main className="loading">
           <h1>Opening the archive…</h1>
@@ -171,6 +236,11 @@ export default function App() {
           <p>{exp.error.message}</p>
           <button onClick={() => exp.refetch()}>Try again</button>
         </main>
+      ) : page !== "explore" ? (
+        <EditorialReader
+          page={page}
+          available={!!exp.data?.editorial?.[page]}
+        />
       ) : !s.entered ? (
         <ExperienceThreshold experience={exp.data!} onSelect={select} />
       ) : (

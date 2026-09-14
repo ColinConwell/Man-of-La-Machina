@@ -4,7 +4,13 @@ Setup, configuration, content preparation, and verification for the interactive 
 
 Personal-name substitutions are configured privately; see [editing aliases locally and on Railway](ALIASES.md).
 
+The [About and Essay guide](EDITORIAL.md) covers editable TeX/BibTeX sources, web conversion, private publication, and the backend essay-visibility toggle.
+
 Beginning candidates and source demarcations have a separate [local annotation tool](BEGINNINGS.md), launched with `just curate`.
+
+## Research and Change History
+
+For agents and contributors: add research or discussion on a high-level topic as a numbered, dated report in [reports/](../reports/README.md), and update its index. Separate evidence, interpretation, proposals, and implemented behavior. Keep private manuscript and transcript excerpts out of committed reports. After implementing changes, add a new timestamped entry to the root [CHANGELOG.md](../CHANGELOG.md), describing behavior, verification, and material limitations. Do not silently revise earlier historical entries.
 
 ## Run the prototype
 

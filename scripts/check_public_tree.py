@@ -16,7 +16,18 @@ def forbidden_path(name: str) -> bool:
         or (p.name.startswith(".env") and p.name != ".env.example")
         or ".local." in p.name
         or p.suffix.lower()
-        in {".docx", ".doc", ".pdf", ".sqlite", ".db", ".mp3", ".wav", ".mp4"}
+        in {
+            ".docx",
+            ".doc",
+            ".pdf",
+            ".tex",
+            ".bib",
+            ".sqlite",
+            ".db",
+            ".mp3",
+            ".wav",
+            ".mp4",
+        }
         or any(part in {"test-results", "playwright-report"} for part in p.parts)
     )
 
@@ -60,6 +71,17 @@ def is_private_catalog(data: bytes) -> bool:
     )
 
 
+def is_editorial_release(data: bytes) -> bool:
+    try:
+        obj = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return False
+    return isinstance(obj, dict) and any(
+        isinstance(obj.get(k), dict) and "body_html" in obj[k]
+        for k in ("about", "essay")
+    )
+
+
 def main():
     paths = (
         subprocess.check_output(["git", "ls-files", "--cached", "-z"])
@@ -96,6 +118,8 @@ def main():
             problems.append(name + ": private alias configuration")
         if is_private_catalog(data):
             problems.append(name + ": private beginning catalog")
+        if is_editorial_release(data):
+            problems.append(name + ": private editorial release")
         if re.search(
             rb"(?:sk-proj-|sk-ant-api\d+-|ghp_|pk1_|sk1_)[A-Za-z0-9_-]{24,}", data
         ):

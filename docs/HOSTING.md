@@ -4,6 +4,8 @@ The application is hosted at `https://man-of-la-machina.com`, with `www.man-of-l
 
 ## Code and content are separate releases
 
+About and Essay have a separate private editorial release and an essay-visibility environment switch. See [editable readings and deployment controls](EDITORIAL.md).
+
 GitHub contains application code, schemas, invented test fixtures, curation metadata, theme tokens and deployment configuration. It must never contain source DOCX/PDF/media, normalized transcript bundles, search databases, exported branches, API credentials or screenshots showing private passages.
 
 The normalized archive lives in the private Railway bucket `private-transcripts`. Anonymous object access is denied. The application authenticates to the bucket on server startup and verifies the object's SHA-256 against the pinned release before parsing it. It does not expose a bucket URL, presigned download, raw bundle endpoint or raw extraction field. Browser requests retrieve the normalized passages needed by the experience. A visitor can read/copy displayed passages; server-side storage is not access control over text that the website displays.

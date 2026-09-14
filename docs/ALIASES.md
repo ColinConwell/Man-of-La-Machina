@@ -27,6 +27,8 @@ Hosted startup fails if the alias configuration is missing or invalid, and error
 
 ## What is covered
 
+About and Essay use the same aliases at the server boundary. Their source files and TeX name-macro mapping remain private; see [editorial readings](EDITORIAL.md). Changes to a name in the shared alias configuration apply to these readings after restarting the service, without rebuilding the essay. HTML replacements are escaped, and citation targets remain linked.
+
 Substitution covers transcript text, source filenames and credits, annotations, titles, accessibility descriptions, profile text, search results, and model context. Human speakers use a generic role identifier. Visitor input is aliased before it enters context or saved branch messages. Provider output passes through a streaming filter that retains enough lookahead to handle names split across chunks; interrupted name fragments are withheld. Provider metadata and displayed errors are also filtered.
 
 Message hashes and the served content version describe the aliased projection. Context and transport receipts describe the material actually sent to the provider. Exports contain aliased material, with no reverse mapping. The original source hashes still identify the private documentary files.

@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   testMatch: process.env.MACHINA_BROWSER_FIXTURE
-    ? "regression.spec.ts"
+    ? ["regression.spec.ts", "editorial.spec.ts"]
     : "exploration.spec.ts",
   webServer: process.env.MACHINA_BROWSER_FIXTURE
     ? [

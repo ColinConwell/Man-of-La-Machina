@@ -47,6 +47,7 @@ class ExperienceResponse(Frozen):
     tags: tuple[dict[str, str], ...]
     available_summaries: int
     available_documents: int
+    editorial: dict[str, bool] = Field(default_factory=dict)
 
 
 class Position(Frozen):

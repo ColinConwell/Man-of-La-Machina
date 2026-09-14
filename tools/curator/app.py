@@ -1,10 +1,13 @@
 """Local source demarcation, with private atomic saves and conflict detection."""
 
 import ipaddress
+import hashlib
 import json
 import os
 from pathlib import Path
 import secrets
+import subprocess
+import sys
 import tempfile
 from threading import Lock
 from urllib.parse import urlparse
@@ -13,6 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from packages.content.aliases import load_aliases
+from packages.content.importer import extract_docx
 from packages.content.beginnings import (
     BeginningCatalog,
     LOCAL_CATALOG,
@@ -28,7 +32,7 @@ class SaveCatalog(Frozen):
     catalog: BeginningCatalog
 
 
-def create_curator(bundle=None, path=LOCAL_CATALOG, aliases=None):
+def create_curator(bundle=None, path=LOCAL_CATALOG, aliases=None, source_root=None):
     load_dotenv(ROOT / ".env.local", override=False)
     if os.getenv("MACHINA_DEPLOYMENT") == "hosted":
         raise RuntimeError("The annotation tool is only available locally")
@@ -41,6 +45,7 @@ def create_curator(bundle=None, path=LOCAL_CATALOG, aliases=None):
         ).read_text()
     )
     aliases = aliases or load_aliases()
+    source_root = Path(source_root or ROOT / "context").resolve()
     token = secrets.token_urlsafe(32)
     lock = Lock()
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
@@ -61,6 +66,57 @@ def create_curator(bundle=None, path=LOCAL_CATALOG, aliases=None):
             "revision": digest(catalog.model_dump()),
             "catalog": aliases.tree(catalog.model_dump()),
         }
+
+    def source_file(thread_id):
+        thread = next((t for t in bundle.threads if t.id == thread_id), None)
+        if not thread:
+            raise HTTPException(404, "Conversation not found")
+        source = next(s for s in bundle.sources if s.id == thread.source_document_id)
+        file = (ROOT / source.path).resolve()
+        if (
+            not file.is_relative_to(source_root)
+            or not file.is_file()
+            or file.suffix.lower() != ".docx"
+        ):
+            raise HTTPException(404, "Original source is unavailable on this computer")
+        return source, file
+
+    @app.get("/api/threads/{thread_id}/source")
+    def source(thread_id: str):
+        original, file = source_file(thread_id)
+        paragraphs, _, _ = extract_docx(file)
+        return {
+            "title": aliases.text(original.title),
+            "native_available": sys.platform == "darwin",
+            "matches_archive": hashlib.sha256(file.read_bytes()).hexdigest()
+            == original.sha256,
+            "paragraphs": [
+                {"index": i, "text": aliases.text(text)}
+                for i, text in paragraphs
+                if text.strip()
+            ],
+        }
+
+    @app.post("/api/threads/{thread_id}/source/{action}")
+    def open_source(thread_id: str, action: str):
+        _, file = source_file(thread_id)
+        if action not in ("reveal", "open"):
+            raise HTTPException(422, "Unknown source action")
+        if sys.platform != "darwin":
+            raise HTTPException(409, "Native source actions require macOS")
+        # Resolve only an archived source ID; never accept command text or a path from the browser.
+        command = (
+            ["/usr/bin/open", "-R", str(file)]
+            if action == "reveal"
+            else ["/usr/bin/open", str(file)]
+        )
+        try:
+            subprocess.run(command, check=True, timeout=10, capture_output=True)
+        except (OSError, subprocess.SubprocessError):
+            raise HTTPException(
+                503, "The source could not be opened on this computer"
+            ) from None
+        return {"opened": True}
 
     @app.middleware("http")
     async def local_only(request: Request, call_next):

@@ -88,9 +88,16 @@ if __name__ == "__main__":
     import uvicorn
     from apps.api.main import create_app
     from packages.content.aliases import AliasRewriter
+    from tests.test_editorial import invented_editorial
+
+    os.environ["MACHINA_ESSAY_ENABLED"] = "true"
 
     uvicorn.run(
-        create_app(exploration_bundle(), aliases=AliasRewriter()),
+        create_app(
+            exploration_bundle(),
+            aliases=AliasRewriter(),
+            editorial=invented_editorial(),
+        ),
         host="127.0.0.1",
         port=int(os.getenv("PORT", "8002")),
         access_log=False,

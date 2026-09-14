@@ -4,7 +4,12 @@ import pytest
 from fastapi.testclient import TestClient
 from apps.api.main import create_app
 from packages.content.storage import decode_bundle, load_private_bundle
-from scripts.check_public_tree import forbidden_path, is_content_bundle, is_private_catalog
+from scripts.check_public_tree import (
+    forbidden_path,
+    is_content_bundle,
+    is_private_catalog,
+    is_editorial_release,
+)
 from apps.api.limits import GenerationLimits
 from fastapi import HTTPException
 
@@ -78,6 +83,8 @@ def test_repository_content_guard():
         "content/curation/review.local.json",
         ".env.local",
         "screenshots/private.pdf",
+        "accidental-copy/main.tex",
+        "accidental-copy/main.bib",
         "apps/web/test-results/capture.json",
     ]:
         assert forbidden_path(path)
@@ -85,7 +92,11 @@ def test_repository_content_guard():
     assert not forbidden_path("apps/api/main.py")
     assert is_content_bundle(b'{"messages":[],"content_version":"test"}')
     assert not is_content_bundle(b'{"threads":[],"note":"Metadata only"}')
-    assert is_private_catalog(b'{"candidates":[{"private_note":"Invented annotation"}]}')
+    assert is_private_catalog(
+        b'{"candidates":[{"private_note":"Invented annotation"}]}'
+    )
+    assert is_editorial_release(b'{"essay":{"body_html":"An invented reading"}}')
+    assert not is_editorial_release(b'{"essay":true}')
 
 
 def test_hosted_generation_allowances_expire_and_do_not_grow_on_rejection():

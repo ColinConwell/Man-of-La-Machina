@@ -13,7 +13,9 @@ just curate
 # Or: .venv/bin/python -m tools.curator
 ```
 
-Open **http://127.0.0.1:8001/**. Select a candidate, browse or search its source conversation, and choose **Begin at this turn**. Add further candidates at arbitrary source turns. Edit the public title/description and a separate private annotation, choose which candidates to offer, then save.
+Open **http://127.0.0.1:8001/**. Select a candidate, browse or search its source conversation, and choose **Begin at This Turn**. Add further candidates at arbitrary source turns. Edit the public title/description and a separate private annotation, choose which candidates to offer, then save.
+
+**Annotate + Demarcate • Local Development** includes a paragraph-ordered, pseudonymized **Preview in App**. **Reveal in Finder** and **Open Original** act on the archived DOCX on macOS. Original files are opened by the native application; the local server does not expose a raw-document download. Unknown IDs, paths outside the source directory, and foreign-origin requests are rejected. A preview warns if the file changed since import.
 
 Saves go to `content/curation/beginnings.local.json`, which is ignored by Git. The tool writes atomically with owner-only permissions and rejects stale saves rather than overwriting concurrent edits. Reload to resolve a save conflict. Source text is displayed with the same private aliases as the main experience.
 
