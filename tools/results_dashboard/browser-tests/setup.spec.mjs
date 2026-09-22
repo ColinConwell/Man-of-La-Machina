@@ -1,0 +1,88 @@
+import { test, expect } from '../../../apps/web/node_modules/@playwright/test/index.mjs';
+import { comparisonCondition } from '../web/data.js';
+
+test('saved request graph, exact prompts, preprocessing review lineage, and reproducible exports', async ({page}) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => {if (message.type() === 'error') errors.push(message.text());});
+  await page.goto('/');
+  await page.getByRole('tab',{name:'Setup',exact:true}).click();
+  await expect(page).toHaveTitle('Path-Tracing Results');
+  await expect(page.getByRole('combobox', {name: 'Result Run'})).toHaveValue('script-path-screening');
+  await expect(page.getByRole('tab', {name: 'Setup', exact: true})).toHaveAttribute('aria-selected','true');
+  await expect(page.getByText('Dialogue Agents Actually Called').locator('..')).toContainText('1');
+  await expect(page.getByText('Supporting Model Calls').locator('..')).toContainText('2');
+  await expect(page.getByText('Stopping Rule').locator('..')).toContainText('Adaptive · Model Handoff');
+  await page.locator('.graph-input').filter({hasText:'Instructions'}).click();
+  await expect(page.getByRole('dialog')).toContainText('EXACT AUTHOR PROMPT');
+  await page.keyboard.press('Escape');
+  const timeline = page.locator('.graph-input').filter({hasText:'Parsed Timeline Events'});
+  await timeline.focus(); await page.keyboard.press('Enter');
+  await expect(timeline).toHaveAttribute('aria-pressed','true');
+  await page.keyboard.press('Escape');
+  await page.locator('.setup-graph').scrollIntoViewIfNeeded();
+  await page.screenshot({path:'/tmp/machina-dashboard-browser-graph.png'});
+  await page.getByRole('button', {name:'Event Entailment Review ↗'}).click();
+  await expect(page.getByRole('combobox',{name:'Inspect Request'})).toHaveValue('entailment');
+  await page.locator('.graph-input').filter({hasText:'Derived Event Candidates'}).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button',{name:'Timeline Extraction ↗'})).toBeVisible();
+  await page.getByRole('button',{name:'Timeline Extraction ↗'}).click();
+  await expect(page.getByRole('combobox',{name:'Inspect Request'})).toHaveValue('extract');
+  await page.getByText('Clone and Intervene', {exact:true}).click();
+  const editor = page.getByRole('textbox',{name:'Proposed Experiment Suite'});
+  const draft = JSON.parse(await editor.inputValue()); draft.conditions[0].length_policy = 'fixed';
+  await editor.fill(JSON.stringify(draft));
+  const downloadEvent = page.waitForEvent('download');
+  await page.getByRole('button',{name:'Download Proposed Suite'}).click();
+  expect((await downloadEvent).suggestedFilename()).toMatch(/^proposed-/);
+  await expect(page.getByText('Stopping Rule').locator('..')).toContainText('Adaptive · Model Handoff');
+  const graphExport = await page.request.get('/api/runs/script-path-screening/cases/'+'a'.repeat(64)+'/setup/download');
+  const graph = await graphExport.json();
+  expect(graph.receipts).toHaveLength(3);
+  expect(graph.agents).toHaveLength(1);
+  expect(graph.edges.some(e => e.source === 'output-extract' && graph.nodes.find(n => n.id === e.target)?.origin === 'derived-event-candidates')).toBeTruthy();
+  await page.screenshot({path:'/tmp/machina-dashboard-browser-desktop.png'});
+  expect(errors).toEqual([]);
+});
+
+test('event playback, fixed/adaptive switch, and narrow reduced-motion layout', async ({page}) => {
+  await page.setViewportSize({width:390,height:844});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/');
+  await page.getByRole('tab',{name:'Setup',exact:true}).click();
+  await expect(page.getByText('Exact Experiment Setup')).toBeVisible();
+  await page.getByRole('tab',{name:'Dialogue',exact:true}).click();
+  const playback = page.getByRole('region',{name:'Simulated Event Timeline'});
+  await expect(playback.locator('.event-current')).toContainText('leaves the harbor');
+  await page.getByRole('button',{name:'Event 2: The Traveler stops at a café.'}).click();
+  await expect(playback.locator('.event-current')).toContainText('stops at a café');
+  await page.getByRole('button',{name:'Play Events'}).click();
+  await expect(playback.locator('.event-current')).toContainText('approaches the inn', {timeout:5000});
+  await expect(page.getByRole('button',{name:'Play Events'})).toBeVisible({timeout:5000});
+  await page.screenshot({path:'/tmp/machina-dashboard-browser-playback.png'});
+  await page.getByRole('tab',{name:'Setup',exact:true}).click();
+  await page.getByRole('button').filter({hasText:'One Author · Fixed Dialogue'}).click();
+  await expect(page.locator('.rv-introduction')).toContainText('One Author · Fixed Dialogue');
+  await page.getByRole('tab',{name:'Setup',exact:true}).click();
+  await expect(page.getByText('Stopping Rule').locator('..')).toContainText('Fixed · Fixed Turn Budget');
+  await expect(page.getByText('Context Representation').locator('..')).toContainText('Normalized Dialogue');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(overflow).toBeFalsy();
+  await page.screenshot({path:'/tmp/machina-dashboard-browser-mobile.png'});
+  const compare = page.getByRole('button', {name:'Compare With Adaptive Dialogue', exact:true});
+  await expect(compare).toBeEnabled();
+  await compare.click();
+  await expect(page.getByRole('heading',{name:'Adaptive Dialogue',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Adaptive Dialogue',exact:true})).toContainText('Invented adaptive dialogue control.');
+  await page.getByRole('button',{name:'Close Comparison'}).click();
+  await expect(page.getByRole('heading',{name:'Adaptive Dialogue',exact:true})).toHaveCount(0);
+});
+
+
+test('comparison controls match architecture and preserve legacy baselines', () => {
+  expect(comparisonCondition({settings: {architecture:'single-author'}, path:{}}, 'script-path')).toBe('single-dialogue-adaptive');
+  expect(comparisonCondition({settings: {architecture:'two-agent'}, path:{}}, 'script-path')).toBe('two-dialogue-adaptive');
+  expect(comparisonCondition({path:{}}, 'path-tracing')).toBe('endpoint-upfront');
+  expect(comparisonCondition({}, 'counterfactual')).toBe('baseline');
+});

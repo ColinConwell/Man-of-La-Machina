@@ -45,6 +45,10 @@ For development, run `just api` and `just web` in separate terminals and use **h
 
 The current corpus contains **369 recorded turns in 17 threads, 10 anchors, and two linked retrospective annotations**. Source excerpts remain explicitly marked unreviewed. The May 19 Long Update’s July 11 introduction is an annotation, not an historical turn. Nightfall in Janovas retains a May 11–12 disclosure range; no midnight timestamps are invented.
 
+## Scripted Counterfactual Experiments
+
+The [counterfactual experiment guide](COUNTERFACTUALS.md) documents a backend runner that simulates both the Traveler and companion at all three beginnings, compares memory and characterization policies, and tests out-of-sequence future insertion. Run `just counterfactual` to inspect the default plan without making model calls. Add `--path-tracing` for two-anchor interpolation with withheld gaps, endpoint disclosure schedules, backward waypoint plans, and handoff critiques. `just results` opens a separate local results server for both experiment types.
+
 ## Generation providers
 
 The backend reads existing server-side credentials from `.env.local` without changing them. Available adapters:
@@ -98,3 +102,9 @@ just check-browser
 ```
 
 The browser suite uses deterministic demo generation, tests the complete exploration workflow, and checks accessibility, reduced motion, and mobile/kiosk geometry. OpenAPI contracts are available at **http://127.0.0.1:8000/docs**. Content review issues are available locally at `/api/v1/review` and in `content/generated/validation.json`.
+
+## Plain Event Timeline
+
+Build the private event inventory with `.venv/bin/python scripts/build_event_timeline.py --concurrency 6`, then review it with `.venv/bin/python scripts/build_event_timeline.py --review-only --concurrency 6`. These commands call the configured providers and cache exact requests in `content/generated/event-timeline-receipts/`. The reviewed asset is `content/generated/event-timeline.json`; the original inventory remains in `event-timeline-candidates.json`. Private generated content is ignored by Git. A missing or mismatched asset produces an explicit unavailable state in **Events** rather than silently rebuilding or making model calls from the UI.
+
+Open `http://127.0.0.1:8000/?page=events` for animated playback, filtering, source evidence, and source-conversation navigation. Unknown occurrence dates remain unknown. The retrospective browsing timeline can include information unavailable at an earlier simulation boundary; script experiments apply stricter preprocessing-scope eligibility. See the [experiment guide](COUNTERFACTUALS.md#event-timelines-and-model-chosen-scripts) for the 36-case model-chosen script design and the dashboard’s per-result setup graph.

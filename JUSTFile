@@ -79,3 +79,15 @@ curate:
 check-controls:
     npm run build --prefix apps/web
     MACHINA_BROWSER_FIXTURE=1 npm run test:e2e --prefix apps/web
+
+# Plan or execute private scripted two-character counterfactual experiments
+counterfactual *args:
+    {{ venv_python }} -m packages.experiments {{ args }}
+
+# Build the independent results dashboard using the existing frontend toolchain
+results-build:
+    node apps/web/node_modules/vite/bin/vite.js build --config tools/results_dashboard/vite.config.mjs
+
+# Inspect private saved simulations at http://127.0.0.1:8002
+results *args: results-build
+    {{ venv_python }} -m tools.results_dashboard {{ args }}

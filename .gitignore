@@ -49,3 +49,6 @@ test-results/
 !.env.example
 
 *.tsbuildinfo
+
+# Private counterfactual transcripts, derived personas, and provider receipts
+experiments/results/

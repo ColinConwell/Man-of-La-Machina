@@ -34,3 +34,9 @@ Substitution covers transcript text, source filenames and credits, annotations, 
 Message hashes and the served content version describe the aliased projection. Context and transport receipts describe the material actually sent to the provider. Exports contain aliased material, with no reverse mapping. The original source hashes still identify the private documentary files.
 
 Alias labels are necessarily visible in the experience; the original-to-alias mapping is never sent to visitors. The Git guard also rejects alias-shaped JSON accidentally staged under another filename. Tests use invented identities and never load the actual local mapping.
+
+## Generated Events and Saved Experiments
+
+The event timeline and independent results dashboard apply the same configured aliases when serving generated text, evidence, prompts, context, reviews, native request displays, and downloads. The dashboard loads the same server environment and private alias configuration as the main app. Experiment instructions no longer introduce the participant's original name into otherwise aliased context.
+
+Saved experiment receipts and timeline assets remain immutable on disk. When display substitution changes an artifact, the response includes `display_projection` metadata. Existing source, manifest, and payload hashes identify the original saved records; a changed native payload also receives `display_payload_hash` for its projected display. Dashboard previews label this distinction. Browser downloads contain the alias projection, never a raw-file bypass. For byte-for-byte historical request audits, use the private on-disk receipts with the existing audit scripts.

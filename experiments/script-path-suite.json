@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "kind": "script-path",
+  "events": [
+    {
+      "id": "april-1-to-may-8",
+      "start_id": "earliest",
+      "end_id": "rain-in-spain",
+      "seeds": [
+        {
+          "id": "connect-events",
+          "prompt": "Given the starting context and terminal utterance, write the intervening conversation between the Traveler, and the same AI companion. Develop the physical events and choices that make the terminal utterance possible. Keep invented transitions explicit and preserve uncertainty."
+        }
+      ]
+    },
+    {
+      "id": "may-8-to-may-10",
+      "start_id": "rain-in-spain",
+      "end_id": "naming-mirrows",
+      "seeds": [
+        {
+          "id": "connect-events",
+          "prompt": "Given the starting context and terminal utterance, write the intervening conversation between the Traveler, and the same AI companion. Develop the physical events and choices that make the terminal utterance possible. Keep invented transitions explicit and preserve uncertainty."
+        }
+      ]
+    },
+    {
+      "id": "april-1-to-may-10",
+      "start_id": "earliest",
+      "end_id": "naming-mirrows",
+      "seeds": [
+        {
+          "id": "connect-events",
+          "prompt": "Given the starting context and terminal utterance, write the intervening conversation between the Traveler, and the same AI companion. Develop the physical events and choices that make the terminal utterance possible. Keep invented transitions explicit and preserve uncertainty."
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "single-dialogue-fixed",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "dialogue",
+      "length_policy": "fixed",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "single-dialogue-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-dialogue-fixed",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "dialogue",
+      "length_policy": "fixed",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-dialogue-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "single-annotated-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "annotated",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "retrospective-reference",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-annotated-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "annotated",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "retrospective-reference",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "single-timeline-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "timeline",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-timeline-adaptive",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "timeline",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "single-dialogue-state-first",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "state-first",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-dialogue-state-first",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "state-first",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "single-dialogue-compact",
+      "memory": "compact",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "single-author",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    },
+    {
+      "id": "two-dialogue-anthropic",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "endpoint_policy": "upfront",
+      "architecture": "two-agent",
+      "representation": "dialogue",
+      "length_policy": "adaptive",
+      "prompt_style": "direct",
+      "annotation_policy": "eligible",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 4096
+      },
+      "companion": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "temperature": null,
+        "max_output_tokens": 4096
+      }
+    }
+  ],
+  "builder": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "temperature": null,
+    "max_output_tokens": 1800
+  },
+  "exchanges": 4,
+  "repetitions": 1,
+  "input_budget": 600000,
+  "chunk_budget": 60000,
+  "recent_turns": 2,
+  "rolling_every": 2,
+  "forward_k": 3,
+  "forward_chars": 1800,
+  "persona_examples": 16,
+  "persona_chars": 1200,
+  "safety_max_turns": 24,
+  "timeline_file": "content/generated/event-timeline.json"
+}

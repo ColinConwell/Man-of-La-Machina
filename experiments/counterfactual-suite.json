@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "id": "april-1",
+      "start_id": "earliest",
+      "seeds": [
+        {
+          "id": "practical",
+          "prompt": "At this opening, ask the companion to separate imaginative possibilities from a concrete next step and its constraints."
+        },
+        {
+          "id": "uncertainty",
+          "prompt": "At this opening, ask what remains uncertain and invite the companion to challenge one assumption rather than settle the story."
+        }
+      ]
+    },
+    {
+      "id": "may-8",
+      "start_id": "rain-in-spain",
+      "seeds": [
+        {
+          "id": "constraints",
+          "prompt": "Respond to the advice by requesting two feasible alternatives, including shelter, transport, and reasons to change plans."
+        },
+        {
+          "id": "stay",
+          "prompt": "Explore the possibility of staying put for one night. Ask what evidence would make continuing or pausing the journey preferable."
+        }
+      ]
+    },
+    {
+      "id": "may-10",
+      "start_id": "naming-mirrows",
+      "seeds": [
+        {
+          "id": "boundaries",
+          "prompt": "Explore giving the companion a name while stating what decisions and interpretations should remain your own."
+        },
+        {
+          "id": "disagreement",
+          "prompt": "Explore a named companionship in which disagreement is welcome. Ask the companion how it should challenge you when a story outruns the evidence."
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "baseline",
+      "memory": "full",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "memory-compact",
+      "memory": "compact",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "memory-rolling",
+      "memory": "rolling",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "persona-minimal",
+      "memory": "full",
+      "persona": "minimal",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "persona-retrospective",
+      "memory": "full",
+      "persona": "retrospective",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "forward-static",
+      "memory": "full",
+      "persona": "past",
+      "forward": "static",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "forward-dynamic",
+      "memory": "full",
+      "persona": "past",
+      "forward": "dynamic",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "forward-adapted",
+      "memory": "full",
+      "persona": "past",
+      "forward": "adapted",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "companion-anthropic",
+      "memory": "full",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "traveler-anthropic",
+      "memory": "full",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4-6",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "companion-gemini",
+      "memory": "full",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    },
+    {
+      "id": "traveler-gemini",
+      "memory": "full",
+      "persona": "past",
+      "forward": "none",
+      "forward_audience": "both",
+      "traveler": {
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "temperature": null,
+        "max_output_tokens": 350
+      },
+      "companion": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini",
+        "temperature": null,
+        "max_output_tokens": 350
+      }
+    }
+  ],
+  "builder": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini",
+    "temperature": null,
+    "max_output_tokens": 1800
+  },
+  "exchanges": 3,
+  "repetitions": 1,
+  "input_budget": 600000,
+  "chunk_budget": 60000,
+  "recent_turns": 2,
+  "rolling_every": 2,
+  "forward_k": 3,
+  "forward_chars": 1800,
+  "persona_examples": 16,
+  "persona_chars": 1200
+}

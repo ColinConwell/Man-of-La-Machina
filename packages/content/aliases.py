@@ -213,3 +213,34 @@ def load_aliases(*, required=False) -> AliasRewriter:
         raise RuntimeError(
             "Private alias configuration is missing or invalid; check server configuration"
         ) from None
+
+
+def display_projection(value: dict, aliases: AliasRewriter) -> dict:
+    """Alias a saved artifact for display without rewriting its audit history.
+
+    Hashes and identifiers still address the original private artifact. A displayed
+    native payload gets its own digest when substitution changes it, so callers
+    cannot mistake a projected request for the bytes originally sent.
+    """
+    projected = aliases.tree(value)
+    if projected == value:
+        return projected
+
+    def receipt_digests(original, shown):
+        if isinstance(original, dict) and isinstance(shown, dict):
+            if 'request_payload' in original and 'payload_hash' in original:
+                if original['request_payload'] != shown['request_payload']:
+                    shown['display_payload_hash'] = digest(shown['request_payload'])
+            for key, item in original.items():
+                receipt_digests(item, shown[key])
+        elif isinstance(original, (list, tuple)):
+            for item, replacement in zip(original, shown):
+                receipt_digests(item, replacement)
+
+    receipt_digests(value, projected)
+    projected['display_projection'] = {
+        'mode': 'aliases', 'alias_version': aliases.version, 'content_changed': True,
+        'source_hashes_preserved': True,
+        'note': 'Display text uses configured aliases. Stored hashes identify original records; private originals remain unchanged.',
+    }
+    return projected

@@ -26,4 +26,4 @@ The broader project approaches AI through the scale of one person's journey. Its
 
 This repository contains the code for the evolving interactive prototype. The transcript archive is stored separately and served by the website; it is not included in the public repository.
 
-Setup and model configuration are in the [development guide](docs/DEVELOPMENT.md). See also the [curation notes](docs/CURATION.md) and [hosting guide](docs/HOSTING.md).
+Setup and model configuration are in the [development guide](docs/DEVELOPMENT.md). The [scripted counterfactual guide](docs/COUNTERFACTUALS.md) covers experiments that simulate both characters while varying memory, characterization, models, and future context, plus two-anchor path tracing, model-chosen script lengths, event-only context, and the independent results dashboard with per-result setup graphs. The main experience’s **Events** view animates a sourced, model-reviewed event sequence. See also the [curation notes](docs/CURATION.md) and [hosting guide](docs/HOSTING.md).

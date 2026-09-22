@@ -11,7 +11,7 @@ def forbidden_path(name: str) -> bool:
     p = PurePosixPath(name)
     return (
         p.parts[0] in {"context", "manuscript", "credentials"}
-        or name.startswith(("content/generated/", "apps/web/dist/"))
+        or name.startswith(("content/generated/", "apps/web/dist/", "experiments/results/"))
         or p.name in {"config.json", "PLAN.md"}
         or (p.name.startswith(".env") and p.name != ".env.example")
         or ".local." in p.name
@@ -42,6 +42,14 @@ def is_content_bundle(data: bytes) -> bool:
         and "messages" in obj
         and any(k in obj for k in ("sources", "content_version", "generation_ids"))
     )
+
+
+def is_experiment_result(data: bytes) -> bool:
+    try:
+        obj = json.loads(data)
+    except (ValueError, UnicodeDecodeError):
+        return False
+    return isinstance(obj, dict) and "calls" in obj and "turns" in obj and "case" in obj
 
 
 def is_alias_config(data: bytes) -> bool:
@@ -114,6 +122,8 @@ def main():
         data = subprocess.check_output(["git", "show", ":" + name])
         if is_content_bundle(data):
             problems.append(name + ": transcript or branch bundle")
+        if is_experiment_result(data):
+            problems.append(name + ": private counterfactual result")
         if is_alias_config(data):
             problems.append(name + ": private alias configuration")
         if is_private_catalog(data):

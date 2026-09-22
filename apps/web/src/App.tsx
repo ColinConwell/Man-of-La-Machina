@@ -27,10 +27,13 @@ import { ContinuationComparison } from "./features/ContinuationComparison";
 import { ArtifactViewer } from "./features/ArtifactViewer";
 import { TimelineExplorer } from "./features/TimelineExplorer";
 import { EditorialReader } from "./features/EditorialReader";
-type Page = "explore" | "about" | "essay";
+import { EventTimeline } from "./features/EventTimeline";
+type Page = "explore" | "events" | "about" | "essay";
 function currentPage(): Page {
   const value = new URLSearchParams(location.search).get("page");
-  return value === "about" || value === "essay" ? value : "explore";
+  return value === "about" || value === "essay" || value === "events"
+    ? value
+    : "explore";
 }
 const names: Record<string, string> = {
   archive: "Archive",
@@ -64,7 +67,7 @@ export default function App() {
     document.title =
       page === "explore"
         ? "Man of La Machina"
-        : `${page === "about" ? "About" : "Read the Essay"} · Man of La Machina`;
+        : `${page === "about" ? "About" : page === "events" ? "Event Timeline" : "Read the Essay"} · Man of La Machina`;
   }, [page]);
   const readingSurface = useRef<HTMLDivElement>(null);
   const transcriptOffset = useRef(0);
@@ -199,6 +202,7 @@ export default function App() {
         {(
           [
             ["explore", "Explore", true],
+            ["events", "Events", true],
             ["about", "About", exp.data?.editorial?.about],
             ["essay", "Read the Essay", exp.data?.editorial?.essay],
           ] as const
@@ -236,6 +240,13 @@ export default function App() {
           <p>{exp.error.message}</p>
           <button onClick={() => exp.refetch()}>Try again</button>
         </main>
+      ) : page === "events" ? (
+        <EventTimeline
+          onOpenSource={async (id) => {
+            await select(id);
+            openPage("explore");
+          }}
+        />
       ) : page !== "explore" ? (
         <EditorialReader
           page={page}

@@ -31,7 +31,7 @@ from apps.api.contracts import (
 )
 from packages.domain.repository import ContentRepository
 from packages.content.storage import load_private_bundle
-from packages.content.aliases import AliasRewriter, load_aliases
+from packages.content.aliases import AliasRewriter, load_aliases, display_projection
 from packages.content.beginnings import apply_catalog, load_catalog
 from packages.content.editorial import (
     EditorialRelease,
@@ -265,6 +265,14 @@ def create_app(
         return {k: v for k, v in j.items() if k not in ("task", "events", "branch_id")}
 
     api = "/api/v1"
+
+    @app.get(api + "/event-timeline")
+    def event_timeline():
+        # Extraction is an explicit offline build. Requests never invoke providers.
+        # Corpus identity prevents a private or stale asset crossing release boundaries.
+        from packages.timeline import load_timeline
+        timeline = load_timeline(repo.bundle)
+        return display_projection({k: v for k, v in timeline.items() if k != "chunks"}, aliases)
 
     @app.api_route(api + "/health", methods=["GET", "HEAD"])
     def health():

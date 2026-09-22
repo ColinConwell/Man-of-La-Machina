@@ -201,3 +201,58 @@ export interface Timeline {
   total_messages: number;
   bounds: { start: string; end: string };
 }
+
+export interface PlainEvent {
+  id: string;
+  actor: string;
+  action: string;
+  text: string;
+  place: string | null;
+  occurred_at: string | null;
+  occurred_end_at: string | null;
+  date_basis?: "explicit" | "relative" | "unknown";
+  duration_text: string | null;
+  status: "reported" | "planned" | "uncertain";
+  disclosed_at: string | null;
+  disclosed_end_at: string | null;
+  source_ids: string[];
+  source_ordinals: number[];
+  annotation_source_ids: string[];
+  entry_message_id?: string | null;
+  evidence: { source_id: string; quote: string }[];
+  provenance: {
+    call_ids: string[];
+    method: string;
+    semantic_entailment?: string;
+    semantic_review_version?: string;
+  };
+}
+
+export interface EventTimelineData {
+  version: number;
+  status: "completed" | "partial" | "unavailable" | "stale";
+  content_version: string;
+  corpus_hash: string;
+  events: PlainEvent[];
+  coverage: {
+    sources_total: number;
+    sources_processed: number;
+    messages_total: number;
+    annotations_total: number;
+    chunks_total: number;
+    chunks_completed: number;
+    events_accepted: number;
+    events_rejected: number;
+  };
+  extraction?: Record<string, unknown> & { limitations?: string[] };
+  semantic_review?: {
+    version: string;
+    provider: string;
+    model: string;
+    status: "completed" | "partial";
+    candidate_count: number;
+    accepted_count: number;
+    rejected_count: number;
+    failed_chunks?: number;
+  };
+}

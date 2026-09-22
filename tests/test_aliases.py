@@ -208,3 +208,37 @@ def test_failed_stream_never_emits_partial_name(bundle):
         data = c.get(f"/api/v1/branches/{bid}/export").json()
         assert data["generations"][0]["output"] == "A safe sentence. "
         assert data["branch"]["messages"] == []
+
+
+def test_generated_event_display_uses_same_aliases_and_preserves_saved_hashes(bundle, monkeypatch):
+    from copy import deepcopy
+    import packages.timeline
+    stored = {'status':'completed','asset_hash':'original-asset-hash','events':[
+        {'id':'event-1','actor':'Aster','text':'Aster met Maren. The Visitor left.',
+         'evidence':[{'quote':'Marn arrived with Aster Riley.'}],
+         'provenance':{'source_hashes':{'m0':'original-source-hash'}}}],
+         'extraction':{'limitations':['Aster remains unverified.']}}
+    original=deepcopy(stored)
+    monkeypatch.setattr(packages.timeline,'load_timeline',lambda _: stored)
+    with TestClient(create_app(bundle,aliases=rewriter())) as c:
+        response=c.get('/api/v1/event-timeline')
+        assert response.status_code==200
+        shown=response.json()
+        assert not any(n in response.text.casefold() for n in ['aster','maren','marn','riley'])
+        assert shown['events'][0]['text']=='The Visitor met The Friend. The Visitor left.'
+        assert shown['asset_hash']=='original-asset-hash'
+        assert shown['display_projection']['source_hashes_preserved']
+    assert stored==original
+
+
+def test_saved_receipt_projection_is_explicit_idempotent_and_nonmutating():
+    from packages.content.aliases import display_projection
+    payload={'messages':[{'content':'Aster spoke to Maren.'}]}
+    original={'request_payload':payload,'payload_hash':digest(payload),'manifest':{'hash':'saved-hash'},'text':'Marn replied.'}
+    shown=display_projection(original,rewriter())
+    assert shown['payload_hash']==original['payload_hash']
+    assert shown['display_payload_hash']==digest(shown['request_payload'])
+    assert shown['display_payload_hash']!=shown['payload_hash']
+    assert original['request_payload']['messages'][0]['content']=='Aster spoke to Maren.'
+    assert shown['manifest']['hash']=='saved-hash'
+    assert display_projection(shown,rewriter())==shown
