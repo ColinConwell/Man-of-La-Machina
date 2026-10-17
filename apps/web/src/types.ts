@@ -159,10 +159,50 @@ export interface BranchMessage {
   generation_id: string;
   created_at: string;
 }
+export interface PairWithholding {
+  excluded_tags: string[];
+  excluded_ids: string[];
+}
+export interface ContextComposition {
+  manifest_id: string;
+  hash: string;
+  item_count: number;
+  token_estimate: number;
+  counts: Record<string, number>;
+}
+export interface ContextChange {
+  id: string;
+  origin: string;
+  tags: string[];
+  reason: string;
+}
+export interface PairCondition {
+  label: "A" | "B";
+  generation_id: string;
+  status: string;
+  error_category: string | null;
+  reply: BranchMessage | null;
+  composition: ContextComposition;
+}
+export interface ContextPair {
+  id: string;
+  position: number;
+  visitor: BranchMessage;
+  withheld: PairWithholding;
+  conditions: [PairCondition, PairCondition];
+  difference: {
+    shared_count: number;
+    removed: ContextChange[];
+    added: ContextChange[];
+  };
+  created_at: string;
+}
 export interface Branch {
   id: string;
   entry_message_id: string;
   messages: BranchMessage[];
+  pairs: ContextPair[];
+  exchange_count: number;
   generation_ids: string[];
   expires_at: string;
   context_mode: string;

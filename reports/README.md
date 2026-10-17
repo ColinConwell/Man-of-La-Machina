@@ -8,5 +8,6 @@ Reports preserve the reasoning behind high-level design choices. Use a stable se
 | 002 | 2026-09-21 | [Scripted Counterfactual Dialogue, Characterization, and Future Context](002-2026-09-21-scripted-counterfactuals.md) | Implemented backend experiment and initial live screening |
 | 003 | 2026-09-21 | [Two-Anchor Path Tracing and Endpoint Disclosure](003-2026-09-21-path-tracing.md) | Implemented interpolation experiment, live pilot and revised screening, and dashboard integration |
 | 004 | 2026-09-21 | [Event Timelines, Script Length, and Experiment Provenance](004-2026-09-21-event-timelines-and-script-paths.md) | Implemented source timeline, adaptive script screening, and inspectable setup graphs |
+| 005 | 2026-10-16 | [Review of the Experience, Agentic Setups, and Exploration Interfaces](005-2026-10-16-review-and-recommendations.md) | Review with prioritized proposals; implemented local project deck |
 
 Implementation history belongs in the root [CHANGELOG](../CHANGELOG.md). Reports are not instructions to implement every proposal they contain.

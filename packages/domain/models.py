@@ -307,3 +307,28 @@ class CreateBranch(Frozen):
 class SubmitRequest(PreviewRequest):
     text: str = Field(min_length=1, max_length=24000)
     request_id: str = Field(min_length=8, max_length=100)
+
+
+class PairWithholding(Frozen):
+    """What condition B removes beyond condition A's current selection."""
+
+    excluded_tags: tuple[str, ...] = ()
+    excluded_ids: tuple[str, ...] = ()
+
+
+class PairRequest(SubmitRequest):
+    withheld: PairWithholding
+
+
+class ContextComposition(Frozen):
+    manifest_id: str
+    hash: str
+    item_count: int
+    token_estimate: int
+    counts: dict[str, int]
+
+
+class ContextDifference(Frozen):
+    shared_count: int
+    removed: tuple[dict, ...]
+    added: tuple[dict, ...]

@@ -28,6 +28,7 @@ from apps.api.contracts import (
     IntervalResponse,
     BranchResponse,
     GenerationStart,
+    PairStart,
 )
 from packages.domain.repository import ContentRepository
 from packages.content.storage import load_private_bundle
@@ -39,7 +40,12 @@ from packages.content.editorial import (
     reading_document,
 )
 from apps.api.limits import GenerationLimits
-from packages.domain.context import build_context
+from packages.domain.context import (
+    build_context,
+    compare_contexts,
+    composition,
+    withheld_options,
+)
 from packages.domain.providers import (
     capabilities,
     get_provider,
@@ -59,6 +65,16 @@ def now():
 
 def uid(prefix):
     return prefix + "-" + secrets.token_urlsafe(24)
+
+
+TERMINAL = ("completed", "failed", "refused", "cancelled")
+
+
+def exchanges(b):
+    # A paired comparison is one exchange: one visitor turn, two conditioned replies.
+    return len(b["messages"]) // 2 + sum(
+        any(c["status"] == "completed" for c in p["conditions"]) for p in b["pairs"]
+    )
 
 
 class Sessions:
@@ -104,7 +120,7 @@ class Sessions:
             k: v
             for k, v in b.items()
             if k not in ("owner", "expires", "active", "requests")
-        }
+        } | {"exchange_count": exchanges(b)}
 
 
 def create_app(
@@ -271,8 +287,11 @@ def create_app(
         # Extraction is an explicit offline build. Requests never invoke providers.
         # Corpus identity prevents a private or stale asset crossing release boundaries.
         from packages.timeline import load_timeline
+
         timeline = load_timeline(repo.bundle)
-        return display_projection({k: v for k, v in timeline.items() if k != "chunks"}, aliases)
+        return display_projection(
+            {k: v for k, v in timeline.items() if k != "chunks"}, aliases
+        )
 
     @app.api_route(api + "/health", methods=["GET", "HEAD"])
     def health():
@@ -453,6 +472,7 @@ def create_app(
                 time.time() + sessions.ttl, timezone.utc
             ).isoformat(),
             messages=[],
+            pairs=[],
             generation_ids=[],
             active=None,
             requests={},
@@ -501,7 +521,7 @@ def create_app(
             aliases.text(payload.text),
         )
 
-    async def generate(b, j, provider, visitor):
+    async def generate(j, provider, commit, finish):
         started = time.perf_counter()
         output = ""
         filtered = aliases.stream()
@@ -522,14 +542,14 @@ def create_app(
             emit(filtered.feed("", final=True))
             model = BranchMessage(
                 id=uid("generated"),
-                sequence=len(b["messages"]) + 1,
+                sequence=j["visitor"].sequence + 1,
                 speaker="model",
                 origin="generated",
                 body=output,
                 generation_id=j["id"],
                 created_at=now(),
             )
-            b["messages"].extend([visitor, model])
+            commit(model)
             j["status"] = "completed"
             j["output"] = output
             j["safety_outcome"] = (
@@ -579,75 +599,65 @@ def create_app(
                 ("failure", {"category": category, "message": aliases.text(msg)})
             )
         finally:
-            b["active"] = None
+            finish()
             j["latency_ms"] = round((time.perf_counter() - started) * 1000)
             j["finished_at"] = now()
 
-    @app.post(
-        api + "/branches/{id}/messages", status_code=202, response_model=GenerationStart
-    )
-    async def submit(id: str, payload: SubmitRequest, request: Request):
-        b = branch(id, request)
+    def admit_request(b, payload, request):
+        """Shared checks for single and paired submissions. Returns a replay if idempotent."""
         fingerprint = digest(payload.model_dump())
         if payload.request_id in b["requests"]:
             old = b["requests"][payload.request_id]
             if old["fingerprint"] != fingerprint:
                 raise HTTPException(409, "Request ID already used for different input")
-            return old["response"]
+            return fingerprint, old["response"]
         if b["active"]:
             raise HTTPException(409, "A generation is already running in this branch")
-        if len(b["messages"]) // 2 >= repo.bundle.profile.branch_turn_limit:
+        if exchanges(b) >= repo.bundle.profile.branch_turn_limit:
             raise HTTPException(409, "Branch exchange limit reached; restart or export")
         if not payload.text.strip():
             raise HTTPException(422, "Write a human turn first")
         if payload.options.context_mode != b["context_mode"]:
             raise HTTPException(422, "Restart to change the context start mode")
-        provider = provider_factory(payload.settings)
-        manifest = build_context(
-            repo.bundle,
-            b["entry_message_id"],
-            payload.options,
-            payload.settings,
-            b["messages"],
-            aliases.text(payload.text),
+        return fingerprint, None
+
+    def admit_capacity(settings, request, count):
+        if not hosted:
+            return
+        active = sum(
+            j["status"] in ("pending", "streaming") for j in sessions.jobs.values()
         )
-        if hosted:
-            if (
-                sum(
-                    j["status"] in ("pending", "streaming")
-                    for j in sessions.jobs.values()
-                )
-                >= 4
-            ):
-                raise HTTPException(
-                    429, "The companion is busy. Please try again shortly."
-                )
-            if payload.settings.provider != "demo":
-                generation_limits.admit(request.state.owner)
-        gid = uid("generation")
-        visitor = BranchMessage(
+        if active + count > 4:
+            raise HTTPException(429, "The companion is busy. Please try again shortly.")
+        if settings.provider != "demo":
+            generation_limits.admit(request.state.owner, count)
+
+    def visitor_turn(b, gid, text):
+        return BranchMessage(
             id=uid("visitor"),
             sequence=len(b["messages"]),
             speaker="visitor",
             origin="visitor",
-            body=aliases.text(payload.text.strip()),
+            body=aliases.text(text.strip()),
             generation_id=gid,
             created_at=now(),
         )
+
+    def open_job(b, gid, manifest, settings, visitor, **extra):
         wire = (
-            request_payload(manifest, registry()[payload.settings.provider])[1]
-            if payload.settings.provider != "demo"
+            request_payload(manifest, registry()[settings.provider])[1]
+            if settings.provider != "demo"
             else {"demo_manifest_hash": manifest.hash}
         )
         j = dict(
             id=gid,
-            branch_id=id,
-            provider=payload.settings.provider,
-            model=payload.settings.model,
+            branch_id=b["id"],
+            provider=settings.provider,
+            model=settings.model,
             status="pending",
             manifest=manifest,
             request_time=now(),
-            parameters=payload.settings.model_dump(),
+            parameters=settings.model_dump(),
             policy_version=manifest.policy_version,
             provider_metadata={},
             output="",
@@ -659,6 +669,7 @@ def create_app(
             transport_version="adapters-v1",
             request_payload=wire,
             request_hash=digest(wire),
+            **extra,
         )
         j["events"].append(
             (
@@ -672,18 +683,161 @@ def create_app(
         )
         sessions.jobs[gid] = j
         b["generation_ids"].append(gid)
+        return j
+
+    def stream_url(b, gid):
+        return api + f"/branches/{b['id']}/generations/{gid}/stream"
+
+    @app.post(
+        api + "/branches/{id}/messages", status_code=202, response_model=GenerationStart
+    )
+    async def submit(id: str, payload: SubmitRequest, request: Request):
+        b = branch(id, request)
+        fingerprint, replay = admit_request(b, payload, request)
+        if replay:
+            return replay
+        provider = provider_factory(payload.settings)
+        manifest = build_context(
+            repo.bundle,
+            b["entry_message_id"],
+            payload.options,
+            payload.settings,
+            b["messages"],
+            aliases.text(payload.text),
+        )
+        admit_capacity(payload.settings, request, 1)
+        gid = uid("generation")
+        visitor = visitor_turn(b, gid, payload.text)
+        j = open_job(b, gid, manifest, payload.settings, visitor)
         b["active"] = gid
         response = {
             "generation_id": gid,
             "manifest_id": manifest.id,
-            "stream_url": api + f"/branches/{id}/generations/{gid}/stream",
+            "stream_url": stream_url(b, gid),
             "visitor_text": visitor.body,
         }
         b["requests"][payload.request_id] = {
             "fingerprint": fingerprint,
             "response": response,
         }
-        j["task"] = asyncio.create_task(generate(b, j, provider, visitor))
+
+        def finish():
+            b["active"] = None
+
+        j["task"] = asyncio.create_task(
+            generate(
+                j,
+                provider,
+                lambda model: b["messages"].extend([visitor, model]),
+                finish,
+            )
+        )
+        return response
+
+    @app.post(api + "/branches/{id}/pairs", status_code=202, response_model=PairStart)
+    async def submit_pair(id: str, payload: PairRequest, request: Request):
+        """Hold the turn, model and settings fixed; vary only what B withholds."""
+        b = branch(id, request)
+        fingerprint, replay = admit_request(b, payload, request)
+        if replay:
+            return replay
+        text = aliases.text(payload.text)
+        options = {
+            "A": payload.options,
+            "B": withheld_options(payload.options, payload.withheld),
+        }
+        manifests = {
+            label: build_context(
+                repo.bundle,
+                b["entry_message_id"],
+                o,
+                payload.settings,
+                b["messages"],
+                text,
+            )
+            for label, o in options.items()
+        }
+        difference = compare_contexts(manifests["A"], manifests["B"])
+        if not difference.removed:
+            raise HTTPException(
+                422,
+                "Condition B withholds nothing that condition A includes. "
+                "Choose a group or turn present in the current context.",
+            )
+        providers = {label: provider_factory(payload.settings) for label in options}
+        admit_capacity(payload.settings, request, 2)
+        pid = uid("pair")
+        gids = {label: uid("generation") for label in options}
+        # One shared visitor turn: the comparison varies context, never the human move.
+        visitor = visitor_turn(b, pid, payload.text)
+        pair = dict(
+            id=pid,
+            position=len(b["messages"]),
+            visitor=visitor,
+            withheld=payload.withheld,
+            difference=difference,
+            created_at=now(),
+            conditions=[
+                dict(
+                    label=label,
+                    generation_id=gids[label],
+                    status="pending",
+                    error_category=None,
+                    reply=None,
+                    composition=composition(manifests[label]),
+                )
+                for label in options
+            ],
+        )
+        b["pairs"].append(pair)
+        b["active"] = pid
+        jobs = {
+            label: open_job(
+                b,
+                gids[label],
+                manifests[label],
+                payload.settings,
+                visitor,
+                pair_id=pid,
+                condition=label,
+            )
+            for label in options
+        }
+        response = {
+            "pair_id": pid,
+            "visitor_text": visitor.body,
+            "conditions": [
+                {
+                    "label": label,
+                    "generation_id": gids[label],
+                    "manifest_id": manifests[label].id,
+                    "stream_url": stream_url(b, gids[label]),
+                    "composition": pair["conditions"][n]["composition"],
+                }
+                for n, label in enumerate(options)
+            ],
+            "difference": difference,
+            "withheld": payload.withheld,
+        }
+        b["requests"][payload.request_id] = {
+            "fingerprint": fingerprint,
+            "response": response,
+        }
+        for condition in pair["conditions"]:
+            j = jobs[condition["label"]]
+
+            def commit(model, condition=condition):
+                condition["reply"] = model
+
+            def finish(condition=condition, j=j):
+                condition["status"] = j["status"]
+                condition["error_category"] = j["error_category"]
+                if all(c["status"] in TERMINAL for c in pair["conditions"]):
+                    b["active"] = None
+
+            j["task"] = asyncio.create_task(
+                generate(j, providers[condition["label"]], commit, finish)
+            )
         return response
 
     @app.get(api + "/branches/{id}/generations/{gid}/stream")

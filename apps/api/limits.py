@@ -12,18 +12,18 @@ class GenerationLimits:
         self.clock = clock
         self.attempts = deque()
 
-    def admit(self, owner):
+    def admit(self, owner, count=1):
         now = self.clock()
         while self.attempts and self.attempts[0][0] <= now - 3600:
             self.attempts.popleft()
-        if len(self.attempts) >= self.per_hour:
+        if len(self.attempts) + count > self.per_hour:
             raise HTTPException(
                 429,
                 "The prototype's live generation allowance is temporarily full. Demo mode is still available.",
             )
-        if sum(item[1] == owner for item in self.attempts) >= self.per_owner:
+        if sum(item[1] == owner for item in self.attempts) + count > self.per_owner:
             raise HTTPException(
                 429,
                 "This session has reached its hourly live generation allowance. Demo mode is still available.",
             )
-        self.attempts.append((now, owner))
+        self.attempts.extend([(now, owner)] * count)

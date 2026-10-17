@@ -9,6 +9,9 @@ from packages.domain.models import (
     Anchor,
     Profile,
     BranchMessage,
+    ContextComposition,
+    ContextDifference,
+    PairWithholding,
 )
 
 
@@ -96,6 +99,27 @@ class IntervalResponse(IntervalRequest):
     end_at: str | None
 
 
+class PairCondition(Frozen):
+    label: Literal["A", "B"]
+    generation_id: str
+    status: str
+    error_category: str | None = None
+    reply: BranchMessage | None = None
+    composition: ContextComposition
+
+
+class ContextPair(Frozen):
+    """One visitor turn answered under two contexts; counts as one exchange."""
+
+    id: str
+    position: int
+    visitor: BranchMessage
+    withheld: PairWithholding
+    conditions: tuple[PairCondition, PairCondition]
+    difference: ContextDifference
+    created_at: str
+
+
 class BranchResponse(Frozen):
     id: str
     entry_message_id: str
@@ -107,6 +131,8 @@ class BranchResponse(Frozen):
     expires_at: str
     messages: tuple[BranchMessage, ...]
     generation_ids: tuple[str, ...]
+    pairs: tuple[ContextPair, ...] = ()
+    exchange_count: int = 0
     persistence_policy: Literal["ephemeral"]
 
 
@@ -115,3 +141,19 @@ class GenerationStart(Frozen):
     manifest_id: str
     stream_url: str
     visitor_text: str
+
+
+class PairStream(Frozen):
+    label: Literal["A", "B"]
+    generation_id: str
+    manifest_id: str
+    stream_url: str
+    composition: ContextComposition
+
+
+class PairStart(Frozen):
+    pair_id: str
+    visitor_text: str
+    conditions: tuple[PairStream, PairStream]
+    difference: ContextDifference
+    withheld: PairWithholding

@@ -1,0 +1,36 @@
+{
+  "title": "Example Deck",
+  "slides": [
+    {
+      "id": "intro",
+      "layout": "title",
+      "kicker": "Example deck",
+      "title": "Add private slides locally",
+      "subtitle": "This committed example contains invented content only.",
+      "byline": "Write the real deck to manuscript/deck/deck.local.json",
+      "footnote": "Open ?mode=edit and press E to edit, select, and annotate."
+    },
+    {
+      "id": "branch",
+      "layout": "flow",
+      "kicker": "Interactive experience",
+      "title": "Reopening a moment",
+      "body": ["Press P to play. Each beat lights the graph and adds the message it produced, with the context that call received."],
+      "flow": "branch"
+    },
+    {
+      "id": "counterfactual",
+      "layout": "flow",
+      "kicker": "Scripted experiment",
+      "title": "Both characters simulated",
+      "body": ["Choose a condition to see which context each agent receives."],
+      "flow": "counterfactual"
+    },
+    {
+      "id": "end",
+      "layout": "closing",
+      "title": "End of example",
+      "body": ["See docs/DECK.md for the slide schema."]
+    }
+  ]
+}

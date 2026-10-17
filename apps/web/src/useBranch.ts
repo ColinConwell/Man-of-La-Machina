@@ -1,7 +1,35 @@
 import { useEffect, useRef, useState } from "react";
 import { api, post, download, ApiError } from "./api";
 import { useExperience } from "./store";
-import type { Branch, BranchMessage, Manifest } from "./types";
+import type {
+  Branch,
+  ContextComposition,
+  ContextPair,
+  Manifest,
+  PairWithholding,
+} from "./types";
+export interface PendingCondition {
+  text: string;
+  status: "streaming" | "completed" | "failed";
+}
+export interface PairStart {
+  pair_id: string;
+  visitor_text: string;
+  conditions: {
+    label: "A" | "B";
+    generation_id: string;
+    manifest_id: string;
+    stream_url: string;
+    composition: ContextComposition;
+  }[];
+  difference: ContextPair["difference"];
+  withheld: PairWithholding;
+}
+export interface PendingPair {
+  visitor: string;
+  start: PairStart | null;
+  conditions: Record<"A" | "B", PendingCondition>;
+}
 export function useBranch() {
   const state = useExperience();
   const [branch, setBranch] = useState<Branch | null>(null);
@@ -13,7 +41,9 @@ export function useBranch() {
   const [error, setError] = useState("");
   const [streamText, setStreamText] = useState("");
   const [pendingText, setPendingText] = useState("");
+  const [pendingPair, setPendingPair] = useState<PendingPair | null>(null);
   const eventSource = useRef<EventSource | null>(null);
+  const pairSources = useRef<EventSource[]>([]);
   const epoch = useRef(0);
   const pendingBranch = useRef<Promise<Branch> | null>(null);
   useEffect(() => {
@@ -59,7 +89,13 @@ export function useBranch() {
     busy,
     previewRevision,
   ]);
-  useEffect(() => () => eventSource.current?.close(), []);
+  useEffect(
+    () => () => {
+      eventSource.current?.close();
+      pairSources.current.forEach((e) => e.close());
+    },
+    [],
+  );
   async function ensure() {
     const s = useExperience.getState();
     if (branch && branch.id === s.branchId) return branch;
@@ -157,9 +193,110 @@ export function useBranch() {
       }
     }
   }
+  async function submitPair() {
+    const s = useExperience.getState();
+    if (!s.text.trim() || busy) return;
+    const current = epoch.current;
+    const blank = (): PendingCondition => ({ text: "", status: "streaming" });
+    setBusy(true);
+    setError("");
+    setPendingPair({
+      visitor: "Preparing your intervention…",
+      start: null,
+      conditions: { A: blank(), B: blank() },
+    });
+    s.setTab("branch");
+    const update = (
+      label: "A" | "B",
+      patch: (c: PendingCondition) => PendingCondition,
+    ) =>
+      setPendingPair((p) =>
+        p
+          ? {
+              ...p,
+              conditions: {
+                ...p.conditions,
+                [label]: patch(p.conditions[label]),
+              },
+            }
+          : p,
+      );
+    try {
+      const b = await ensure();
+      const run = await post<PairStart>(`/branches/${b.id}/pairs`, {
+        text: s.text,
+        options: s.options,
+        settings: s.settings,
+        withheld: s.pairWithheld,
+        request_id: crypto.randomUUID(),
+      });
+      if (current !== epoch.current) return;
+      setPendingPair((p) =>
+        p ? { ...p, visitor: run.visitor_text, start: run } : p,
+      );
+      s.setText(run.visitor_text);
+      let open = run.conditions.length;
+      const failures: string[] = [];
+      // Both conditions settle independently; the branch is reread once neither is streaming.
+      const settle = async () => {
+        if (--open > 0 || current !== epoch.current) return;
+        try {
+          const updated = await api<Branch>("/branches/" + b.id);
+          if (current !== epoch.current) return;
+          setBranch(updated);
+          if (failures.length < run.conditions.length) s.setText("");
+          setPendingPair(null);
+          if (failures.length) setError(failures.join(" "));
+        } catch (e) {
+          setError((e as Error).message);
+        } finally {
+          setBusy(false);
+        }
+      };
+      for (const c of run.conditions) {
+        const events = new EventSource(c.stream_url);
+        pairSources.current.push(events);
+        let finished = false;
+        const end = (failure?: string) => {
+          events.close();
+          if (finished) return;
+          finished = true;
+          if (failure) failures.push(`Condition ${c.label}: ${failure}`);
+          if (current === epoch.current)
+            update(c.label, (x) => ({
+              ...x,
+              status: failure ? "failed" : "completed",
+            }));
+          void settle();
+        };
+        events.addEventListener("delta", (e) => {
+          if (current !== epoch.current) return;
+          const text = JSON.parse((e as MessageEvent).data).text;
+          update(c.label, (x) => ({ ...x, text: x.text + text }));
+        });
+        events.addEventListener("done", () => end());
+        events.addEventListener("failure", (e) =>
+          end(JSON.parse((e as MessageEvent).data).message),
+        );
+        events.onerror = () =>
+          end(
+            "The stream connection was interrupted. Refresh the branch to check its result.",
+          );
+      }
+    } catch (e) {
+      if (current === epoch.current) {
+        setError((e as Error).message);
+        setPendingPair(null);
+        setBusy(false);
+      }
+    }
+  }
   async function reset() {
     epoch.current++;
     eventSource.current?.close();
+    pairSources.current.forEach((e) => e.close());
+    pairSources.current = [];
+    setPendingPair(null);
     const id = useExperience.getState().branchId;
     setBusy(false);
     setPreview(null);
@@ -189,7 +326,7 @@ export function useBranch() {
       setError((e as Error).message);
     }
   }
-  async function inspect(message: BranchMessage) {
+  async function inspect(message: { generation_id: string }) {
     if (!branch) return;
     try {
       const data = await api<{
@@ -209,6 +346,7 @@ export function useBranch() {
       setBranch(await api<Branch>("/branches/" + branch.id));
       setStreamText("");
       setPendingText("");
+      setPendingPair(null);
       setError("");
     } catch (e) {
       setError((e as Error).message);
@@ -225,8 +363,10 @@ export function useBranch() {
     setError,
     streamText,
     pendingText,
+    pendingPair,
     previewContext,
     submit,
+    submitPair,
     reset,
     exportBranch,
     inspect,

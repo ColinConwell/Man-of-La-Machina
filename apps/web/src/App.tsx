@@ -359,6 +359,10 @@ export default function App() {
                     busy={branch.busy}
                     streamText={branch.streamText}
                     pendingText={branch.pendingText}
+                    pendingPair={branch.pendingPair}
+                    tags={Object.fromEntries(
+                      exp.data!.tags.map((t) => [t.id, t.label]),
+                    )}
                     onInspect={branch.inspect}
                     onExport={branch.exportBranch}
                     onRefresh={branch.refresh}
@@ -379,11 +383,13 @@ export default function App() {
               {(s.tab === "transcript" || s.tab === "branch") && (
                 <BranchComposer
                   busy={branch.busy}
-                  turns={(branch.branch?.messages.length || 0) / 2}
+                  turns={branch.branch?.exchange_count || 0}
                   limit={exp.data!.profile.branch_turn_limit}
+                  tags={exp.data!.tags}
+                  preview={branch.preview}
                   onSubmit={() => {
                     goToTab("branch");
-                    void branch.submit();
+                    void (s.pairMode ? branch.submitPair() : branch.submit());
                   }}
                 />
               )}

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ContextOptions, Settings } from "./types";
+import type { ContextOptions, PairWithholding, Settings } from "./types";
 const initial = new URLSearchParams(location.search);
 const writeURL = (patch: Record<string, string>) => {
   const u = new URL(location.href);
@@ -28,6 +28,9 @@ interface State {
   options: ContextOptions;
   settings: Settings;
   text: string;
+  // Paired mode answers one turn twice: A is the current selection, B also withholds these.
+  pairMode: boolean;
+  pairWithheld: PairWithholding;
   branchId: string | null;
   entered: boolean;
   select: (entry: string, anchor?: string) => void;
@@ -38,6 +41,8 @@ interface State {
   setOptions: (v: Partial<ContextOptions>) => void;
   setSettings: (v: Partial<Settings>) => void;
   setText: (v: string) => void;
+  setPairMode: (v: boolean) => void;
+  setPairWithheld: (v: Partial<PairWithholding>) => void;
   setBranch: (v: string | null) => void;
   setEntered: (v: boolean) => void;
 }
@@ -57,6 +62,8 @@ export const useExperience = create<State>((set) => ({
     max_output_tokens: 700,
   },
   text: "",
+  pairMode: false,
+  pairWithheld: { excluded_tags: [], excluded_ids: [] },
   branchId: null,
   entered: !!initial.get("entry"),
   select: (entry, anchor = "") => {
@@ -68,6 +75,7 @@ export const useExperience = create<State>((set) => ({
       branchId: null,
       text: "",
       options: { ...defaultOptions },
+      pairWithheld: { excluded_tags: [], excluded_ids: [] },
       entered: true,
     });
   },
@@ -87,6 +95,9 @@ export const useExperience = create<State>((set) => ({
   setOptions: (v) => set((s) => ({ options: { ...s.options, ...v } })),
   setSettings: (v) => set((s) => ({ settings: { ...s.settings, ...v } })),
   setText: (text) => set({ text }),
+  setPairMode: (pairMode) => set({ pairMode }),
+  setPairWithheld: (v) =>
+    set((s) => ({ pairWithheld: { ...s.pairWithheld, ...v } })),
   setBranch: (branchId) => set({ branchId }),
   setEntered: (entered) => set({ entered }),
 }));

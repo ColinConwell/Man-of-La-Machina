@@ -7,6 +7,8 @@ from packages.domain.models import (
     BranchMessage,
     Manifest,
     ManifestItem,
+    ContextComposition,
+    ContextDifference,
     digest,
 )
 
@@ -235,3 +237,58 @@ def build_context(
     }
     receipt_hash = digest(serial)
     return Manifest(id="manifest-" + receipt_hash, hash=receipt_hash, **payload)
+
+
+def withheld_options(options: ContextOptions, extra) -> ContextOptions:
+    """Condition B: the same selection with additional groups or turns withheld."""
+    return options.model_copy(
+        update=dict(
+            excluded_tags=tuple(
+                dict.fromkeys(options.excluded_tags + extra.excluded_tags)
+            ),
+            excluded_ids=tuple(
+                dict.fromkeys(options.excluded_ids + extra.excluded_ids)
+            ),
+        )
+    )
+
+
+def composition(manifest: Manifest) -> ContextComposition:
+    counts: dict[str, int] = {}
+    for i in manifest.items:
+        counts[i.origin] = counts.get(i.origin, 0) + 1
+    return ContextComposition(
+        manifest_id=manifest.id,
+        hash=manifest.hash,
+        item_count=len(manifest.items),
+        token_estimate=manifest.token_estimate,
+        counts=counts,
+    )
+
+
+def compare_contexts(a: Manifest, b: Manifest) -> ContextDifference:
+    """Item-level difference between two receipts built for the same turn.
+
+    Withholding can also free budget, so B may gain older items that A dropped.
+    """
+    a_ids = {i.id for i in a.items}
+    b_ids = {i.id for i in b.items}
+    reasons = {e["id"]: e["reason"] for e in b.exclusions}
+    return ContextDifference(
+        shared_count=len(a_ids & b_ids),
+        removed=tuple(
+            dict(
+                id=i.id,
+                origin=i.origin,
+                tags=list(i.tags),
+                reason=reasons.get(i.id, ""),
+            )
+            for i in a.items
+            if i.id not in b_ids
+        ),
+        added=tuple(
+            dict(id=i.id, origin=i.origin, tags=list(i.tags), reason=i.reason)
+            for i in b.items
+            if i.id not in a_ids
+        ),
+    )

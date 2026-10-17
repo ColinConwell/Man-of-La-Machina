@@ -1812,3 +1812,190 @@ label > select {
     font-size: 11pt;
   }
 }
+
+/* Paired context comparison */
+.reply-mode {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+.reply-mode label {
+  position: relative;
+  padding: 2px;
+  font: 11px var(--ui);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.reply-mode label.active {
+  border-bottom-color: var(--olive);
+}
+.reply-mode input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.reply-mode label:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+}
+.pair-controls {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  margin: 0 0 8px;
+  font: 10px var(--ui);
+}
+.pair-controls > span {
+  color: var(--muted);
+}
+.pair-controls .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.pair-controls .chip input {
+  margin: 0;
+}
+.pair-controls .chip:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.pair-turns summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1px 4px;
+  text-decoration: underline dotted;
+}
+.pair-turns summary::-webkit-details-marker {
+  display: none;
+}
+/* Opens upward over the reading surface so the composer keeps its height. */
+.pair-turn-list {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  max-height: 260px;
+  overflow: auto;
+  padding: 6px 10px;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 12%);
+}
+.context-pair {
+  padding: 4px 0 18px;
+  border-bottom: 1px solid var(--border);
+}
+.pair-summary {
+  font: 12px/1.6 var(--ui);
+  color: var(--muted);
+  margin: 12px 0;
+}
+.pair-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.pair-condition {
+  min-width: 0;
+}
+.pair-condition + .pair-condition {
+  border-left: 1px solid var(--border);
+  padding-left: 24px;
+}
+.pair-condition h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  margin: 6px 0 10px;
+}
+.condition-label {
+  font: 600 11px var(--ui);
+  border: 1px solid currentColor;
+  padding: 0 5px;
+  color: var(--accent);
+}
+.composition-bar {
+  display: flex;
+  height: 10px;
+  gap: 1px;
+  background: var(--surface);
+}
+.segment {
+  display: inline-block;
+  min-width: 3px;
+}
+.segment.framing {
+  background: var(--border);
+}
+.segment.kept {
+  background: var(--historical);
+}
+.segment.withheld {
+  background: var(--accent);
+}
+.segment.added {
+  background: var(--olive);
+}
+.segment.gap {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    var(--accent) 3px 4px
+  );
+  outline: 1px dashed var(--accent);
+  outline-offset: -1px;
+}
+.segment.branch {
+  background: var(--generated);
+  opacity: 0.55;
+}
+.composition-facts {
+  margin: 6px 0 0;
+}
+.pair-condition .branch-message.incomplete {
+  border-left-style: dashed;
+  opacity: 0.8;
+}
+.composition-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+}
+.composition-legend i {
+  display: inline-block;
+  width: 14px;
+  height: 8px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+@media (max-width: 760px) {
+  .pair-columns {
+    grid-template-columns: 1fr;
+  }
+  .pair-condition + .pair-condition {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+}
+.composer-label {
+  flex-wrap: wrap;
+}

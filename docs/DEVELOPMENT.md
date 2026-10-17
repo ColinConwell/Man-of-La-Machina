@@ -8,6 +8,8 @@ The [About and Essay guide](EDITORIAL.md) covers editable TeX/BibTeX sources, we
 
 Beginning candidates and source demarcations have a separate [local annotation tool](BEGINNINGS.md), launched with `just curate`.
 
+A local-only [project deck](DECK.md), launched with `just deck`, presents the work and replays its agentic workflows; `?mode=edit` adds in-place editing and annotations saved under the ignored `manuscript/deck/`.
+
 ## Research and Change History
 
 For agents and contributors: add research or discussion on a high-level topic as a numbered, dated report in [reports/](../reports/README.md), and update its index. Separate evidence, interpretation, proposals, and implemented behavior. Keep private manuscript and transcript excerpts out of committed reports. After implementing changes, add a new timestamped entry to the root [CHANGELOG.md](../CHANGELOG.md), describing behavior, verification, and material limitations. Do not silently revise earlier historical entries.
@@ -40,8 +42,25 @@ For development, run `just api` and `just web` in separate terminals and use **h
 2. Navigate through configured anchors, all threads, search, or the timeline. Change resolution from journey to individual message without changing the cutoff. Every normalized turn has an **Enter here** action. **List & range** offers date filtering and keyboard-accessible interval selection.
 3. In **Context**, select scene/thread/chapter/journey breadth and see how many eligible turns fit the context budget. Withhold tagged groups or individual messages, and optionally replace a selected human turn. **More context controls** exposes the context beginning and saved presets.
 4. Write your human turn. **Preview context** shows the exact ordered material and SHA-256 receipt. **Generation settings** selects a provider and editable model ID. Demo mode is the initial default.
-5. Generate a streamed companion response. Continue for up to five exchanges, inspect any generated turn’s receipt, and open **Compare** or **Artifacts**.
+5. Generate a streamed companion response. Continue for up to five exchanges, inspect any generated turn’s receipt, and open **Compare** or **Artifacts**. **Compare two contexts** answers the same turn twice; see below.
 6. **Export branch & receipts** preserves your experiment as JSON. **Reset** erases the current server branch. Sessions expire after two hours and disappear on server shutdown; no visitor text is stored in browser local storage or an on-disk application log.
+
+### Paired context comparison
+
+The essay separates two interventions: a different next move, and a different inherited past. The composer's **Compare two contexts** mode makes the second one a single action. Write one turn, then choose what condition B also withholds: tagged groups not already withheld, or individual turns under **Turns**. **Generate both replies** sends that turn twice, with the same model, settings, and prior branch turns:
+
+- **A** is the current Context workbench selection, unchanged.
+- **B** is the same selection plus the chosen groups or turns withheld (`withheld_options` in `packages/domain/context.py`).
+
+The Branch tab shows the visitor turn once, marked as held fixed, with the two generated replies side by side. Each column has its own receipt (**Inspect receipt A/B** opens the standard receipt dialog), item and token counts, and a short hash. A composition bar uses one scale for both conditions. The span both contexts share lines up, A marks what B withholds, and B shows the gap. Withholding can free budget, so B may admit older items that A had dropped. Those items are counted and drawn separately.
+
+Behavior and limits:
+
+- `POST /api/v1/branches/{id}/pairs` takes the normal submission body plus `withheld: {excluded_tags, excluded_ids}`. It builds both manifests with the existing `build_context`, starts two ordinary generation jobs, and returns two stream URLs. These reuse the existing stream, receipt, export, idempotency, cancellation, and hosted admission paths. A live pair needs room for both generations under the hourly allowance and the concurrency cap, or neither starts.
+- The server rejects a pair (422) when B would remove nothing that A includes, for example a group already withheld, a tag absent from this context, or the protected local turn. Before generation, the composer estimates the removal from A's preview.
+- A pair counts as **one** exchange toward the five-exchange cap once at least one condition completes. Pairs sit beside the linear branch at the point they were taken; neither reply becomes part of the branch, so a later single turn continues from the linear branch only. `exchange_count` on the branch response is authoritative.
+- Each condition completes, fails, or is refused independently. A failed or refused condition shows no reply and is not counted as a companion turn.
+- Pairs are held in server memory with their branch, appear under `pairs` in **Export branch & receipts**, and are deleted by **Reset** and expiry. Nothing visitor-authored is written to disk. Demo mode needs no model calls, and its deterministic reply changes when practical details are withheld.
 
 The current corpus contains **369 recorded turns in 17 threads, 10 anchors, and two linked retrospective annotations**. Source excerpts remain explicitly marked unreviewed. The May 19 Long Update’s July 11 introduction is an annotation, not an historical turn. Nightfall in Janovas retains a May 11–12 disclosure range; no midnight timestamps are invented.
 

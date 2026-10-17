@@ -166,6 +166,102 @@ test("breadth radio keyboard and mobile controls remain accessible", async ({
   ).toEqual([]);
 });
 
+test("paired mode answers one turn under two contexts with distinct receipts", async ({
+  page,
+}) => {
+  const posts: string[] = [];
+  page.on("request", (r) => {
+    if (r.method() === "POST") posts.push(new URL(r.url()).pathname);
+  });
+  await page.goto("/?entry=test-3-9");
+  await expect(page.getByTestId("context-coverage")).toContainText("10 of 10");
+  await page.getByRole("radio", { name: "Compare two contexts" }).check();
+  const composer = page.locator(".branch-composer");
+  await composer
+    .getByLabel("Write your next turn", { exact: true })
+    .fill("An invented paired turn.");
+  const generate = page.getByRole("button", { name: "Generate both replies" });
+  await expect(page.getByTestId("pair-estimate")).toContainText(
+    "Choose what B withholds",
+  );
+  await expect(generate).toBeDisabled();
+  await composer.getByLabel("Practical details").check();
+  await expect(page.getByTestId("pair-estimate")).toContainText(
+    "B withholds 5 items A includes",
+  );
+  await generate.click();
+  const pair = page.getByTestId("context-pair");
+  const a = pair.getByTestId("condition-A");
+  const b = pair.getByTestId("condition-B");
+  await expect(
+    a.getByRole("button", { name: "Inspect receipt A" }),
+  ).toBeVisible();
+  // Demo generation varies with the withheld group and makes no model calls.
+  await expect(a).toContainText("practical details in this context");
+  await expect(a).toContainText("using 10 historical turns");
+  await expect(b).toContainText("less of the earlier detail");
+  await expect(b).toContainText("using 5 historical turns");
+  await expect(b).toContainText("Without Practical details");
+  await expect(pair.locator(".branch-message.visitor")).toHaveCount(1);
+  await expect(pair.locator(".branch-message.visitor")).toContainText(
+    "held fixed for both contexts",
+  );
+  await expect(pair.locator(".pair-summary")).toContainText(
+    "5 recorded turns removed",
+  );
+  await expect(pair.getByTestId("composition-B")).toHaveAttribute(
+    "aria-label",
+    /5 withheld/,
+  );
+  await expect(pair.locator(".composition-bar .segment.withheld")).toHaveCount(
+    1,
+  );
+  await expect(pair.locator(".composition-bar .segment.gap")).toHaveCount(1);
+  await expect(composer).toContainText("1 / 5 exchanges");
+  await expect(
+    composer.getByLabel("Write your next turn", { exact: true }),
+  ).toHaveValue("");
+  // Condition A remains the workbench selection; B's withholding is separate.
+  await expect(
+    page.locator(".context-workbench").getByLabel("Practical details"),
+  ).toBeChecked();
+  const hashes: string[] = [];
+  for (const [condition, label] of [
+    [a, "A"],
+    [b, "B"],
+  ] as const) {
+    await condition
+      .getByRole("button", { name: `Inspect receipt ${label}` })
+      .click();
+    const hash = page.getByRole("dialog").getByTestId("manifest-hash");
+    await expect(hash).toHaveText(/[a-f0-9]{64}/);
+    hashes.push((await hash.textContent())!);
+    expect(
+      hashes
+        .at(-1)!
+        .startsWith((await condition.locator("code").textContent())!),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Close receipt" }).click();
+  }
+  expect(hashes[0]).not.toBe(hashes[1]);
+  expect(posts.filter((p) => p.endsWith("/branches"))).toHaveLength(1);
+  expect(posts.filter((p) => p.endsWith("/pairs"))).toHaveLength(1);
+  expect(posts.filter((p) => p.endsWith("/messages"))).toHaveLength(0);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
 test("local annotation tool edits, saves, and reloads a private boundary", async ({
   page,
 }) => {

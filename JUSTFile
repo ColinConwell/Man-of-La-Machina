@@ -91,3 +91,11 @@ results-build:
 # Inspect private saved simulations at http://127.0.0.1:8002
 results *args: results-build
     {{ venv_python }} -m tools.results_dashboard {{ args }}
+
+# Build the private project deck using the existing frontend toolchain
+deck-build:
+    node apps/web/node_modules/vite/bin/vite.js build --config tools/deck/vite.config.mjs
+
+# Present or edit the local-only deck at http://127.0.0.1:8003 (?mode=edit to edit)
+deck *args: deck-build
+    {{ venv_python }} -m tools.deck {{ args }}
