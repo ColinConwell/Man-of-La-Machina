@@ -101,3 +101,11 @@ Add a new timestamped entry after implementing changes. Record user-visible beha
 
 - Added sanitized startup diagnostics that distinguish private-content storage configuration, access, object reading, checksum, schema, and semantic-validation failures. Credentials, object identifiers, and source passages remain excluded from error messages; pinned checksums and bounded reads remain enforced.
 - Verified 28 content/storage/hosting tests, including private-data suppression in formatted tracebacks, bounded reads, stream cleanup, and distinct failure categories. The production startup failure still requires verification from the diagnostic deployment; this change alone does not claim recovery.
+
+## 2026-10-23 19:25 UTC
+
+- Added an isolated Landscape Studio under `tools/design_preview`, launched with `just design` through the existing port registry. It offers six generated landscapes, four composition presets, independent interface palettes and illustration filters, opacity/blur controls, six inert schematic states, mobile emulation, A/B comparison, and validated persistent/exportable presets.
+- Preserved message boundaries, within-message progress and all five narration generation/loading states in the audio schematic. Functional TTS remains the next milestone after design selection.
+- Added independent CSS/SVG atmospheric and articulated motion plus working Rive and Lottie exports in a lazy-loaded comparison. Pause, reduced motion and hidden-document suspension apply to every runtime. Recorded artwork prompts/checksums and animation research in report 006.
+- Added a standalone static Docker/Caddy hosting target with password-hash authentication for HTML and artwork, no production/private-content dependencies, and an explicit preview-only Git subtree deployment. Production excludes the design routes and assets.
+- Verification: seven browser acceptance tests, two isolation tests, strict documentation build, standalone build and dependency audit passed. Desktop/mobile visuals and animation playback/pause were inspected; local Caddy authentication and CSP runtime checks passed. Arbitrary low-opacity settings and untested browsers still need visual judgment. Hosted deployment verification is recorded in the design preview guide.
