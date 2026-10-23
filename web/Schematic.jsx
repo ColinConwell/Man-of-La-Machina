@@ -47,34 +47,44 @@ function Passage({ long = false }) {
   return (
     <div className="passage">
       {paragraphs.slice(0, long ? 6 : 3).map((p, i) => (
-        <p key={i}>{p}</p>
+        <p key={i}><span className="veil-text">{p}</span></p>
       ))}
     </div>
   );
 }
-function Reader({ long }) {
+function ConversationMessage({ speaker, settings, className = "", children }) {
+  return <div
+    className={`message ${speaker === "traveler" ? "human-message" : "machine-message"} position-${settings[`${speaker}Position`]} align-${settings[`${speaker}Align`]} ${className}`}
+    data-speaker={speaker}
+  >{children}</div>;
+}
+function Reader({ long, settings }) {
   return (
     <>
-      <div className="message human-message">
+      <ConversationMessage speaker="traveler" settings={settings}>
         <div className="message-byline">
-          <span>Traveler</span>
+          <span className="veil-text">Traveler</span>
         </div>
         <p className="dialogue">
+          <span className="veil-text">
           “I have reached a place where the road divides. How should I choose
           what comes next?”
+          </span>
         </p>
-      </div>
-      <div className="message machine-message">
+      </ConversationMessage>
+      <ConversationMessage speaker="companion" settings={settings}>
         <div className="message-byline">
-          <span>Companion</span>
+          <span className="veil-text">Companion</span>
         </div>
         <p className="dialogue">
+          <span className="veil-text">
           <mark>
             “Begin with what matters to you, then consider what each path makes
             possible.”
           </mark>
+          </span>
         </p>
-      </div>
+      </ConversationMessage>
       <div className="story-actions">
         <MockButton className="primary-story">
           Try a Different Reply <ArrowRight size={18} />
@@ -85,16 +95,20 @@ function Reader({ long }) {
         View Recorded Continuation <ArrowRight size={16} />
       </MockButton>
       {long && (
-        <div className="message long-continuation">
+        <>
+        <ConversationMessage speaker="traveler" settings={settings} className="long-continuation">
           <div className="message-byline">
-            <span>The Story Continues</span>
+            <span className="veil-text">The Story Continues · Traveler</span>
           </div>
           <Passage long />
-          <div className="message-byline next-message">
-            <span>The Companion</span>
+        </ConversationMessage>
+        <ConversationMessage speaker="companion" settings={settings}>
+          <div className="message-byline">
+            <span className="veil-text">The Companion</span>
           </div>
           <Passage long />
-        </div>
+        </ConversationMessage>
+        </>
       )}
     </>
   );
@@ -138,7 +152,7 @@ function Branches({ long }) {
     </>
   );
 }
-function Comparison({ long }) {
+function Comparison({ long, settings }) {
   return (
     <div className="comparison-passages">
       {[
@@ -150,11 +164,13 @@ function Comparison({ long }) {
           "The Machine’s Version",
           "Beyond the final inked line, the hills opened into a country without a name. The traveler stepped forward.",
         ],
-      ].map(([t, p]) => (
+      ].map(([t, p], index) => (
         <section key={t}>
-          <div className="section-caption">{t}</div>
-          <p>{p}</p>
+        <ConversationMessage speaker={index === 0 ? "traveler" : "companion"} settings={settings}>
+          <div className="section-caption"><span className="veil-text">{t}</span></div>
+          <p><span className="veil-text">{p}</span></p>
           {long && <Passage />}
+        </ConversationMessage>
         </section>
       ))}
     </div>
@@ -310,7 +326,9 @@ export function AppHeader() {
 export function SchematicContent({ settings }) {
   const Content = layouts[settings.schematic];
   return (
-    <div className={`reading-area layout-${settings.layout}`}>
+    <div className={`reading-area layout-${settings.layout} veil-${settings.veilMode}`}
+      style={{"--veil-padding": `${settings.veilPadding}px`, "--message-width": `${settings.messageWidth * 100}%`}}
+    >
       <aside className="journey-rail">
         <h2>Journey</h2>
         <ol>
@@ -321,10 +339,12 @@ export function SchematicContent({ settings }) {
       </aside>
       <div className="reading-inner">
         <div className="chapter-heading">
-          <h1>{titles[settings.schematic][0]}</h1>
+          <h1><span className="veil-text">{titles[settings.schematic][0]}</span></h1>
           <p className="section-caption">{titles[settings.schematic][1]}</p>
         </div>
-        <Content long={settings.density === "long"} />
+        <div className={`schematic-body state-${settings.schematic}`}>
+          <Content long={settings.density === "long"} settings={settings} />
+        </div>
       </div>
     </div>
   );

@@ -139,14 +139,23 @@ export default function ControlPanel({
           label="Interface Palette"
           {...{ settings, onChange }}
         />
+        <div className="treatment-shortcuts" aria-label="Sketch Studies">
+          <button type="button" className="panel-button" onClick={() => onChange("treatment", "ink-sepia")} aria-pressed={settings.treatment === "ink-sepia"}>Sepia Ink</button>
+          <button type="button" className="panel-button" onClick={() => onChange("treatment", "graphite")} aria-pressed={settings.treatment === "graphite"}>Graphite</button>
+        </div>
       </section>
       <section className="panel-section">
         <h3>Surface & Legibility</h3>
+        <Select field="veilMode" label="Veil Shape" {...{ settings, onChange }} />
+        <p className="field-note">
+          {settings.veilMode === "window" ? "Fits the available reading window as you resize, including each A/B pane." : settings.veilMode === "messages" ? "A soft, beveled surface fits each message and its speaker label." : settings.veilMode === "contours" ? "The surface follows each wrapped line and reshapes as text reflows." : "A broad, feathered veil keeps the reading column quiet."}
+        </p>
         <Slider
           field="readingOpacity"
           label="Reading Veil"
           {...{ settings, onChange }}
         />
+        {(settings.veilMode === "messages" || settings.veilMode === "contours") && <Slider field="veilPadding" label="Veil Breathing Room" min={8} max={40} step={1} unit="px" {...{ settings, onChange }} />}
         <Slider
           field="controlOpacity"
           label="Control Opacity"
@@ -165,6 +174,17 @@ export default function ControlPanel({
           Illustration color changes independently of text and controls. Low
           opacities are exploratory.
         </p>
+      </section>
+      <section className="panel-section">
+        <h3>Conversation Typography</h3>
+        <button type="button" className="panel-button" onClick={() => onPreset({name:"Opposing Voices", settings:{travelerPosition:"left", travelerAlign:"left", companionPosition:"right", companionAlign:"right"}})}>Traveler Left · Companion Right</button>
+        {[["traveler", "Traveler"], ["companion", "Companion"]].map(([speaker, name]) => <fieldset className="speaker-settings" key={speaker}>
+          <legend>{name}</legend>
+          <Select field={`${speaker}Position`} label={`${name} Placement`} {...{ settings, onChange }} />
+          <Select field={`${speaker}Align`} label={`${name} Text Alignment`} {...{ settings, onChange }} />
+        </fieldset>)}
+        <Slider field="messageWidth" label="Placed Message Width" min={0.55} max={1} step={0.01} {...{ settings, onChange }} />
+        <p className="field-note">Placement moves the message. Alignment sets its text edges. Width applies to left, center and right placements; Full Width fills the column.</p>
       </section>
       <section className="panel-section">
         <h3>Movement</h3>

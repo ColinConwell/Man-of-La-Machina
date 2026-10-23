@@ -1,5 +1,43 @@
 import React, { useId } from "react";
 import { sceneImages } from "./scenes.js";
+import "./illustration.css";
+
+// These are static illustration studies. Edge and shadow masks are evaluated on
+// the painting, never on the reading surface or its text, and never animated.
+function SketchIllustration({ source, id, graphite }) {
+  const ink = graphite ? [0.2, 0.21, 0.2] : [0.34, 0.24, 0.13];
+  return (
+    <svg className="sketch-illustration" width="100%" height="100%">
+      <defs>
+        <filter id={`etch-${id}`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feColorMatrix type="saturate" values="0" result="gray" />
+          <feGaussianBlur in="gray" stdDeviation="1.1" result="soft" />
+          <feComposite in="soft" in2="gray" operator="arithmetic" k2="-3.2" k3="3.2" k4="1" />
+          <feComponentTransfer>
+            <feFuncR type="linear" slope={1 - ink[0]} intercept={ink[0]} />
+            <feFuncG type="linear" slope={1 - ink[1]} intercept={ink[1]} />
+            <feFuncB type="linear" slope={1 - ink[2]} intercept={ink[2]} />
+          </feComponentTransfer>
+        </filter>
+        <filter id={`shadow-${id}`} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+          <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -.2126 -.7152 -.0722 0 1" />
+          <feComponentTransfer>
+            <feFuncA type="gamma" amplitude="1" exponent="2.1" offset="0" />
+          </feComponentTransfer>
+        </filter>
+        <mask id={`hatch-shadow-${id}`} maskUnits="objectBoundingBox" maskContentUnits="userSpaceOnUse" style={{ maskType: "alpha" }}>
+          <image href={source} width="100%" height="100%" preserveAspectRatio="xMidYMax slice" filter={`url(#shadow-${id})`} />
+        </mask>
+        <pattern id={`hatch-${id}`} patternUnits="userSpaceOnUse" width="7" height="7">
+          <path d="M-1 1 1-1M0 7 7 0M6 8 8 6" fill="none" stroke="currentColor" strokeWidth=".65" />
+          <path d="M0 1 6 7" fill="none" stroke="currentColor" strokeWidth=".35" opacity=".45" />
+        </pattern>
+      </defs>
+      <image className="sketch-contours" href={source} width="100%" height="100%" preserveAspectRatio="xMidYMax slice" filter={`url(#etch-${id})`} />
+      <rect className="sketch-hatching" width="100%" height="100%" fill={`url(#hatch-${id})`} mask={`url(#hatch-shadow-${id})`} />
+    </svg>
+  );
+}
 
 export function Traveler({ offset = true }) {
   return (
@@ -88,6 +126,7 @@ function Reeds() {
 export default function Landscape({ settings, stopped }) {
   const id = useId().replaceAll(":", "");
   const { motion, composition, treatment, intensity, speed } = settings;
+  const isSketch = treatment === "ink-sepia" || treatment === "graphite";
   return (
     <div
       className={`landscape treatment-${treatment} composition-${composition} motion-${motion} ${stopped ? "is-still" : ""}`}
@@ -100,6 +139,8 @@ export default function Landscape({ settings, stopped }) {
         alt=""
         draggable="false"
       />
+      {isSketch && <SketchIllustration source={sceneImages[settings.scene]} id={id} graphite={treatment === "graphite"} />}
+      {isSketch && <div className="illustration-paper" />}
       <div className="atmosphere-layer">
         <div className="cloud cloud-one" />
         <div className="cloud cloud-two" />
