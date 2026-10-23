@@ -1,0 +1,17 @@
+# A separate build context; never include corpus, provider keys or the API.
+**
+!Dockerfile
+!Dockerfile.dockerignore
+!package.json
+!package-lock.json
+!index.html
+!vite.config.mjs
+!Caddyfile
+!start.sh
+!web/
+!web/**
+**/node_modules
+**/.env*
+**/*.local.*
+**/dist
+**/*.map
