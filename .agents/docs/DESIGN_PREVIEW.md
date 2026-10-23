@@ -48,4 +48,21 @@ Local Caddy integration confirmed anonymous HTML/artwork 401, incorrect credenti
 
 The seven preview acceptance tests and full application CI passed at [run 40011857329](https://github.com/ColinConwell/Man-of-La-Machina/actions/runs/40011857329). In-app browser inspection also verified page identity, meaningful rendered content, a working composition change and zero console warnings/errors. A bounded local Chromium 153 check at 390×844, DPR 1, sampled 120 frames: default atmosphere had a 16.7 ms median / 16.8 ms p95; all native layers had a 16.7 ms median / p95. Neither sample exceeded 25 ms. Initial HTML/JS/CSS/one landscape transferred 623,806 bytes from the local server, excluding the lazy Rive/Lottie study. These desktop-machine measurements do not establish physical-phone performance.
 
-Deployment identifiers and final hosted verification are recorded below after deployment.
+## Hosted Deployment Evidence
+
+Verified on October 23, 2026 at 19:40 UTC:
+
+| Item | Verified Value |
+| --- | --- |
+| Preview | <https://landscape-design-preview-production.up.railway.app> |
+| Railway Service | `7a989e73-d36a-48a4-be00-263d4eddf9b0` (`landscape-design-preview`) |
+| Successful Deployment | `e2ac7497-c54a-4e02-a626-472ede7f9d35` |
+| Preview Subtree Commit | `df0f323046e9224faffc46eb67ac7e4521e044bd` |
+| Container Image | `sha256:ea788e0ad08e26f8a558a1dd5aa4e466a90e02dd17756f23c229f2652229c0db` |
+| Implementation Review | [Pull Request 1](https://github.com/ColinConwell/Man-of-La-Machina/pull/1) |
+
+The first preview deployment (`5a224cbc-16f8-496e-a938-c4ed023146fc`) failed at BUILD_IMAGE before any Docker build log appeared. Its snapshot reported RAILPACK despite the service's Dockerfile setting. Setting `RAILWAY_DOCKERFILE_PATH=Dockerfile` and reconnecting the same preview source produced a fresh successful Docker build and health check. The earlier build's underlying platform failure is not established.
+
+Live HTTPS verification returned 401 for anonymous `/`, `/design`, and all twelve emitted assets (JavaScript, CSS, all six paintings, Rive WASM, rig and poster). Incorrect credentials returned 401; authenticated requests returned 200. `/healthz` returned 200 with the generic response. HTTP redirected to HTTPS with 301. Authenticated requests for `.env.local`, `.git/config`, source JSX, the asset manifest and the application API returned 404. Responses use `Cache-Control: private, no-store`.
+
+Authenticated Chromium checks at 1440×1000 and 390×844 confirmed the rendered page identity, working scene/composition controls, no horizontal overflow, no browser errors and no external-origin requests. Both Rive and Lottie loaded, played and paused under the hosted CSP. Screenshots were visually inspected at both sizes and for the three-player comparison. These checks cover the deployed subtree above; later documentation-only commits on the implementation branch do not change that hosted source.
