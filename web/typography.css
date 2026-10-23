@@ -1,0 +1,86 @@
+@font-face {
+  font-family: "EB Garamond";
+  src: url("./assets/fonts/eb-garamond-latin-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IM Fell English";
+  src: url("./assets/fonts/im-fell-english-latin-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Quintessential";
+  src: url("./assets/fonts/quintessential-latin-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Italianno";
+  src: url("./assets/fonts/italianno-latin-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "UnifrakturMaguntia";
+  src: url("./assets/fonts/unifraktur-maguntia-latin-400.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* Prose only: labels, navigation and narration status keep their UI faces. */
+.reading-area :is(.dialogue, .passage p, .message > p, .branch-root > p, .event p, .editorial-passage > p, .first-visit > p) {
+  font-family: var(--reading-font);
+  font-size: calc(var(--type-base) * var(--font-scale) * var(--text-scale));
+  font-synthesis: none;
+  overflow-wrap: anywhere;
+}
+.dialogue { --type-base: clamp(22px, 2.15cqw, 34px); letter-spacing: var(--font-tracking); line-height: var(--font-leading); }
+.layout-conversation .dialogue { --type-base: 24px; }
+.layout-folio .dialogue { --type-base: 26px; line-height: 1.6; }
+.passage p, .message > p:not(.dialogue) { --type-base: 20px; }
+.comparison-passages .message > p { --type-base: 23px; }
+.comparison-passages .passage p { --type-base: 18px; }
+.branch-root > p { --type-base: 25px; }
+.event p { --type-base: 17px; }
+.editorial-passage > p { --type-base: 27px; }
+.first-visit > p { --type-base: 17px; }
+
+.reading-area :is(h1, h2, h3, .editorial-passage aside strong) {
+  font-family: var(--heading-font);
+  font-synthesis: none;
+  letter-spacing: var(--heading-tracking);
+  overflow-wrap: anywhere;
+}
+.chapter-heading h1 { font-size: calc(clamp(36px, 3.9cqw, 62px) * var(--heading-scale)); }
+.preview-frame[data-heading-font="italianno"] .chapter-heading h1 { line-height: 1.25; }
+
+/* Selected faces are shown in context without loading an entire font gallery. */
+.type-specimen { border-block: 1px solid #d7ccbc; margin: 16px 0 10px; padding: 15px 8px; font-synthesis: none; overflow-wrap: anywhere; }
+.type-specimen > div { line-height: 1.25; }
+.type-specimen p { margin: 8px 0 0; line-height: 1.6; }
+.type-pairings { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.type-pairings .panel-button { margin: 0; min-height: 42px; padding: 8px; justify-content: center; }
+.font-license-link { color: #77462e; font: 12px/1.5 Arial, sans-serif; text-underline-offset: 3px; }
+
+@container (max-width: 850px) {
+  .dialogue { --type-base: 26px; }
+  .comparison-passages .message > p { --type-base: 21px; }
+}
+@container (max-width: 520px) {
+  .dialogue, .layout-conversation .dialogue, .layout-folio .dialogue { --type-base: 24px; line-height: max(1.4, var(--font-leading)); }
+  .passage p { --type-base: 19px; }
+  .comparison-passages .message > p { --type-base: 22px; }
+  .editorial-passage > p { --type-base: 24px; }
+  .first-visit > p { --type-base: 16px; }
+  .chapter-heading h1 { font-size: calc(34px * var(--heading-scale)); }
+}
+/* Keep room for adjacent line contours even with tall script capitals. */
+.veil-contours .message :is(.dialogue, .passage p),
+.veil-contours .comparison-passages .message > p { line-height: 1.65; }

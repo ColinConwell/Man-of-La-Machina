@@ -1,3 +1,5 @@
+import { FONT_OPTIONS } from "./typography.mjs";
+
 export const STORAGE_KEY = "la-machina.landscape-studio.v1";
 export const SCENES = [
   ["olive-plains", "Andalusian Olive Plains"],
@@ -8,6 +10,8 @@ export const SCENES = [
   ["andorran-valley", "An Andorran Valley"],
 ];
 export const OPTIONS = {
+  headingFont: FONT_OPTIONS,
+  readingFont: FONT_OPTIONS,
   scene: SCENES,
   composition: [
     ["margins", "Illustrated Margins"],
@@ -68,6 +72,7 @@ const alignments = [["left", "Left / Ragged Right"], ["center", "Centered"], ["r
 for (const speaker of ["traveler", "companion"]) {
   OPTIONS[`${speaker}Position`] = positions;
   OPTIONS[`${speaker}Align`] = alignments;
+  OPTIONS[`${speaker}Font`] = [["inherit", "Use Reading Font"], ...FONT_OPTIONS];
 }
 export const DEFAULTS = Object.freeze({
   scene: "olive-plains",
@@ -92,6 +97,11 @@ export const DEFAULTS = Object.freeze({
   travelerAlign: "left",
   companionPosition: "full",
   companionAlign: "left",
+  headingFont: "classic",
+  readingFont: "classic",
+  travelerFont: "inherit",
+  companionFont: "inherit",
+  textScale: 1,
 });
 export const PRESETS = [
   {
@@ -143,6 +153,7 @@ const RANGES = {
   speed: [0.25, 2],
   veilPadding: [8, 40],
   messageWidth: [0.55, 1],
+  textScale: [0.85, 1.35],
 };
 export function validateSettings(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
