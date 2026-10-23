@@ -916,11 +916,12 @@ def create_app(
 
 
 if __name__ == "__main__":
-    import uvicorn
+    from library.ports import serve
 
-    uvicorn.run(
+    # Hosted platforms set PORT, which is bound exactly; see library/ports.json.
+    serve(
         create_app(),
+        "api",
         host=os.getenv("MACHINA_HOST", "127.0.0.1"),
-        port=int(os.getenv("PORT", os.getenv("MACHINA_PORT", "8000"))),
         access_log=False,
     )

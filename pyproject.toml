@@ -48,6 +48,14 @@ exclude = ["apps/web"]
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "pytest-asyncio>=0.24,<2"]
 hosting = ["boto3>=1.36,<2"]
+docs = [
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.5,<10",
+    "mkdocstrings[python]>=0.29,<2",
+    "mkdocs-gen-files>=0.5,<1",
+    "mkdocs-literate-nav>=0.6,<1",
+    "mkdocs-section-index>=0.3,<1",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -35,7 +35,7 @@ The initial boundary is inclusive: all eligible dialogue through the selected en
 
 ## Factors and Initial Design
 
-The shareable [suite](../experiments/counterfactual-suite.json) contains original experimental prompts, model settings, and the following paired conditions. Each condition changes one factor from the baseline. It is a screening design, not the full interaction factorial.
+The shareable [suite](../../experiments/counterfactual-suite.json) contains original experimental prompts, model settings, and the following paired conditions. Each condition changes one factor from the baseline. It is a screening design, not the full interaction factorial.
 
 | Factor | Conditions | Implemented Behavior |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ Metrics measure input bounds, completed turns, new versus reused calls, actual r
 .venv/bin/python -m pytest -q
 ```
 
-Invented fixtures test chronology, unavailable disclosure, actor-relative roles, future-free preparation, characterization scope, direct-insertion audience controls, compaction lineage, dynamic retrieval, explicit budget rejection, partial and length-limited outputs, bounded retry receipts, resume behavior, Unicode chunk coverage, cache invalidation, all five native remote payload routes, and private result permissions. Offline runs exercise orchestration but do not test model quality. See the [experiment report](../reports/002-2026-09-21-scripted-counterfactuals.md) for the initial live screening and its limitations.
+Invented fixtures test chronology, unavailable disclosure, actor-relative roles, future-free preparation, characterization scope, direct-insertion audience controls, compaction lineage, dynamic retrieval, explicit budget rejection, partial and length-limited outputs, bounded retry receipts, resume behavior, Unicode chunk coverage, cache invalidation, all five native remote payload routes, and private result permissions. Offline runs exercise orchestration but do not test model quality. See the [experiment report](../../reports/002-2026-09-21-scripted-counterfactuals.md) for the initial live screening and its limitations.
 
 ## Independent Results Dashboard
 
@@ -90,7 +90,7 @@ just results-build
 .venv/bin/python -m tools.results_dashboard --port 8002 --results experiments/results
 ```
 
-Open **http://127.0.0.1:8002/**. The dashboard is a separate React/Vite build and a local, read-only FastAPI process under `tools/results_dashboard/`. It shares build dependencies with the prototype but does not change its UI, routes, generation policy, or server. It calls no models and writes no simulation data.
+Open **http://127.0.0.1:8002/**, or the next free port the server reports if 8002 is busy (`just ports results` prints it; see [local ports](DEVELOPMENT.md#local-ports)). The dashboard is a separate React/Vite build and a local, read-only FastAPI process under `tools/results_dashboard/`. It shares build dependencies with the prototype but does not change its UI, routes, generation policy, or server. It calls no models and writes no simulation data.
 
 The path-tracing screening opens by default when present; otherwise the final counterfactual screening opens. Select another saved run to inspect earlier failures or explicitly labeled offline fixtures. Event, seed, condition, and search filters update the scenario list and summary counts. The memory chart compares completed baseline and compact-history cases matched by event, seed, and repetition; it follows event and seed filters, independently of condition and search filters. Displayed sizes are conservative input bounds, not vendor tokens.
 
@@ -130,7 +130,7 @@ Each case saves both exact anchors, withheld gap IDs, preparation provenance, th
 
 The dashboard defaults to `path-tracing-screening` when present. Its **Path** tab shows source anchors, clickable direct-exposure cells, waypoint plans, and model reviews. **Dialogue** brackets invented turns with separately labeled recorded anchors. **Compare With Upfront** matches interval, seed, and repetition. The original counterfactual run remains selectable. `path-tracing-pilot` preserves an earlier prompt version that exposed premature endpoint enactment; code fingerprints distinguish that version from the refined screening.
 
-The [path-tracing report](../reports/003-2026-09-21-path-tracing.md) records the initial findings and limitations. Structural audits verify input separation and exact payload integrity; they cannot detect all semantic leakage, inferential foreknowledge, chronology errors, or inaccurate reviewer conclusions.
+The [path-tracing report](../../reports/003-2026-09-21-path-tracing.md) records the initial findings and limitations. Structural audits verify input separation and exact payload integrity; they cannot detect all semantic leakage, inferential foreknowledge, chronology errors, or inaccurate reviewer conclusions.
 
 ## Event Timelines and Model-Chosen Scripts
 

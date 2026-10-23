@@ -1,5 +1,9 @@
+import argparse
+from library.ports import serve
 from .app import create_curator
-import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run(create_curator(), host="127.0.0.1", port=8001, access_log=False)
+    parser = argparse.ArgumentParser(description="Serve the local annotation tool on loopback.")
+    parser.add_argument("--port", type=int, default=None, help="exact port (default: 8001 or the next free port)")
+    args = parser.parse_args()
+    serve(create_curator(), "curator", port=args.port, access_log=False)

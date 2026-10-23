@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
-import uvicorn
+from library.ports import serve
 from tools.results_dashboard.app import create_dashboard
 
 SETTINGS = {'provider': 'demo', 'model': 'invented-offline-model', 'max_output_tokens': 1024}
@@ -80,4 +80,4 @@ if __name__ == '__main__':
     with TemporaryDirectory(prefix='machina-dashboard-browser-') as directory:
         root = Path(directory)
         save_fixture(root)
-        uvicorn.run(create_dashboard(root), host='127.0.0.1', port=8137, access_log=False)
+        serve(create_dashboard(root), 'results-fixture', access_log=False)

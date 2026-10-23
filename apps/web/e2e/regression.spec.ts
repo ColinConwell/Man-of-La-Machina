@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { curatorFixtureURL, explorationFixtureURL } from "./fixture-ports";
 
 test("landing copy, compact theme control, and all three beginnings", async ({
   page,
@@ -265,7 +266,7 @@ test("paired mode answers one turn under two contexts with distinct receipts", a
 test("local annotation tool edits, saves, and reloads a private boundary", async ({
   page,
 }) => {
-  await page.goto("http://127.0.0.1:8003/");
+  await page.goto(curatorFixtureURL + "/");
   await expect(page.getByRole("status")).toContainText(
     "Loaded private candidate catalog",
   );
@@ -313,7 +314,7 @@ test("local annotation tool edits, saves, and reloads a private boundary", async
     "/tools/curator/index.html",
   ]) {
     expect(
-      (await page.request.get("http://127.0.0.1:8002" + path)).status(),
+      (await page.request.get(explorationFixtureURL + path)).status(),
     ).toBe(404);
   }
 });

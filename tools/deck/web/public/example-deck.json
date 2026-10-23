@@ -30,7 +30,7 @@
       "id": "end",
       "layout": "closing",
       "title": "End of example",
-      "body": ["See docs/DECK.md for the slide schema."]
+      "body": ["See .agents/docs/DECK.md for the slide schema."]
     }
   ]
 }

@@ -1,0 +1,50 @@
+{
+  "scan": 20,
+  "services": {
+    "api": {
+      "port": 8000,
+      "env": ["MACHINA_API_PORT", "PORT", "MACHINA_PORT"],
+      "description": "Exploration API and production frontend"
+    },
+    "curator": {
+      "port": 8001,
+      "env": ["MACHINA_CURATOR_PORT"],
+      "description": "Annotate + Demarcate local tool"
+    },
+    "results": {
+      "port": 8002,
+      "env": ["MACHINA_RESULTS_PORT"],
+      "description": "Results dashboard"
+    },
+    "deck": {
+      "port": 8003,
+      "env": ["MACHINA_DECK_PORT"],
+      "description": "Project deck"
+    },
+    "docs": {
+      "port": 8004,
+      "env": ["MACHINA_DOCS_PORT"],
+      "description": "Documentation site preview"
+    },
+    "web": {
+      "port": 5173,
+      "env": ["MACHINA_WEB_PORT"],
+      "description": "Vite development frontend"
+    },
+    "exploration-fixture": {
+      "port": 8102,
+      "env": ["MACHINA_EXPLORATION_FIXTURE_PORT"],
+      "description": "Browser-test exploration fixture"
+    },
+    "curator-fixture": {
+      "port": 8103,
+      "env": ["MACHINA_CURATOR_FIXTURE_PORT"],
+      "description": "Browser-test annotation-tool fixture"
+    },
+    "results-fixture": {
+      "port": 8137,
+      "env": ["MACHINA_RESULTS_FIXTURE_PORT"],
+      "description": "Browser-test results-dashboard fixture"
+    }
+  }
+}

@@ -12,7 +12,7 @@ manuscript/
 content/
 tools/
 tests/
-docs/design/
+site/
 node_modules/
 apps/web/node_modules/
 apps/web/dist/

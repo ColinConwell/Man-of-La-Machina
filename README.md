@@ -26,4 +26,6 @@ The broader project approaches AI through the scale of one person's journey. Its
 
 This repository contains the code for the evolving interactive prototype. The transcript archive is stored separately and served by the website; it is not included in the public repository.
 
-Setup and model configuration are in the [development guide](docs/DEVELOPMENT.md). The [scripted counterfactual guide](docs/COUNTERFACTUALS.md) covers experiments that simulate both characters while varying memory, characterization, models, and future context, plus two-anchor path tracing, model-chosen script lengths, event-only context, and the independent results dashboard with per-result setup graphs. The main experience’s **Events** view animates a sourced, model-reviewed event sequence. See also the [curation notes](docs/CURATION.md) and [hosting guide](docs/HOSTING.md).
+The documentation lives in [`docs/`](docs/index.md) and builds with MkDocs (`uv sync --extra docs`, then `just docs`). Start with [Getting started](docs/getting-started.md), then the [vignettes](docs/vignettes/index.md): trying the interface with invented material, reopening a moment, comparing two contexts, running counterfactual experiments, choosing beginnings, and presenting the project deck. The [reference](docs/reference/index.md) covers commands, configuration, and the HTTP and Python APIs.
+
+Detailed maintainer notes on development, curation, hosting, and experiments are in [`.agents/docs/`](.agents/docs/README.md).

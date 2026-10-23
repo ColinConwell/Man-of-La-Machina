@@ -36,6 +36,11 @@ download-data *args:
 
 # --- Maintenance ---
 
+# List local servers, their default ports, and where they are running
+# (`just ports deck` prints one URL)
+ports *args:
+    {{ venv_python }} -m library.ports {{ args }}
+
 # Remove the virtualenv
 clean-venv:
     rm -rf {{ venv }}
@@ -50,12 +55,13 @@ content *args:
 setup-web:
     npm ci --prefix apps/web
 
-# Build and serve the complete local prototype at http://127.0.0.1:8000
+# Build and serve the complete local prototype (default http://127.0.0.1:8000)
 explore: content
     npm run build --prefix apps/web
     {{ venv_python }} -m apps.api.main
 
-# API and frontend development servers (run in separate terminals)
+# API and frontend development servers (run in separate terminals; the
+# frontend proxy follows the API to whichever port it takes)
 api:
     {{ venv_python }} -m apps.api.main
 
@@ -71,9 +77,9 @@ check:
 check-browser:
     npm run test:e2e --prefix apps/web
 
-# Standalone local annotation tool; never part of the hosted app
-curate:
-    {{ venv_python }} -m tools.curator
+# Standalone local annotation tool (default http://127.0.0.1:8001); never part of the hosted app
+curate *args:
+    {{ venv_python }} -m tools.curator {{ args }}
 
 # Self-contained browser regression suite with invented source material
 check-controls:
@@ -88,7 +94,7 @@ counterfactual *args:
 results-build:
     node apps/web/node_modules/vite/bin/vite.js build --config tools/results_dashboard/vite.config.mjs
 
-# Inspect private saved simulations at http://127.0.0.1:8002
+# Inspect private saved simulations (default http://127.0.0.1:8002)
 results *args: results-build
     {{ venv_python }} -m tools.results_dashboard {{ args }}
 
@@ -96,6 +102,17 @@ results *args: results-build
 deck-build:
     node apps/web/node_modules/vite/bin/vite.js build --config tools/deck/vite.config.mjs
 
-# Present or edit the local-only deck at http://127.0.0.1:8003 (?mode=edit to edit)
+# Present or edit the local-only deck (default http://127.0.0.1:8003; ?mode=edit to edit)
 deck *args: deck-build
     {{ venv_python }} -m tools.deck {{ args }}
+
+# --- Documentation ---
+
+# Preview the human-facing MkDocs site (default http://127.0.0.1:8004);
+# install its dependencies with `uv sync --extra docs`
+docs *args:
+    {{ venv_python }} -m scripts.serve_docs {{ args }}
+
+# Build the documentation site into the ignored site/ directory, failing on warnings
+docs-build:
+    {{ venv_python }} -m mkdocs build --strict

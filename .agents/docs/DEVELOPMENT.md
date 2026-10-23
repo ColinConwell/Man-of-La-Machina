@@ -1,6 +1,6 @@
 # Development guide
 
-Setup, configuration, content preparation, and verification for the interactive prototype. For the project's artistic framing, see the [project overview](../README.md). For the deployed service and private content releases, see [hosting](HOSTING.md).
+Setup, configuration, content preparation, and verification for the interactive prototype. For the project's artistic framing, see the [project overview](../../README.md). For the deployed service and private content releases, see [hosting](HOSTING.md).
 
 Personal-name substitutions are configured privately; see [editing aliases locally and on Railway](ALIASES.md).
 
@@ -12,7 +12,7 @@ A local-only [project deck](DECK.md), launched with `just deck`, presents the wo
 
 ## Research and Change History
 
-For agents and contributors: add research or discussion on a high-level topic as a numbered, dated report in [reports/](../reports/README.md), and update its index. Separate evidence, interpretation, proposals, and implemented behavior. Keep private manuscript and transcript excerpts out of committed reports. After implementing changes, add a new timestamped entry to the root [CHANGELOG.md](../CHANGELOG.md), describing behavior, verification, and material limitations. Do not silently revise earlier historical entries.
+For agents and contributors: add research or discussion on a high-level topic as a numbered, dated report in [reports/](../../reports/README.md), and update its index. Separate evidence, interpretation, proposals, and implemented behavior. Keep private manuscript and transcript excerpts out of committed reports. After implementing changes, add a new timestamped entry to the root [CHANGELOG.md](../../CHANGELOG.md), describing behavior, verification, and material limitations. Do not silently revise earlier historical entries.
 
 ## Run the prototype
 
@@ -24,7 +24,7 @@ npm ci --prefix apps/web
 just explore
 ```
 
-Open **http://127.0.0.1:8000**. `just explore` builds the local content bundle and frontend, then serves both from FastAPI. Without `just`, run:
+Open **http://127.0.0.1:8000**, or the next free port if 8000 is busy (see [local ports](#local-ports)). `just explore` builds the local content bundle and frontend, then serves both from FastAPI. Without `just`, run:
 
 ```sh
 .venv/bin/python -m packages.content.build
@@ -34,7 +34,7 @@ npm run build --prefix apps/web
 
 The private source archive must already be present under `context/raw_data/Don-Qui-Co-Pilot/`. It is intentionally excluded from Git. Existing downloader and configuration commands remain available; they have not been moved or rewritten. A checkout without the archive can still run the automated backend tests using invented fixtures.
 
-For development, run `just api` and `just web` in separate terminals and use **http://127.0.0.1:5173**. The Vite server proxies `/api` to port 8000. Restart the API after rebuilding content. Run one API worker: prototype sessions live in process memory.
+For development, run `just api` and `just web` in separate terminals and use **http://127.0.0.1:5173**. The Vite server proxies `/api` to the running API, whichever port it took. Restart the API after rebuilding content. Run one API worker: prototype sessions live in process memory.
 
 ## Explore
 
@@ -118,9 +118,44 @@ cd ../..
 
 # With just api and just web already running
 just check-browser
+
+# Invented-fixture browser regressions; starts its own servers
+just check-controls
 ```
 
 The browser suite uses deterministic demo generation, tests the complete exploration workflow, and checks accessibility, reduced motion, and mobile/kiosk geometry. OpenAPI contracts are available at **http://127.0.0.1:8000/docs**. Content review issues are available locally at `/api/v1/review` and in `content/generated/validation.json`.
+
+`just check-controls` runs the [fixture regressions](BEGINNINGS.md#context-controls-and-regression-checks) on free ports, so the local tools can stay open. The results dashboard has its own fixture browser tests:
+
+```sh
+cd apps/web
+npx playwright test -c ../../tools/results_dashboard/playwright.config.mjs
+```
+
+## Local ports
+
+Every local server has a default port, listed in `library/ports.json`:
+
+| Service | Started by | Default | Exact-port variable |
+| --- | --- | --- | --- |
+| Exploration API | `just api`, `just explore` | 8000 | `MACHINA_API_PORT` (also `PORT`, `MACHINA_PORT`) |
+| Vite frontend | `just web` | 5173 | `MACHINA_WEB_PORT` |
+| Annotation tool | `just curate` | 8001 | `MACHINA_CURATOR_PORT` |
+| Results dashboard | `just results` | 8002 | `MACHINA_RESULTS_PORT` |
+| Project deck | `just deck` | 8003 | `MACHINA_DECK_PORT` |
+| Exploration fixture | `just check-controls` | 8102 | `MACHINA_EXPLORATION_FIXTURE_PORT` |
+| Annotation-tool fixture | `just check-controls` | 8103 | `MACHINA_CURATOR_FIXTURE_PORT` |
+| Results-dashboard fixture | dashboard browser tests | 8137 | `MACHINA_RESULTS_FIXTURE_PORT` |
+
+When its default is busy, a server takes the next free port above it and logs the move. The search covers 20 ports and skips the other services' defaults, so a busy API does not take the annotation tool's port. A port is busy when something already answers there or it cannot be bound. The connection check matters on macOS, which would otherwise let a loopback bind silently shadow a wildcard listener on the same port.
+
+A port requested through the variable, or through `--port` for the annotation tool, dashboard, and deck, is used exactly. The server stops with an error if it is taken. Hosting platforms set `PORT`, so the hosted API always binds the port it is assigned.
+
+While they run, local servers record their addresses in the ignored `.machina/servers/` directory. Hosted deployments record nothing. `just ports` lists every service and where it is running, and `just ports deck` prints one URL. The Vite proxy looks up the API on every request, so the two can start in either order, and the API can restart on another port without restarting Vite. `just check-browser` targets the running Vite server. Records from processes that have exited are ignored.
+
+The Playwright configs choose free fixture ports before starting the fixtures, pass them through the variables above, and never reuse a server already listening there. Setting a variable pins that fixture's port, and the run stops at once if the port is taken. A port can still be taken between that choice and the fixture's start; the fixture then fails rather than moving.
+
+To add a server, give it an entry in `library/ports.json` and run it with `library.ports.serve(app, "name")`. JavaScript tooling uses the same rules through `apps/web/ports.mjs`.
 
 ## Plain Event Timeline
 

@@ -13,7 +13,7 @@ just curate
 # Or: .venv/bin/python -m tools.curator
 ```
 
-Open **http://127.0.0.1:8001/**. Select a candidate, browse or search its source conversation, and choose **Begin at This Turn**. Add further candidates at arbitrary source turns. Edit the public title/description and a separate private annotation, choose which candidates to offer, then save.
+Open **http://127.0.0.1:8001/**, or the next free port the tool reports if 8001 is busy (see [local ports](DEVELOPMENT.md#local-ports)). Select a candidate, browse or search its source conversation, and choose **Begin at This Turn**. Add further candidates at arbitrary source turns. Edit the public title/description and a separate private annotation, choose which candidates to offer, then save.
 
 **Annotate + Demarcate • Local Development** includes a paragraph-ordered, pseudonymized **Preview in App**. **Reveal in Finder** and **Open Original** act on the archived DOCX on macOS. Original files are opened by the native application; the local server does not expose a raw-document download. Unknown IDs, paths outside the source directory, and foreign-origin requests are rejected. A preview warns if the file changed since import.
 
@@ -38,4 +38,4 @@ Changing breadth or retained material automatically rebuilds a context preview, 
 just check-controls
 ```
 
-The browser regression command builds the frontend and starts two temporary servers with invented conversations. It verifies all beginnings, exact context changes for all breadths, preview/generation agreement, rapid changes, failed-preview recovery, tags, context modes, keyboard/mobile interaction, and local annotation saves. GitHub Actions runs it on pushes and pull requests without access to the private archive. `just check-browser` remains the full-archive exploration suite and requires the local API and frontend to be running.
+The browser regression command builds the frontend and starts two temporary servers with invented conversations, on free ports. It verifies all beginnings, exact context changes for all breadths, preview/generation agreement, rapid changes, failed-preview recovery, tags, context modes, keyboard/mobile interaction, and local annotation saves. GitHub Actions runs it on pushes and pull requests without access to the private archive. `just check-browser` remains the full-archive exploration suite and requires the local API and frontend to be running.

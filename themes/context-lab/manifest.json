@@ -25,5 +25,5 @@
   "color_schemes": [
     "light"
   ],
-  "contrast": "WCAG AA checks run against the prototype; see docs/VERIFICATION.md"
+  "contrast": "WCAG AA checks run against the prototype; see .agents/docs/VERIFICATION.md"
 }

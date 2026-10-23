@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import hashlib
 import zipfile
-import uvicorn
+from library.ports import serve
 from packages.content.aliases import AliasRewriter
 from tests.exploration_fixture import exploration_bundle
 from tools.curator.app import create_curator
@@ -35,4 +35,4 @@ if __name__ == "__main__":
             AliasRewriter(),
             source_root=root,
         )
-        uvicorn.run(app, host="127.0.0.1", port=8003, access_log=False)
+        serve(app, "curator-fixture", access_log=False)

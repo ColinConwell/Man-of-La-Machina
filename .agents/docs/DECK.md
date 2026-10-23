@@ -6,7 +6,7 @@ A local-only, interactive slide deck that presents the project and replays its a
 just deck
 ```
 
-Open **http://127.0.0.1:8003** to present, or **http://127.0.0.1:8003/?mode=edit** to edit. `#7` opens slide 7.
+Open **http://127.0.0.1:8003** to present, or **http://127.0.0.1:8003/?mode=edit** to edit. `#7` opens slide 7. If port 8003 is busy, the deck takes the next free port and logs it; `just ports deck` prints the address. `just deck --port PORT` or `MACHINA_DECK_PORT` requests an exact port instead (see [local ports](DEVELOPMENT.md#local-ports)).
 
 ## Where Content Lives
 

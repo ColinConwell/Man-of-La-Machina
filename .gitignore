@@ -5,12 +5,12 @@ credentials/
 
 # Project
 PLAN.md
+.machina/
 context
 manuscript
 
 # IDE + AI
 .vscode/
-.agents/
 .cursor/
 .claude/
 .codex/
@@ -52,3 +52,6 @@ test-results/
 
 # Private counterfactual transcripts, derived personas, and provider receipts
 experiments/results/
+
+# MkDocs build output
+site/

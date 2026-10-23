@@ -1,6 +1,6 @@
 # Review of the Experience, Agentic Setups, and Exploration Interfaces
 
-Date: 2026-10-16. Status: review with prioritized proposals; one implemented companion tool, the local [project deck](../docs/DECK.md). This report contains no private transcript or manuscript excerpts.
+Date: 2026-10-16. Status: review with prioritized proposals; one implemented companion tool, the local [project deck](../.agents/docs/DECK.md). This report contains no private transcript or manuscript excerpts.
 
 ## Method
 
@@ -46,4 +46,4 @@ Ordered by expected value for the research question.
 
 ## Implemented in This Session
 
-A local-only project deck (`just deck`, port 8003) presents the work in presentation and edit modes. Six interactive simulations cover the recursive conversation, the hosted branch flow with both interventions, scripted counterfactuals (ten conditions), path tracing (six policies plus the pilot failure mode), script paths (five variants), and event extraction. Each beat shows the producing agent, its model, and the composition of the context that call received. Any experiment slide can be bound to a saved case, which is converted to beats in real call order and alias-projected by the server. Slide content and edits stay under the ignored `manuscript/deck/`. See the [deck guide](../docs/DECK.md) and the [CHANGELOG](../CHANGELOG.md).
+A local-only project deck (`just deck`, port 8003) presents the work in presentation and edit modes. Six interactive simulations cover the recursive conversation, the hosted branch flow with both interventions, scripted counterfactuals (ten conditions), path tracing (six policies plus the pilot failure mode), script paths (five variants), and event extraction. Each beat shows the producing agent, its model, and the composition of the context that call received. Any experiment slide can be bound to a saved case, which is converted to beats in real call order and alias-projected by the server. Slide content and edits stay under the ignored `manuscript/deck/`. See the [deck guide](../.agents/docs/DECK.md) and the [CHANGELOG](../CHANGELOG.md).
