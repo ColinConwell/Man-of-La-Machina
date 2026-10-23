@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { OPTIONS, PRESETS } from "./settings.mjs";
+import { TYPE_PRESETS, fontFor } from "./typography.mjs";
 
 function Select({ field, label, settings, onChange }) {
   return (
@@ -176,12 +177,29 @@ export default function ControlPanel({
         </p>
       </section>
       <section className="panel-section">
-        <h3>Conversation Typography</h3>
+        <h3>Typography</h3>
+        <Select field="headingFont" label="Heading Font" {...{ settings, onChange }} />
+        <Select field="readingFont" label="Reading Font" {...{ settings, onChange }} />
+        <div className="type-specimen" aria-label="Selected Font Specimen">
+          <div style={{fontFamily: fontFor(settings.headingFont).family, fontSize: `${24 * fontFor(settings.headingFont).scale}px`}}>The Unwritten Road</div>
+          <p style={{fontFamily: fontFor(settings.readingFont).family, fontSize: `${19 * fontFor(settings.readingFont).scale}px`}}>Every journey begins with a possibility.</p>
+        </div>
+        <p className="field-note">{fontFor(settings.readingFont).note}</p>
+        <Slider field="textScale" label="Reading Text Size" min={0.85} max={1.35} step={0.05} {...{ settings, onChange }} />
+        <div className="type-pairings" aria-label="Type Pairings">
+          {TYPE_PRESETS.map(p => <button key={p.name} type="button" className="panel-button" onClick={() => onPreset({...p, settings: {...p.settings, travelerFont: "inherit", companionFont: "inherit"}})}>{p.name}</button>)}
+        </div>
+        <p className="field-note">Pairings change headings and reading text. Speaker overrides return to Use Reading Font. Interface controls keep their familiar type.</p>
+        <a className="font-license-link" href="./font-licenses/index.html" target="_blank" rel="noreferrer">Font Credits & Licenses</a>
+      </section>
+      <section className="panel-section">
+        <h3>Conversation Voices</h3>
         <button type="button" className="panel-button" onClick={() => onPreset({name:"Opposing Voices", settings:{travelerPosition:"left", travelerAlign:"left", companionPosition:"right", companionAlign:"right"}})}>Traveler Left · Companion Right</button>
         {[["traveler", "Traveler"], ["companion", "Companion"]].map(([speaker, name]) => <fieldset className="speaker-settings" key={speaker}>
           <legend>{name}</legend>
           <Select field={`${speaker}Position`} label={`${name} Placement`} {...{ settings, onChange }} />
           <Select field={`${speaker}Align`} label={`${name} Text Alignment`} {...{ settings, onChange }} />
+          <Select field={`${speaker}Font`} label={`${name} Font`} {...{ settings, onChange }} />
         </fieldset>)}
         <Slider field="messageWidth" label="Placed Message Width" min={0.55} max={1} step={0.01} {...{ settings, onChange }} />
         <p className="field-note">Placement moves the message. Alignment sets its text edges. Width applies to left, center and right placements; Full Width fills the column.</p>

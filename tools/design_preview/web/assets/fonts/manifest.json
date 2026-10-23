@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-23",
+  "description": "Unmodified Google Fonts Latin WOFF2 assets self-hosted for the synthetic design preview. No runtime Google Fonts requests.",
+  "googleFontsRepositoryRevision": "e7db6ca603fd4862010383ff17ffd6cc4ffac1c0",
+  "cssRequestUrl": "https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400&family=IM+Fell+English&family=Italianno&family=Quintessential&family=UnifrakturMaguntia&display=swap",
+  "provenanceNote": "CDN binaries are pinned by their immutable-looking versioned URLs and exact SHA-256 digests. The repository revision pins license text, metadata, and descriptions; it is not a claim that CDN subset bytes equal repository TTF bytes.",
+  "limitations": [
+    "Normal weight 400 only; no bold or italic font files are bundled.",
+    "Only Google Fonts Latin subsets are bundled. Other scripts and unsupported glyphs fall back to the configured system font.",
+    "These are digital typefaces; the historical labels do not claim facsimile reproduction of Renaissance block printing."
+  ],
+  "fonts": [
+    {
+      "id": "eb-garamond",
+      "family": "EB Garamond",
+      "label": "Renaissance Roman",
+      "description": "Revival of Claude Garamont’s mid-sixteenth-century roman types, informed by the 1592 Egenolff–Berner specimen.",
+      "designer": "Georg Duffner, Octavio Pardo",
+      "file": "eb-garamond-latin-400.woff2",
+      "format": "woff2",
+      "style": "normal",
+      "weight": 400,
+      "subset": "latin",
+      "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+      "bytes": 23848,
+      "sha256": "fcb1ddc47671824923040518bfa64a5780b242f33602ea3a4b665fbfb4ef9366",
+      "source": {
+        "fontUrl": "https://fonts.gstatic.com/s/ebgaramond/v33/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RkBI9_WamXgHlI.woff2",
+        "deliveryVersion": "33",
+        "metadataUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/ebgaramond/METADATA.pb",
+        "descriptionUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/ebgaramond/DESCRIPTION.en_us.html",
+        "descriptionSha256": "202958505ac62bbe11b341de3772bf566b41786bd941fa195e8a1f598132c5da",
+        "upstreamRepository": "https://github.com/octaviopardo/EBGaramond12",
+        "upstreamCommit": "106a4a6d377987459ae5e68673a4570f13b957fb"
+      },
+      "license": {
+        "spdx": "OFL-1.1",
+        "file": "eb-garamond.OFL.txt",
+        "sourceUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/ebgaramond/OFL.txt",
+        "sha256": "0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3dbece7dd7",
+        "bytes": 4398
+      },
+      "fontVersion": "Version 1.003",
+      "glyphCount": 336,
+      "verifiedCharacterSample": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúÁÉÍÓÚñÑüÜ¿¡“”‘’—–….,:;!?()[]",
+      "verifiedCharacterSampleMethod": "fontTools TTFont.getBestCmap inspection of the downloaded WOFF2; all sample code points map to glyphs."
+    },
+    {
+      "id": "im-fell-english",
+      "family": "IM Fell English",
+      "label": "Worn Letterpress",
+      "description": "Digitization of the historic Fell types collected for Oxford in the seventeenth century; its uneven impression evokes worn letterpress, not a Renaissance facsimile.",
+      "designer": "Igino Marini",
+      "file": "im-fell-english-latin-400.woff2",
+      "format": "woff2",
+      "style": "normal",
+      "weight": 400,
+      "subset": "latin",
+      "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+      "bytes": 59880,
+      "sha256": "248300df1647bec49155a5cada1d65f719ae633ef48564d1f19b135a8a5b7f5f",
+      "source": {
+        "fontUrl": "https://fonts.gstatic.com/s/imfellenglish/v14/Ktk1ALSLW8zDe0rthJysWrnLsAzHEKOYd4xI5g.woff2",
+        "deliveryVersion": "14",
+        "metadataUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/imfellenglish/METADATA.pb",
+        "descriptionUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/imfellenglish/DESCRIPTION.en_us.html",
+        "descriptionSha256": "549300d05544222c44d9c7c868c8728a7d06842c226b80d6512d0fc52fc4f6e0",
+        "upstreamRepository": "https://github.com/librefonts/imfellenglish",
+        "upstreamCommit": "4cc247267036e091cd401802ec99a383a403454a"
+      },
+      "license": {
+        "spdx": "OFL-1.1",
+        "file": "im-fell-english.OFL.txt",
+        "sourceUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/imfellenglish/OFL.txt",
+        "sha256": "2a3ca501fc4d5efcad9798531e3e06962b1e20c60e464f6cbd6c17630112c773",
+        "bytes": 4452
+      },
+      "fontVersion": "3.00",
+      "glyphCount": 230,
+      "verifiedCharacterSample": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúÁÉÍÓÚñÑüÜ¿¡“”‘’—–….,:;!?()[]",
+      "verifiedCharacterSampleMethod": "fontTools TTFont.getBestCmap inspection of the downloaded WOFF2; all sample code points map to glyphs."
+    },
+    {
+      "id": "quintessential",
+      "family": "Quintessential",
+      "label": "Calligraphic Hand",
+      "description": "Relaxed calligraphic lettering based on the Italic Hand; a modern design rather than a period manuscript facsimile.",
+      "designer": "Astigmatic / Brian J. Bonislawsky",
+      "file": "quintessential-latin-400.woff2",
+      "format": "woff2",
+      "style": "normal",
+      "weight": 400,
+      "subset": "latin",
+      "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+      "bytes": 25868,
+      "sha256": "d1c24b2b5414d94702de25f8b97f1d018d0918420dbd7b37de568bdc34a969d9",
+      "source": {
+        "fontUrl": "https://fonts.gstatic.com/s/quintessential/v24/fdNn9sOGq31Yjnh3qWU14Ddtjb53QbgEADxN.woff2",
+        "deliveryVersion": "24",
+        "metadataUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/quintessential/METADATA.pb",
+        "descriptionUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/quintessential/DESCRIPTION.en_us.html",
+        "descriptionSha256": "3a0c7607e825a50ed9290c358441d7242f39ce1d008b5620e9bda9e602459447",
+        "upstreamRepository": "https://github.com/librefonts/quintessential",
+        "upstreamCommit": "a3d26ff9183382b8379f368b41b07eb52f1bd193"
+      },
+      "license": {
+        "spdx": "OFL-1.1",
+        "file": "quintessential.OFL.txt",
+        "sourceUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/quintessential/OFL.txt",
+        "sha256": "0786594992757ea0290ae4a490ab9249728f372adb13959c0c8ae4fec83057ff",
+        "bytes": 4435
+      },
+      "fontVersion": "Version 1.000",
+      "glyphCount": 219,
+      "verifiedCharacterSample": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúÁÉÍÓÚñÑüÜ¿¡“”‘’—–….,:;!?()[]",
+      "verifiedCharacterSampleMethod": "fontTools TTFont.getBestCmap inspection of the downloaded WOFF2; all sample code points map to glyphs."
+    },
+    {
+      "id": "italianno",
+      "family": "Italianno",
+      "label": "Flowing Cursive",
+      "description": "Modern connected calligraphic script with flowing strokes; an expressive handwriting option rather than a historical reconstruction.",
+      "designer": "Robert Leuschke",
+      "file": "italianno-latin-400.woff2",
+      "format": "woff2",
+      "style": "normal",
+      "weight": 400,
+      "subset": "latin",
+      "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+      "bytes": 25292,
+      "sha256": "c91c4b8b38b46d7f9f9692ecc7e3be2860a81b74ea0bc37a02b3e6467f90a1cb",
+      "source": {
+        "fontUrl": "https://fonts.gstatic.com/s/italianno/v18/dg4n_p3sv6gCJkwzT6RXiJwoYQAugw.woff2",
+        "deliveryVersion": "18",
+        "metadataUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/italianno/METADATA.pb",
+        "descriptionUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/italianno/DESCRIPTION.en_us.html",
+        "descriptionSha256": "27bfb697e7ea9435bd1758b47638d19fd9dad1193f89c45481743292858f5640",
+        "upstreamRepository": "https://github.com/googlefonts/italianno",
+        "upstreamCommit": "3e3995ef5b90bd2b9dc587fb8f831f3a158cb95b"
+      },
+      "license": {
+        "spdx": "OFL-1.1",
+        "file": "italianno.OFL.txt",
+        "sourceUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/italianno/OFL.txt",
+        "sha256": "bce79721f0203586872bbd7016922baf449980bdd1c44550a821112a3b547185",
+        "bytes": 4483
+      },
+      "fontVersion": "Version 1.100; ttfautohint (v1.8.3)",
+      "glyphCount": 301,
+      "verifiedCharacterSample": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúÁÉÍÓÚñÑüÜ¿¡“”‘’—–….,:;!?()[]",
+      "verifiedCharacterSampleMethod": "fontTools TTFont.getBestCmap inspection of the downloaded WOFF2; all sample code points map to glyphs."
+    },
+    {
+      "id": "unifraktur-maguntia",
+      "family": "UnifrakturMaguntia",
+      "label": "Blackletter",
+      "description": "Blackletter adaptation of Peter Wiegel’s Berthold Mainzer Fraktur, ultimately based on a 1901 Carl Albert Fahrenwaldt typeface; not a Renaissance facsimile.",
+      "designer": "j. “mach” wust, based on Peter Wiegel",
+      "file": "unifraktur-maguntia-latin-400.woff2",
+      "format": "woff2",
+      "style": "normal",
+      "weight": 400,
+      "subset": "latin",
+      "unicodeRange": "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD",
+      "bytes": 22372,
+      "sha256": "d98f10104192ccb3faa10f9b56d21ccc1ac88a7769e78a847926243fb018e216",
+      "source": {
+        "fontUrl": "https://fonts.gstatic.com/s/unifrakturmaguntia/v22/WWXPlieVYwiGNomYU-ciRLRvEmK7oaVemGZMFABK1Q.woff2",
+        "deliveryVersion": "22",
+        "metadataUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/unifrakturmaguntia/METADATA.pb",
+        "descriptionUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/unifrakturmaguntia/DESCRIPTION.en_us.html",
+        "descriptionSha256": "84c348fab460b76adcfc7d0a22e6fbcc2f9e68ecf6f8e8d6a995cf23800acd4c",
+        "upstreamRepository": "https://github.com/googlefonts/googlefontdirectory-hg",
+        "upstreamCommit": "52f780bc9d197280a9f430574e179a5f233c56b6"
+      },
+      "license": {
+        "spdx": "OFL-1.1",
+        "file": "unifraktur-maguntia.OFL.txt",
+        "sourceUrl": "https://raw.githubusercontent.com/google/fonts/e7db6ca603fd4862010383ff17ffd6cc4ffac1c0/ofl/unifrakturmaguntia/OFL.txt",
+        "sha256": "96199bf9ff12dd471a66911dee95440737b437e7f5a6fd30e9e950c16d66e8df",
+        "bytes": 4511
+      },
+      "fontVersion": "Version 2010-11-24 ",
+      "glyphCount": 231,
+      "verifiedCharacterSample": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 áéíóúÁÉÍÓÚñÑüÜ¿¡“”‘’—–….,:;!?()[]",
+      "verifiedCharacterSampleMethod": "fontTools TTFont.getBestCmap inspection of the downloaded WOFF2; all sample code points map to glyphs."
+    }
+  ]
+}

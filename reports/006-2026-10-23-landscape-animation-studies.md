@@ -66,3 +66,17 @@ The October 23 follow-up adds three alternatives to the original feathered readi
 The same six paintings now support fully desaturated sepia and monochrome washes, plus sepia-ink and graphite rendering studies. The latter use a pale tonal underpainting, static SVG edge extraction, shadow-masked crosshatching and a paper texture. No image-generation request or new source artwork was required. The methods remain separate from interface text, theme-colored composition masks and animated overlay layers.
 
 Thirteen browser acceptance tests passed, including measured responsive sizing, long-passage containment, speaker alignment, line-contour reflow, preset compatibility, A/B consistency and unchanged interface colors under sketch treatments. Desktop and mobile-sized Chromium screenshots were visually inspected. This establishes working exploratory controls, not a controlled reading study or physical-device performance evaluation. Extremely low opacity, narrow message widths, and fully justified small-screen passages may be less comfortable to read and remain available for comparison.
+
+## Calligraphic and Printing Studies
+
+The typography follow-up compares the same synthetic content with six reading choices: the original Georgia plus five locally served, openly licensed faces. Heading and reading fonts are independent, and each speaker can override the shared reading face. Four named pairings permit quick comparisons while preserving the current landscape and veil. These are aesthetic studies; no reading-speed, comprehension or preference measurement has been collected.
+
+| Typeface | Study Role | Historical Scope |
+| --- | --- | --- |
+| [EB Garamond](https://github.com/octaviopardo/EBGaramond12) | Renaissance book typography | Revival of sixteenth-century roman type. |
+| [IM Fell English](https://github.com/google/fonts/tree/main/ofl/imfellenglish) | Worn letterpress | Based on later Oxford types; not a Renaissance facsimile. |
+| [Quintessential](https://github.com/google/fonts/tree/main/ofl/quintessential) | Calligraphic hand | Modern lettering based on the Italic Hand. |
+| [Italianno](https://github.com/google/fonts/tree/main/ofl/italianno) | Flowing cursive | Modern connected script. |
+| [UnifrakturMaguntia](https://github.com/google/fonts/tree/main/ofl/unifrakturmaguntia) | Blackletter headings and short passages | Based on a 1901 design; an aesthetic comparison rather than a period reconstruction. |
+
+The [font manifest](../tools/design_preview/web/assets/fonts/manifest.json) pins sources, licenses, checksums, subset limits and glyph verification. All five normal-weight Latin WOFF2s total 157,260 bytes; the preview serves them and their complete OFL licenses from its own origin. English and Spanish characters, quotation marks, dashes and ellipsis were verified against the actual font maps. Script-specific size adjustments and an independent reading-size slider support comparison, while control labels and narration states retain familiar type. Desktop/mobile inspection and automated font-loading/layout checks establish implementation behavior, not the suitability of cursive or blackletter for long-form reading.

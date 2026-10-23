@@ -1,4 +1,5 @@
 import React from "react";
+import { readingFontStyle } from "./typography.mjs";
 import {
   ArrowRight,
   ArrowUp,
@@ -53,9 +54,13 @@ function Passage({ long = false }) {
   );
 }
 function ConversationMessage({ speaker, settings, className = "", children }) {
+  const choice = settings[`${speaker}Font`];
+  const font = choice === "inherit" ? settings.readingFont : choice;
   return <div
     className={`message ${speaker === "traveler" ? "human-message" : "machine-message"} position-${settings[`${speaker}Position`]} align-${settings[`${speaker}Align`]} ${className}`}
     data-speaker={speaker}
+    data-font={font}
+    style={readingFontStyle(font)}
   >{children}</div>;
 }
 function Reader({ long, settings }) {

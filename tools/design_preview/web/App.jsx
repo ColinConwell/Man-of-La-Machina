@@ -9,6 +9,7 @@ import {
 } from "./settings.mjs";
 import Landscape from "./Landscape.jsx";
 import ControlPanel from "./ControlPanel.jsx";
+import { fontFor, readingFontStyle } from "./typography.mjs";
 import { AppHeader, PlaybackControls, SchematicContent } from "./Schematic.jsx";
 const AnimationStudy = React.lazy(() => import("./AnimationStudy.jsx"));
 
@@ -40,7 +41,14 @@ function Preview({ settings, policy, label }) {
     <section
       className={`preview-frame viewport-${settings.viewport} theme-${settings.theme} composition-${settings.composition} ${settings.density === "none" ? "landscape-only" : ""}`}
       aria-label={label ? `Design ${label}` : "Design Preview"}
+      data-heading-font={settings.headingFont}
+      data-reading-font={settings.readingFont}
       style={{
+        ...readingFontStyle(settings.readingFont),
+        "--heading-font": fontFor(settings.headingFont).family,
+        "--heading-scale": fontFor(settings.headingFont).scale,
+        "--heading-tracking": settings.headingFont === "classic" ? "-.035em" : "0px",
+        "--text-scale": settings.textScale,
         "--reading-alpha": settings.readingOpacity,
         "--control-alpha": settings.controlOpacity,
         "--glass-blur": `${settings.blur}px`,
