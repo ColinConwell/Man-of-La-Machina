@@ -21,7 +21,7 @@ def test_private_content_checksums_and_errors_do_not_reveal_source(bundle, monke
     with pytest.raises(ValueError, match="checksum"):
         decode_bundle(data, "bad")
     bad = b'{"messages": "private text must not leak"}'
-    with pytest.raises(ValueError, match="^Content bundle validation failed$"):
+    with pytest.raises(ValueError, match="^Content bundle schema validation failed$"):
         decode_bundle(bad, hashlib.sha256(bad).hexdigest())
     monkeypatch.setenv("MACHINA_CONTENT_BUCKET", "invented-private-bucket")
     monkeypatch.setenv("MACHINA_CONTENT_KEY", "release.json")

@@ -96,3 +96,8 @@ Add a new timestamped entry after implementing changes. Record user-visible beha
 - Added `content/README.md`, describing tracked and private content paths, and `.github/INDEX.md`.
 - Verification: `mkdocs build --strict` passed with no warnings; `just docs` served pages on 8004 and appeared in `just ports`; 145 backend tests passed; every relative link in the moved guides, reports, and new index files resolves.
 - Limitations: CI does not build the documentation yet, and the site is not deployed. MkDocs 1.x is no longer maintained upstream, and Material for MkDocs prints a warning about MkDocs 2.0 on every build. ProperDocs is a drop-in continuation if that becomes a problem. Many modules have few docstrings, so the Python reference often lists signatures without descriptions.
+
+## 2026-10-23 15:14 America/New_York
+
+- Added sanitized startup diagnostics that distinguish private-content storage configuration, access, object reading, checksum, schema, and semantic-validation failures. Credentials, object identifiers, and source passages remain excluded from error messages; pinned checksums and bounded reads remain enforced.
+- Verified 28 content/storage/hosting tests, including private-data suppression in formatted tracebacks, bounded reads, stream cleanup, and distinct failure categories. The production startup failure still requires verification from the diagnostic deployment; this change alone does not claim recovery.

@@ -9,6 +9,15 @@ from packages.content.validation import assert_valid
 MAX_BUNDLE_BYTES = 32 * 1024 * 1024
 
 
+class _BundleDecodeError(ValueError):
+    """A fixed diagnostic category without any private validation detail."""
+
+    def __init__(self, stage: str, code: str, message: str):
+        super().__init__(message)
+        self.stage = stage
+        self.code = code
+
+
 def content_client():
     import boto3
     from botocore.config import Config
@@ -34,32 +43,95 @@ def content_client():
 
 def decode_bundle(data: bytes, expected_sha256: str) -> Bundle:
     if len(data) > MAX_BUNDLE_BYTES:
-        raise ValueError("Content bundle is too large")
+        raise _BundleDecodeError(
+            "object-read", "size-limit", "Content bundle is too large"
+        )
     if not expected_sha256 or hashlib.sha256(data).hexdigest() != expected_sha256:
-        raise ValueError("Content bundle checksum does not match the pinned release")
+        raise _BundleDecodeError(
+            "checksum",
+            "mismatch",
+            "Content bundle checksum does not match the pinned release",
+        )
     try:
         bundle = Bundle.model_validate_json(data)
+    except Exception:
+        # Pydantic errors can contain source text; never print them into deployment logs.
+        raise _BundleDecodeError(
+            "schema", "invalid-bundle", "Content bundle schema validation failed"
+        ) from None
+    try:
         assert_valid(bundle)
-        return bundle
-    except ValueError:
-        # Pydantic errors can contain source text; never print it into deployment logs.
-        raise ValueError("Content bundle validation failed") from None
+    except Exception:
+        # Semantic errors can contain private identifiers as well as source text.
+        raise _BundleDecodeError(
+            "semantic-validation",
+            "invalid-bundle",
+            "Content bundle semantic validation failed",
+        ) from None
+    return bundle
+
+
+def _storage_error_code(error: Exception) -> str:
+    # Never interpolate a server-supplied error, object key, endpoint or credential.
+    # Only known S3 error codes are mapped to our fixed diagnostic vocabulary.
+    response = getattr(error, "response", None)
+    if isinstance(response, dict):
+        detail = response.get("Error")
+        if isinstance(detail, dict):
+            code = detail.get("Code")
+            if code in (
+                "AccessDenied", "InvalidAccessKeyId", "SignatureDoesNotMatch", "ExpiredToken"
+            ):
+                return "access-denied"
+            if code in ("NoSuchKey", "NoSuchBucket", "NotFound", "404"):
+                return "not-found"
+    return "request-failed"
+
+
+def _configuration_error_code(error: Exception) -> str:
+    if isinstance(error, KeyError):
+        return "missing-variable"
+    if isinstance(error, ImportError):
+        return "missing-storage-dependency"
+    # The hosting extra is optional locally, so do not import botocore at module load.
+    if type(error).__name__ == "InvalidS3AddressingStyleError":
+        return "invalid-addressing-style"
+    return "invalid-configuration"
 
 
 def load_private_bundle(client=None) -> Bundle:
+    stage = "configuration"
     try:
-        client = client or content_client()
+        bucket = os.environ["MACHINA_CONTENT_BUCKET"]
+        key = os.environ["MACHINA_CONTENT_KEY"]
+        expected_sha256 = os.environ["MACHINA_CONTENT_SHA256"]
+        if not bucket or not key or not expected_sha256:
+            raise ValueError("Missing content release configuration")
+        if client is None:
+            client = content_client()
+        stage = "storage-access"
         response = client.get_object(
-            Bucket=os.environ["MACHINA_CONTENT_BUCKET"],
-            Key=os.environ["MACHINA_CONTENT_KEY"],
+            Bucket=bucket,
+            Key=key,
         )
+        stage = "object-read"
         stream = response["Body"]
         try:
             data = stream.read(MAX_BUNDLE_BYTES + 1)
         finally:
             stream.close()
-        return decode_bundle(data, os.environ["MACHINA_CONTENT_SHA256"])
-    except Exception:
+        return decode_bundle(data, expected_sha256)
+    except _BundleDecodeError as error:
         raise RuntimeError(
-            "Private content could not be loaded; check server storage configuration and the pinned checksum"
+            f"Private content could not be loaded [stage={error.stage} code={error.code}]"
+        ) from None
+    except Exception as error:
+        if stage == "storage-access":
+            code = _storage_error_code(error)
+        elif stage == "configuration":
+            code = _configuration_error_code(error)
+        else:
+            code = "read-failed"
+        raise RuntimeError(
+            f"Private content could not be loaded [stage={stage} code={code}]"
         ) from None
