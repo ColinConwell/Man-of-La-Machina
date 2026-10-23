@@ -26,6 +26,16 @@
       "env": ["MACHINA_DOCS_PORT"],
       "description": "Documentation site preview"
     },
+    "design": {
+      "port": 8005,
+      "env": ["MACHINA_DESIGN_PORT"],
+      "description": "Synthetic landscape design preview"
+    },
+    "design-fixture": {
+      "port": 8140,
+      "env": ["MACHINA_DESIGN_FIXTURE_PORT"],
+      "description": "Design preview browser-test fixture"
+    },
     "web": {
       "port": 5173,
       "env": ["MACHINA_WEB_PORT"],

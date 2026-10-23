@@ -101,3 +101,36 @@ Add a new timestamped entry after implementing changes. Record user-visible beha
 
 - Added sanitized startup diagnostics that distinguish private-content storage configuration, access, object reading, checksum, schema, and semantic-validation failures. Credentials, object identifiers, and source passages remain excluded from error messages; pinned checksums and bounded reads remain enforced.
 - Verified 28 content/storage/hosting tests, including private-data suppression in formatted tracebacks, bounded reads, stream cleanup, and distinct failure categories. The production startup failure still requires verification from the diagnostic deployment; this change alone does not claim recovery.
+
+## 2026-10-23 19:25 UTC
+
+- Added an isolated Landscape Studio under `tools/design_preview`, launched with `just design` through the existing port registry. It offers six generated landscapes, four composition presets, independent interface palettes and illustration filters, opacity/blur controls, six inert schematic states, mobile emulation, A/B comparison, and validated persistent/exportable presets.
+- Preserved message boundaries, within-message progress and all five narration generation/loading states in the audio schematic. Functional TTS remains the next milestone after design selection.
+- Added independent CSS/SVG atmospheric and articulated motion plus working Rive and Lottie exports in a lazy-loaded comparison. Pause, reduced motion and hidden-document suspension apply to every runtime. Recorded artwork prompts/checksums and animation research in report 006.
+- Added a standalone static Docker/Caddy hosting target with password-hash authentication for HTML and artwork, no production/private-content dependencies, and an explicit preview-only Git subtree deployment. Production excludes the design routes and assets.
+- Verification: seven browser acceptance tests, two isolation tests, strict documentation build, standalone build and dependency audit passed. Desktop/mobile visuals and animation playback/pause were inspected; local Caddy authentication and CSP runtime checks passed. Arbitrary low-opacity settings and untested browsers still need visual judgment. Hosted deployment verification is recorded in the design preview guide.
+
+## 2026-10-23 19:35 UTC
+
+- Restored the production reading application after Railway's credential reset. Content loading now reports sanitized configuration/storage/object-read/checksum/schema/semantic failure categories while preserving private-content protection and checksum enforcement. Production credential variables reference the existing bucket's current keys; the owner reconnected GitHub and a fresh source deployment succeeded.
+- Verified deployment `dfd69788-8d6b-4266-bae0-b1a1a36a1cf9` at diagnostic commit `940813d`: homepage and apex/www health return 200; private and design-preview paths return 404. Desktop/mobile browser smoke opened a beginning, revealed six recorded messages and applied all three themes without overflow, browser errors or provider calls. The original wrapped exception remains unknown; reset credentials are the supported explanation. See the indexed production recovery record for evidence.
+
+## 2026-10-23 19:41 UTC
+
+- Deployed the separate, password-protected landscape preview to Railway using only the preview Git subtree. Successful deployment `e2ac7497-c54a-4e02-a626-472ede7f9d35` serves subtree commit `df0f323`; production source, private content and provider credentials are excluded.
+- Live verification confirmed HTTPS redirection, anonymous and incorrect-password rejection, authenticated access to HTML and all twelve emitted assets, private/source/API paths returning 404, and generic health access. Desktop/mobile rendering and native/Rive/Lottie playback and pause passed without browser errors, horizontal overflow or external requests. Recorded the exact source, image and deployment in the design preview guide. Functional narration and physical-phone/cross-browser validation remain future work.
+
+## 2026-10-23 21:31 UTC
+
+- Added automatic window-fitting, beveled message boxes and wrapped-text contours alongside the original reading-column veil. Message surfaces offer adjustable breathing room; window sizing responds independently within each A/B pane.
+- Added separate Traveler/Companion message placement and text alignment, including an opposing-voices shortcut and configurable placed-message width. Reading and comparison, short/long passages, local persistence and JSON presets share these controls; older presets remain compatible.
+- Strengthened monochrome washes and added visible sepia-ink and graphite sketch treatments with static edge extraction, shadow-masked hatching and paper texture. Filters remain below theme-colored composition masks and never affect interface typography. The Sepia Sketch preset now uses the ink treatment.
+- Verification: all thirteen playground browser tests passed, including six new adaptive-veil/typography cases. Desktop/mobile screenshots of the new veils and sketch studies were visually inspected without browser errors. These remain isolated preview options; functional narration and cross-browser/physical-phone validation are outside this update.
+- Published and verified the update in private-preview deployment `e8e558fe-6af9-409a-9dd0-203a03095ab8` at subtree `92ad213`. Full Linux CI passed after correcting highlight-padding overflow under its font metrics. Removed preview watch filtering after two source builds were skipped; the subsequent Docker build and live authenticated/anonymous access checks passed. The local tab was refreshed with saved settings preserved.
+
+## 2026-10-23 21:48 UTC
+
+- Added separate heading, reading and per-speaker font options to Landscape Studio: classic Georgia, EB Garamond, IM Fell English, Quintessential, Italianno and UnifrakturMaguntia. Four type pairings and a reading-size slider make book, letterpress, calligraphic, cursive and blackletter treatments comparable without changing the landscape or veil.
+- Fonts persist in presets and A/B comparisons, with backward-compatible defaults. UI controls and narration status retain readable type. Five local WOFF2s add 157,260 bytes when all are used; licenses, checksums, sources and English/Spanish glyph verification accompany the assets and their served attribution page.
+- Verification: twenty-one browser tests passed across the full run and focused rerun after fixing the local font-license route. Checks include actual font loading, local-only requests, all layouts/states, speaker overrides, preset round trips, A/B and long-text containment at desktop/mobile sizes and 135% reading scale. Two isolation tests passed; desktop/mobile typography screenshots were inspected. Cross-browser/physical-phone coverage and controlled reading studies remain future work.
+- Full Linux CI passed at `dd1db02`. The private preview deployed successfully as `dee5c69f-bd2c-420c-8b04-6afbcd846d4f` using subtree `b16db4f`; authenticated desktop/mobile rendering passed without browser errors or external requests. All twenty-four built assets/attribution files matched local checksums and remained password-protected. The local tab was refreshed with existing settings preserved.
