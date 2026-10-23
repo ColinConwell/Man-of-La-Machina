@@ -119,3 +119,10 @@ Add a new timestamped entry after implementing changes. Record user-visible beha
 
 - Deployed the separate, password-protected landscape preview to Railway using only the preview Git subtree. Successful deployment `e2ac7497-c54a-4e02-a626-472ede7f9d35` serves subtree commit `df0f323`; production source, private content and provider credentials are excluded.
 - Live verification confirmed HTTPS redirection, anonymous and incorrect-password rejection, authenticated access to HTML and all twelve emitted assets, private/source/API paths returning 404, and generic health access. Desktop/mobile rendering and native/Rive/Lottie playback and pause passed without browser errors, horizontal overflow or external requests. Recorded the exact source, image and deployment in the design preview guide. Functional narration and physical-phone/cross-browser validation remain future work.
+
+## 2026-10-23 21:31 UTC
+
+- Added automatic window-fitting, beveled message boxes and wrapped-text contours alongside the original reading-column veil. Message surfaces offer adjustable breathing room; window sizing responds independently within each A/B pane.
+- Added separate Traveler/Companion message placement and text alignment, including an opposing-voices shortcut and configurable placed-message width. Reading and comparison, short/long passages, local persistence and JSON presets share these controls; older presets remain compatible.
+- Strengthened monochrome washes and added visible sepia-ink and graphite sketch treatments with static edge extraction, shadow-masked hatching and paper texture. Filters remain below theme-colored composition masks and never affect interface typography. The Sepia Sketch preset now uses the ink treatment.
+- Verification: all thirteen playground browser tests passed, including six new adaptive-veil/typography cases. Desktop/mobile screenshots of the new veils and sketch studies were visually inspected without browser errors. These remain isolated preview options; functional narration and cross-browser/physical-phone validation are outside this update.

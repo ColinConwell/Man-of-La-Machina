@@ -224,12 +224,6 @@ a {
   object-fit: cover;
   object-position: center bottom;
 }
-.treatment-sepia {
-  filter: grayscale(0.92) sepia(0.55) saturate(0.65) contrast(0.93);
-}
-.treatment-grayscale {
-  filter: grayscale(1) contrast(0.94);
-}
 .theme-moonlight .landscape {
   opacity: 0.43;
 }
@@ -1982,5 +1976,120 @@ a {
   }
   .trial-comparison section > p {
     font-size: 12px;
+  }
+}
+
+/* Veil shapes respond to the preview pane, including mobile and A/B panes. */
+.reading-area.veil-window {
+  padding: clamp(24px, 4cqw, 56px) clamp(22px, 7cqw, 112px);
+}
+.veil-window .reading-inner {
+  max-width: 1100px;
+  width: 100%;
+  margin-inline: auto;
+}
+.reading-area.veil-window:before {
+  inset: 12px max(12px, calc((100% - 1200px) / 2));
+  border-radius: clamp(16px, 3cqw, 36px);
+  background: rgba(var(--paper), var(--reading-alpha));
+  border: 1px solid rgba(var(--paper), calc(var(--reading-alpha) * .65));
+  box-shadow: inset 0 1px 1px #ffffff40, 0 8px 35px #27271e08;
+  backdrop-filter: blur(calc(var(--glass-blur) * .35));
+}
+.veil-window .journey-rail {
+  display: none;
+}
+.reading-area:is(.veil-messages, .veil-contours):before {
+  display: none;
+}
+.message.position-full { width: 100%; }
+.message:is(.position-left, .position-center, .position-right) {
+  width: var(--message-width);
+  max-width: 100%;
+}
+.message.position-left { margin-inline: 0 auto; }
+.message.position-center { margin-inline: auto; }
+.message.position-right { margin-inline: auto 0; }
+.message.align-left { text-align: left; }
+.message.align-center { text-align: center; }
+.message.align-right { text-align: right; }
+.message.align-justify { text-align: justify; text-align-last: start; }
+.message.align-justify .message-byline { text-align: start; }
+.message.align-justify :is(.dialogue, .passage p) { text-wrap: wrap; hyphens: auto; }
+.layout-conversation .message.position-right {
+  border-left: 0;
+  border-right: 2px solid var(--line);
+  padding-left: 0;
+  padding-right: 20px;
+}
+.reading-area:is(.veil-messages, .veil-contours) .chapter-heading,
+.reading-area:is(.veil-messages, .veil-contours) .schematic-body:not(.state-reader):not(.state-comparison),
+.veil-messages .message {
+  background: rgba(var(--paper), var(--reading-alpha));
+  border: 1px solid rgba(var(--paper), calc(var(--reading-alpha) * .85));
+  border-bottom-color: var(--line);
+  border-radius: 18px;
+  padding: var(--veil-padding);
+  box-shadow: inset 0 1px 2px #ffffff55, inset 0 -1px 2px #27271e12, 0 8px 28px #27271e0d;
+  backdrop-filter: blur(calc(var(--glass-blur) * .4));
+}
+.veil-messages .message {
+  width: fit-content;
+  max-width: var(--message-width);
+}
+.veil-messages .message.position-full { max-width: 100%; }
+.veil-messages .message.position-right { padding: var(--veil-padding); }
+.veil-messages .message .passage p:last-child { margin-bottom: 0; }
+.reading-area:is(.veil-messages, .veil-contours) .chapter-heading h1 {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+.veil-contours .message {
+  border: 0;
+  padding: 6px calc(var(--veil-padding) * .55);
+}
+.veil-contours.layout-conversation .message.position-right {
+  padding: 6px calc(var(--veil-padding) * .55);
+  border: 0;
+}
+.veil-contours .message .veil-text {
+  background: rgba(var(--paper), var(--reading-alpha));
+  border-radius: 9px;
+  padding: .1em calc(var(--veil-padding) * .5);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  box-shadow: inset 0 1px 0 #ffffff55, inset 0 -1px 0 var(--line), 0 2px 7px #27271e0a;
+}
+.veil-contours .message :is(.dialogue, .passage p) {
+  line-height: 1.65;
+}
+.veil-contours .message-byline { margin-bottom: 12px; }
+.veil-contours .message mark {
+  padding: 0;
+  background: transparent;
+}
+.veil-contours .comparison-passages .message > p { line-height: 1.65; }
+.speaker-settings {
+  border: 0;
+  padding: 0;
+  margin: 18px 0;
+  min-width: 0;
+}
+.speaker-settings legend {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.treatment-shortcuts { display: flex; gap: 8px; }
+.treatment-shortcuts .panel-button { flex: 1; }
+.treatment-shortcuts [aria-pressed="true"] { background: #e5dccb; border-color: #9d8462; }
+@container (max-width: 520px) {
+  .reading-area:is(.veil-messages, .veil-contours) { padding-inline: 5%; }
+  .reading-area.veil-window { padding: 24px 7%; }
+  .reading-area:is(.veil-messages, .veil-contours) .chapter-heading,
+  .reading-area:is(.veil-messages, .veil-contours) .schematic-body:not(.state-reader):not(.state-comparison),
+  .veil-messages .message,
+  .veil-messages .message.position-right {
+    padding: min(var(--veil-padding), 18px);
   }
 }
