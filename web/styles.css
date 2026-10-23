@@ -590,7 +590,7 @@ a {
   background: color-mix(in srgb, var(--accent) 8%, transparent);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  padding: 2px 4px;
+  padding: 2px 0;
 }
 .story-actions {
   display: flex;
