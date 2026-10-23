@@ -67,7 +67,7 @@ def setup_graph(result, plan):
         agent_id = f'{actor}:{settings.get("provider")}:{settings.get("model")}' if actor else None
         if actor:
             agents.setdefault(agent_id, {'id': agent_id, 'role': actor, 'settings': settings, 'call_ids': []})['call_ids'].append(cid)
-        node = {'id': cid, 'kind': 'call', 'label': purpose.replace('-', ' ').title(),
+        node = {'id': cid, 'kind': 'call', 'label': purpose.replace('-', ' ').capitalize(),
                 'ordinal': ordinal, 'purpose': purpose, 'stage': 'dialogue' if actor else ('review' if 'review' in purpose else 'preparation'),
                 'agent_id': agent_id, 'settings': settings, 'status': call.get('status'),
                 'resolved_model': call.get('metadata', {}).get('resolved_model'),
@@ -91,11 +91,11 @@ def setup_graph(result, plan):
             signature = [(i.get('id'), i.get('source_version'), i.get('role'), key(i.get('body', ''))) for _, i in items]
             iid = 'input-' + key([origin, signature, evidence_sources, deps])
             if iid not in input_nodes:
-                label = {'historical': 'Recorded Dialogue', 'history': 'Recorded Dialogue', 'instruction': 'Instructions',
-                         'summary': 'Compacted Memory', 'persona': 'Character Sketch', 'parallel': 'Future Material',
-                         'simulated': 'Earlier Simulated Turns', 'timeline': 'Parsed Event Timeline',
-                         'annotation': 'Retrospective Annotations', 'timeline-event': 'Parsed Timeline Events', 'annotated': 'Annotated Dialogue',
-                         'endpoint': 'Terminal Event', 'endpoint-anchor': 'Terminal Event', 'start-anchor': 'Starting Event', 'path-anchor': 'Terminal Event'}.get(origin, origin.replace('-', ' ').title())
+                label = {'historical': 'Recorded dialogue', 'history': 'Recorded dialogue', 'instruction': 'Instructions',
+                         'summary': 'Compacted memory', 'persona': 'Character sketch', 'parallel': 'Future material',
+                         'simulated': 'Earlier simulated turns', 'timeline': 'Event timeline',
+                         'annotation': 'Annotations', 'timeline-event': 'Timeline events', 'annotated': 'Annotated dialogue',
+                         'endpoint': 'End', 'endpoint-anchor': 'End', 'start-anchor': 'Start', 'path-anchor': 'End'}.get(origin, origin.replace('-', ' ').capitalize())
                 input_nodes[iid] = {'id': iid, 'kind': 'input', 'label': label, 'origin': origin,
                     'item_count': len(items), 'references': [],
                     'items': [{k: v for k, v in i.items() if k != 'body'} for _, i in items],
@@ -105,7 +105,7 @@ def setup_graph(result, plan):
             edges.append({'source': iid, 'target': cid, 'kind': 'manifest-input', 'origin': origin,
                           'positions': [p for p, _ in items]})
         out_id = 'output-' + cid
-        nodes.append({'id': out_id, 'kind': 'output', 'label': f'{len(turns)} Simulated Turns' if turns else 'Saved Response',
+        nodes.append({'id': out_id, 'kind': 'output', 'label': f'{len(turns)} simulated turns' if turns else 'Response',
                       'call_id': cid, 'status': call.get('status'), 'generated_turns': turns,
                       'characters': len(call.get('text', ''))})
         edges.append({'source': cid, 'target': out_id, 'kind': 'response'})
@@ -130,6 +130,6 @@ def setup_graph(result, plan):
             'experiment_spec': result.get('experiment_spec'), 'completion_reason': result.get('completion_reason'),
             'content_version': plan.get('content_version'), 'engine_hash': plan.get('engine_hash'),
             'suite': plan.get('suite'), 'clone_suite': cloned,
-            'lineage_note': 'Edges show saved manifest inputs and derivations linked by recorded artifact IDs. Missing lineage is not inferred. Exact bodies and native payloads remain in the linked receipts.',
+            'lineage_note': 'Edges come from recorded artifact IDs; missing links are not inferred.',
             'representation': condition.get('representation', 'dialogue'),
             'input_origins': sorted({n['origin'] for n in input_nodes.values()})}

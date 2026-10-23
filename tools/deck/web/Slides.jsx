@@ -82,6 +82,7 @@ function FlowSlide({ s }) {
         onSourceMode={pickSource}
         register={deck.registerFlow}
         autoplay={slideSetting(deck.edits, "autoplay", s.id, false) && deck.mode === "present"}
+        intro={<Body s={s} className="body flow-intro" />}
       />
     </Box>
   );
@@ -201,10 +202,7 @@ export function Slide({ s }) {
     case "flow":
       inner = (
         <div className="frame flowframe">
-          <div className="flow-intro">
-            <Head s={s} />
-            <Body s={s} />
-          </div>
+          <Head s={s} />
           {s.flow ? <FlowSlide s={s} /> : <div className="missing">This slide has no flow.</div>}
         </div>
       );

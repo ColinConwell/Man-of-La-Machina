@@ -130,15 +130,17 @@ em { font-style: italic; }
 .layout-closing .body p { font-size: calc(26px * var(--s)); color: var(--muted); }
 
 /* ---------- Flow slides ---------- */
-.flowframe { inset: 44px 56px 40px; justify-content: flex-start; gap: 18px; }
-.flow-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 48px; align-items: end; }
-.flow-intro .slide-head { gap: 8px; }
-.flow-intro .title { font-size: calc(46px * var(--s)); }
-.flow-intro .body { gap: 8px; }
-.flow-intro .body p { font-size: calc(19px * var(--s)); line-height: 1.45; color: var(--muted); }
+.flowframe { inset: 44px 56px 40px; justify-content: flex-start; gap: 16px; }
+.flowframe .slide-head { gap: 6px; }
+.flowframe .title { font-size: calc(46px * var(--s)); }
 .flow-box { flex: 1; min-height: 0; display: flex; }
-.flow { flex: 1; min-height: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 10px; font-family: var(--ui); }
-.flow-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.flow { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; font-family: var(--ui); }
+.flip .flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); }
+.flip .flow .graph { order: 2; }
+.flow-panel { min-height: 0; display: flex; flex-direction: column; gap: 12px; padding: 16px 14px 12px 16px; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--surface) 55%, transparent); }
+.flow-intro { gap: 8px; }
+.flow-intro p { font-family: var(--display); font-size: calc(18px * var(--s)); line-height: 1.45; color: var(--muted); }
+.flow-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .flow-controls { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); }
 .flow-controls button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; cursor: pointer; font-size: 16px; color: var(--text); }
 .flow-controls button:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); }
@@ -149,10 +151,7 @@ em { font-style: italic; }
 .source-toggle { display: flex; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
 .source-toggle button { border: 0; background: transparent; padding: 8px 14px; cursor: pointer; font-size: 14px; color: var(--muted); }
 .source-toggle button.on { background: var(--accent); color: var(--bg); }
-.flow-head .legend { margin-left: auto; font-size: 13px; color: var(--muted); font-style: italic; }
-.flow-body { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; min-height: 0; }
-.flip .flow-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr); }
-.flip .flow-body .graph { order: 2; }
+.flow-panel .legend { font-size: 12px; color: var(--muted); font-style: italic; }
 
 /* Graph */
 .graph { width: 100%; height: 100%; min-height: 0; border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--surface) 55%, transparent); overflow: visible; }
@@ -184,7 +183,7 @@ em { font-style: italic; }
 @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(0.97); } to { opacity: 1; transform: none; } }
 
 /* Conversation column */
-.beats { position: relative; list-style: none; margin: 0; padding: 4px 8px 40px 4px; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin; }
+.beats { flex: 1; position: relative; list-style: none; margin: 0 -6px 0 0; padding: 4px 6px 24px 2px; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin; }
 .beat { border-radius: 14px; padding: 12px 14px; background: color-mix(in srgb, var(--surface) 80%, transparent); border: 1px solid var(--line); cursor: pointer; opacity: 0.62; transition: opacity 200ms; display: flex; flex-direction: column; gap: 8px; }
 .beat.current { opacity: 1; border-color: var(--accent); box-shadow: 0 6px 24px #0003; }
 .beat.empty { cursor: default; opacity: 0.9; font-size: 16px; line-height: 1.5; color: var(--muted); border-style: dashed; }

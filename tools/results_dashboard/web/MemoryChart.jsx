@@ -1,54 +1,41 @@
 import React from "react";
 import { eventName, number, memoryPairs } from "./data";
+
+// Matched full/compact pairs by event, shown on demand from the filter row.
 export default function MemoryChart({ cases, event, seed }) {
   const rows = memoryPairs(cases, event, seed);
+  if (!rows.length) return null;
   const maximum = Math.max(1, ...rows.flatMap((r) => [r.full, r.compact]));
   return (
-    <section className="memory-chart" aria-labelledby="memory-heading">
-      <div className="section-heading">
-        <div>
-          <h2 id="memory-heading">Memory Comparison</h2>
-          <p>Mean input bound · UTF-8 bytes plus overhead</p>
-        </div>
-        <span className="caption">Matched seeds · completed cases</span>
-      </div>
-      {rows.length ? (
-        <div className="chart-rows">
-          {rows.map((row) => (
-            <div className="chart-row" key={row.event}>
-              <div className="chart-label">
-                <strong>{eventName(row.event)}</strong>
-                <small>
-                  {row.count} matched {row.count === 1 ? "pair" : "pairs"}
-                </small>
-              </div>
-              <div className="bar-pair">
-                {["full", "compact"].map((kind) => (
-                  <div className="bar-line" key={kind}>
-                    <span>{kind === "full" ? "Full" : "Compact"}</span>
-                    <div className="bar-track">
-                      <div
-                        className={`bar ${kind}`}
-                        style={{ width: `${(row[kind] / maximum) * 100}%` }}
-                      />
-                    </div>
-                    <span className="bar-value">{number(row[kind])}</span>
+    <details className="memory-chart">
+      <summary>Full vs. compact history</summary>
+      <div className="chart-rows" aria-label="Mean input per dialogue request, in bytes">
+        {rows.map((row) => (
+          <div className="chart-row" key={row.event}>
+            <strong className="chart-label" title={`${row.count} matched pairs`}>
+              {eventName(row.event)}
+            </strong>
+            <div className="bar-pair">
+              {["full", "compact"].map((kind) => (
+                <div className="bar-line" key={kind}>
+                  <span>{kind === "full" ? "Full" : "Compact"}</span>
+                  <div className="bar-track">
+                    <div
+                      className={`bar ${kind}`}
+                      style={{ width: `${(row[kind] / maximum) * 100}%` }}
+                    />
                   </div>
-                ))}
-              </div>
-              <span className="reduction">
-                {((1 - row.compact / row.full) * 100).toFixed(1)}% smaller
-              </span>
+                  <span className="bar-value">{number(row[kind])}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ) : (
-        <p className="empty-chart">
-          {event === "april-1"
-            ? "April 1 has no older history to compact at the initial boundary."
-            : "No completed baseline–compact pairs are available for these event and seed filters."}
-        </p>
-      )}
-    </section>
+            <span className="reduction">
+              −{((1 - row.compact / row.full) * 100).toFixed(0)}%
+            </span>
+          </div>
+        ))}
+        <p className="caption">Mean bytes per dialogue request, matched completed pairs.</p>
+      </div>
+    </details>
   );
 }

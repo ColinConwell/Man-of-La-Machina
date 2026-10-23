@@ -7,39 +7,42 @@ export const eventNames = {
   "april-1-to-may-10": "April 1 → May 10",
 };
 export const conditionNames = {
-  "single-dialogue-fixed": "One Author · Fixed Dialogue",
-  "single-dialogue-adaptive": "One Author · Adaptive Dialogue",
-  "two-dialogue-fixed": "Two Agents · Fixed Dialogue",
-  "two-dialogue-adaptive": "Two Agents · Adaptive Dialogue",
-  "single-annotated-adaptive": "One Author · Annotations",
-  "two-annotated-adaptive": "Two Agents · Annotations",
-  "single-timeline-adaptive": "One Author · Timeline",
-  "two-timeline-adaptive": "Two Agents · Timeline",
-  "single-dialogue-state-first": "One Author · State First",
-  "two-dialogue-state-first": "Two Agents · State First",
-  "single-dialogue-compact": "One Author · Compact Context",
-  "two-dialogue-anthropic": "Two Agents · Anthropic Companion",
+  "single-dialogue-fixed": "One author · fixed length",
+  "single-dialogue-adaptive": "One author · adaptive",
+  "two-dialogue-fixed": "Two agents · fixed length",
+  "two-dialogue-adaptive": "Two agents · adaptive",
+  "single-annotated-adaptive": "One author · annotations",
+  "two-annotated-adaptive": "Two agents · annotations",
+  "single-timeline-adaptive": "One author · timeline",
+  "two-timeline-adaptive": "Two agents · timeline",
+  "single-dialogue-state-first": "One author · state first",
+  "two-dialogue-state-first": "Two agents · state first",
+  "single-dialogue-compact": "One author · compact",
+  "two-dialogue-anthropic": "Two agents · Claude companion",
   baseline: "Baseline",
-  "memory-compact": "Compact History",
-  "memory-rolling": "Rolling Memory",
-  "persona-minimal": "Minimal Persona",
-  "persona-retrospective": "Retrospective Persona",
-  "forward-static": "Static Future",
-  "forward-dynamic": "Dynamic Future",
-  "forward-adapted": "Adapted Future",
-  "companion-anthropic": "Anthropic Companion",
-  "traveler-anthropic": "Anthropic Traveler",
-  "companion-gemini": "Gemini Companion",
+  "memory-compact": "Compact history",
+  "memory-rolling": "Rolling memory",
+  "persona-minimal": "Minimal persona",
+  "persona-retrospective": "Retrospective persona",
+  "forward-static": "Static future",
+  "forward-dynamic": "Dynamic future",
+  "forward-adapted": "Adapted future",
+  "companion-anthropic": "Claude companion",
+  "traveler-anthropic": "Claude Traveler",
+  "companion-gemini": "Gemini companion",
   "traveler-gemini": "Gemini Traveler",
-  "endpoint-upfront": "Endpoint Upfront",
-  "endpoint-backward": "Backward Waypoints",
-  "endpoint-delayed": "Midpoint Reveal",
-  "endpoint-companion-only": "Companion-Only Endpoint",
-  "path-companion-anthropic": "Anthropic Companion",
+  "endpoint-upfront": "Endpoint upfront",
+  "endpoint-backward": "Backward plan",
+  "endpoint-delayed": "Endpoint at midpoint",
+  "endpoint-companion-only": "Endpoint to companion only",
+  "path-companion-anthropic": "Claude companion",
   "path-traveler-gemini": "Gemini Traveler",
 };
-export const title = (value = "") =>
-  value.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+// Sentence case: "model-handoff" -> "Model handoff".
+export const title = (value = "") => {
+  const text = String(value).replace(/[-_]/g, " ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
 export const eventName = (value) => eventNames[value] || title(value);
 export const conditionName = (value) => conditionNames[value] || title(value);
 export const number = (value) =>

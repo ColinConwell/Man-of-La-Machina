@@ -19,10 +19,9 @@ export default function EventPlayback({ data }) {
   }, [index]);
   if (!events.length) return null;
   const event = events[index];
-  return <section className="event-playback" aria-label="Simulated Event Timeline">
-    <div className="section-heading"><h3>Simulated Event Timeline</h3><button className="text-button" onClick={() => { if (index >= events.length - 1) setIndex(0); setPlaying(v => !v); }} aria-pressed={playing}>{playing ? 'Pause' : 'Play Events'}</button></div>
-    <p className="caption">Hypothetical events extracted from the generated script. Spacing represents sequence, not elapsed time.</p>
-    <div className="event-track" ref={track} role="group" aria-label="Choose Simulated Event">{events.map((e,i) => <button key={e.id || i} aria-label={`Event ${i+1}: ${e.text}`} aria-pressed={i===index} onClick={() => {setIndex(i);setPlaying(false);}}><span>{i+1}</span></button>)}</div>
-    <div className="event-current" key={event.id || index} aria-live={playing ? 'off' : 'polite'}><span className="caption">Turn {event.turn_index+1} · {title(event.actor || 'Narration')}{event.time_elapsed ? ` · ${event.time_elapsed}` : ''}</span><p>{event.text}</p>{event.place && <small>{event.place}</small>}</div>
+  return <section className="event-playback" aria-label="Simulated events">
+    <div className="section-heading"><h3>Events in this script</h3><button className="text-button" onClick={() => { if (index >= events.length - 1) setIndex(0); setPlaying(v => !v); }} aria-pressed={playing}>{playing ? 'Pause' : 'Play'}</button></div>
+    <div className="event-track" ref={track} role="group" aria-label="Choose event">{events.map((e,i) => <button key={e.id || i} aria-label={`Event ${i+1}: ${e.text}`} aria-pressed={i===index} onClick={() => {setIndex(i);setPlaying(false);}}><span>{i+1}</span></button>)}</div>
+    <div className="event-current" key={event.id || index} aria-live={playing ? 'off' : 'polite'}><span className="caption">Turn {event.turn_index+1} · {title(event.actor || 'narration')}{event.time_elapsed ? ` · ${event.time_elapsed}` : ''}</span><p>{event.text}</p>{event.place && <small>{event.place}</small>}</div>
   </section>;
 }

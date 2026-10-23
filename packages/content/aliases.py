@@ -241,6 +241,6 @@ def display_projection(value: dict, aliases: AliasRewriter) -> dict:
     projected['display_projection'] = {
         'mode': 'aliases', 'alias_version': aliases.version, 'content_changed': True,
         'source_hashes_preserved': True,
-        'note': 'Display text uses configured aliases. Stored hashes identify original records; private originals remain unchanged.',
+        'note': 'Names are aliased for display. Hashes refer to the unchanged originals.',
     }
     return projected

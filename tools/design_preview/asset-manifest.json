@@ -1,0 +1,63 @@
+{
+  "created": "2026-10-23",
+  "generator": "OpenAI image generation via Codex",
+  "usage": "Synthetic development preview only",
+  "derivation": "Independent background illustrations, not crops of UI mockups; WebP format optimization only",
+  "shared_prompt": "Standalone landscape illustration, not UI. Wide 16:9 Romanticist sweeping adventure-and-opportunity. Painterly watercolor with Renaissance engraving and warm ivory paper grain. Restrained ochre, sage and slate. Continuous bottom-heavy composition, upper 55% pale sky, horizon at 62%, taller forms at edges and calm plains in center. No text, frame, modern vehicles, fantasy or people.",
+  "assets": [
+    {
+      "scene": "windmills",
+      "file": "windmills.webp",
+      "source_generation_id": "1985a281-a73e-4931-b786-447bb38f94b7",
+      "source_sha256": "2b4ec3677a023ff02895a1c4a952e33e919d03052530a6cf6137218c8021ac97",
+      "sha256": "638e9ebdb1210616e6ef741ba25b278551a331fbc7ed0037cd091a232c8059c5",
+      "bytes": 301832,
+      "scene_prompt": "La Mancha windmill country, evoking Cervantes: expansive arid golden plains, low limestone ridges, small whitewashed historic windmills with wooden sails off to one side at middle distance, sparse dry grasses and low scrub. No people."
+    },
+    {
+      "scene": "grain-tower",
+      "file": "grain-tower.webp",
+      "source_generation_id": "1bc5a613-431a-49bc-b8d6-c33bb47366b3",
+      "source_sha256": "0218802ef4d2dc4cb1bece0e8ddd639ab76e3bc64516a1468a93f4fc72bb8274",
+      "sha256": "9a9a678fcb6b585cac39c3f3f7932779adbb8e383da9bac03e845ebd18ea6b09",
+      "bytes": 330330,
+      "scene_prompt": "Andalusian grain-tower landscape: small weathered medieval cylindrical stone grain tower with an uneven flat top on a distant shoulder at left, holm oak at outer right, rolling ochre fields and pale central plains, distant rocky hills. No fantasy castle."
+    },
+    {
+      "scene": "olive-plains",
+      "file": "olive-plains.webp",
+      "source_generation_id": "e11a33c8-89ce-4397-9f50-ced593df0c85",
+      "source_sha256": "792aeb65cbd5a4fd604fb68dc5aee870915c82d017f685985ad7b469b7195a22",
+      "sha256": "3683d311c7539cb205d33e74f53ad5507e1f090a77c9574a16947786c652064b",
+      "bytes": 367794,
+      "scene_prompt": "Andalusian olive plains: open pale wheat and ochre plains across the center; ancient olive trees and a few holm oaks frame outer edges; blue Sierra ridges far away. No buildings."
+    },
+    {
+      "scene": "aqueduct",
+      "file": "aqueduct.webp",
+      "source_generation_id": "8029eb8f-613e-4297-9a54-5361aeb2ab75",
+      "source_sha256": "42b55d7e0750a26d7d4d3c2fb1d9dddc3a3ca105ff547595e85220d464bf1add",
+      "sha256": "76908901b78855603c7da1f934619860b8739ebd570acc9478a28d5741879bb7",
+      "bytes": 362558,
+      "scene_prompt": "Southern Iberian ruined aqueduct: a modest distant broken Roman stone aqueduct at left, surviving slender arches and collapsed remnants; sparse olive trees on margin slopes, wide quiet central plains, pale mountain horizon. No large foreground ruin."
+    },
+    {
+      "scene": "moorish-palace",
+      "file": "moorish-palace.webp",
+      "source_generation_id": "94a8fa30-285c-4ff8-b3d1-8f761b18c538",
+      "source_sha256": "ac6eecce577fd64518381dd97f70db5ddbdab3f290ed2b2d5791afbb876275bc",
+      "sha256": "f3d8046d38cd0de33c631e85b875a27894c3b912fd9f026c3803f99d7ae4b00c",
+      "bytes": 316426,
+      "scene_prompt": "Andalusian distant Moorish architecture: a small historically plausible fortified ochre palace on a far right ridge, flat terraced roofs and modest towers, delicate cypress groves at margin, sweeping valley and faint irrigated gardens, distant blue hills. Architecture is secondary and tiny."
+    },
+    {
+      "scene": "andorran-valley",
+      "file": "andorran-valley.webp",
+      "source_generation_id": "fb972dac-cf91-40c4-92db-4b8d5ec6c6b9",
+      "source_sha256": "0fc2281aff1be56271bd5ae411f31fab287134ef02ee24f05900ae02e3403484",
+      "sha256": "19af9ecd03ef6fd5c7fe0990875dc74823c479810d39171b12aebe9282baf31c",
+      "bytes": 345444,
+      "scene_prompt": "Andorran Pyrenean valley: granite peaks higher on both sides and deep distant central valley, sparse mountain pine at edges, alpine meadow at bottom center, tiny medieval stone tower at one distant margin. No olives or Moorish palaces in this alpine scene."
+    }
+  ]
+}

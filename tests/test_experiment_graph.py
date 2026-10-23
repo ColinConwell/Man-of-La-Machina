@@ -37,7 +37,7 @@ def test_one_author_is_one_agent_despite_two_roles_and_unused_config():
     assert graph['dialogue_agent_count'] == 1
     assert graph['agents'][0]['role'] == 'script-author'
     assert graph['support_call_count'] == 1
-    assert next(n for n in graph['nodes'] if n['id'] == 'output-writer')['label'] == '2 Simulated Turns'
+    assert next(n for n in graph['nodes'] if n['id'] == 'output-writer')['label'] == '2 simulated turns'
 
 
 def test_shared_preprocessing_receipts_deduplicate_and_unknown_lineage_is_absent():

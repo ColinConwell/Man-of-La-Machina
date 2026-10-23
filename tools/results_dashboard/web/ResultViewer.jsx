@@ -6,14 +6,9 @@ import React, {
   useState,
 } from "react";
 import Markdown from "react-markdown";
-import {
-  caseURL,
-  conditionName,
-  eventName,
-  getJSON,
-  number,
-  title,
-} from "./data";
+import { caseURL, getJSON, number, title } from "./data";
+import EventPlayback from "./EventPlayback";
+import ViewSettings, { SIZES, modelColor, useViewSettings } from "./ViewSettings";
 import "./result-viewer.css";
 
 function Prose({ children }) {
@@ -38,16 +33,11 @@ function RecordedAnchor({ record, label }) {
       <summary>
         <span>{label}</span>
         <small>
-          Recorded Source ·{" "}
-          {record.speaker === "human" ? "Traveler" : "Companion"} ·{" "}
-          {record.disclosed_at || "Disclosure Unknown"}
+          Recorded · {record.speaker === "human" ? "Traveler" : "Companion"}
+          {record.disclosed_at ? ` · ${record.disclosed_at}` : ""}
         </small>
       </summary>
       <Prose>{record.body}</Prose>
-      <p className="caption">
-        Source: {record.id}. This is recorded anchor material, not a generated
-        turn.
-      </p>
     </details>
   );
 }
@@ -114,8 +104,8 @@ function AgentPreview({ turn, index, call, step, data, onReceipt, onSetup }) {
         onClick={() => setPinned((v) => !v)}
       >
         <span>
-          {author ? "Script Author" : title(turn.actor)} ·{" "}
-          {settings?.provider || "Request Unavailable"}
+          {author ? "Author · " : ""}
+          {call?.metadata?.resolved_model || settings?.model || "No request"}
         </span>
         <span aria-hidden="true">ⓘ</span>
       </button>
@@ -125,13 +115,12 @@ function AgentPreview({ turn, index, call, step, data, onReceipt, onSetup }) {
           popover="manual"
           id={`rv-agent-${index}`}
           className="rv-agent-popover"
-          aria-label={`Turn ${index + 1} Agent and Setup`}
+          aria-label={`Turn ${index + 1} agent`}
         >
           <div className="rv-popover-heading">
             <strong>
-              {author
-                ? "One Author, Both Characters"
-                : `${title(turn.actor)} Agent`}
+              {author ? "One author writes both roles" : `${title(turn.actor)} agent`}
+              {pinned ? <small> · pinned</small> : null}
             </strong>
             <button
               aria-label={`Close turn ${index + 1} setup preview`}
@@ -144,70 +133,46 @@ function AgentPreview({ turn, index, call, step, data, onReceipt, onSetup }) {
               ×
             </button>
           </div>
-          <p>
-            {pinned
-              ? "Pinned. Select the agent label again to unpin."
-              : "Hover or focus previews this request. Select the label to pin."}
-          </p>
           <dl>
             <div>
-              <dt>Request Model</dt>
+              <dt>Model</dt>
               <dd>
                 {settings
                   ? `${settings.provider} / ${call.metadata?.resolved_model || settings.model}`
-                  : "No linked request metadata was saved."}
+                  : "Not saved"}
               </dd>
             </div>
             <div>
-              <dt>Request ID</dt>
+              <dt>Context</dt>
               <dd>
-                <code>{turn.call_id || "Not Recorded"}</code>
+                {spec?.representation ? title(spec.representation) : "Dialogue"}
+                {data.case.condition.memory ? ` · ${data.case.condition.memory} memory` : ""}
               </dd>
             </div>
-            <div>
-              <dt>Role in This Turn</dt>
-              <dd>
-                {title(turn.actor)} is the spoken character.
-                {author ? " The same author model writes both roles." : ""}
-              </dd>
-            </div>
-            <div>
-              <dt>Context Form</dt>
-              <dd>
-                {spec?.representation
-                  ? title(spec.representation)
-                  : "Historical Dialogue"}{" "}
-                · {title(data.case.condition.memory || "Not Recorded")} memory
-              </dd>
-            </div>
-            <div>
-              <dt>Character Initialization</dt>
-              <dd>
-                {spec
-                  ? "Input-Only · No Separate Character Sketch"
-                  : title(data.case.condition.persona || "Not Recorded")}
-              </dd>
-            </div>
-            <div>
-              <dt>Endpoint Exposure</dt>
-              <dd>
-                {step?.path
-                  ? step.path.endpoint_visible
-                    ? "Directly supplied in this request"
-                    : "Withheld from this request"
-                  : spec
-                    ? "See the saved request for the exact terminal context"
-                    : data.path
-                      ? "See the saved request for the exact exposure"
-                      : "No path endpoint"}
-              </dd>
-            </div>
-            {step?.cards?.length > 0 && (
+            {!spec && data.case.condition.persona && (
               <div>
-                <dt>Parallel Material</dt>
-                <dd>{step.cards.length} saved future-context cards</dd>
+                <dt>Character</dt>
+                <dd>{title(data.case.condition.persona)}</dd>
               </div>
             )}
+            {step?.path && (
+              <div>
+                <dt>Endpoint</dt>
+                <dd>{step.path.endpoint_visible ? "Visible" : "Withheld"}</dd>
+              </div>
+            )}
+            {step?.cards?.length > 0 && (
+              <div>
+                <dt>Future cards</dt>
+                <dd>{step.cards.length}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Request</dt>
+              <dd>
+                <code>{turn.call_id || "Not saved"}</code>
+              </dd>
+            </div>
           </dl>
           <div className="rv-preview-actions">
             <button
@@ -219,10 +184,10 @@ function AgentPreview({ turn, index, call, step, data, onReceipt, onSetup }) {
                 onReceipt(turn.call_id);
               }}
             >
-              Read Prompt and Context
+              Prompt and context
             </button>
             <button disabled={!call} onClick={() => onSetup(turn.call_id)}>
-              Inspect Request in Setup ↗
+              Open in Setup ↗
             </button>
           </div>
         </section>
@@ -232,16 +197,12 @@ function AgentPreview({ turn, index, call, step, data, onReceipt, onSetup }) {
 }
 function RequestDetails({ receipt, error, loading }) {
   return (
-    <section className="rv-request" aria-label="Turn Request Details">
-      <h4>Prompt and Context for This Request</h4>
-      {loading && <p role="status">Loading saved request…</p>}
+    <section className="rv-request" aria-label="Turn request details">
+      <h4>Prompt and context</h4>
+      {loading && <p role="status">Loading…</p>}
       {error && <p role="alert">{error}</p>}
       {receipt && (
         <>
-          <p className="caption">
-            {receipt.display_projection?.note ||
-              "These are the saved request blocks in their original order."}
-          </p>
           {(receipt.manifest?.items || []).map((item, i) => (
             <details key={`${item.id}-${i}`}>
               <summary>
@@ -252,21 +213,12 @@ function RequestDetails({ receipt, error, loading }) {
             </details>
           ))}
           <details>
-            <summary>
-              {receipt.display_projection
-                ? "Provider Payload With Display Aliases"
-                : "Exact Provider Payload"}
-            </summary>
+            <summary>Provider payload{receipt.display_projection ? " (aliased)" : ""}</summary>
             <pre>{JSON.stringify(receipt.request_payload, null, 2)}</pre>
           </details>
-          <p className="caption">Original Saved Payload SHA-256</p>
-          <code className="hash">{receipt.payload_hash}</code>
-          {receipt.display_payload_hash && (
-            <>
-              <p className="caption">Displayed Payload SHA-256</p>
-              <code className="hash">{receipt.display_payload_hash}</code>
-            </>
-          )}
+          <p className="caption hash-line" title={receipt.display_payload_hash ? `Displayed: ${receipt.display_payload_hash}` : undefined}>
+            SHA-256 <code>{receipt.payload_hash}</code>
+          </p>
         </>
       )}
     </section>
@@ -318,53 +270,51 @@ export default function ResultViewer({ data, run, onSetup }) {
     );
   }
   const author = data.experiment_spec?.architecture === "single-author";
-  const usedCalls = new Set(turns.map((t) => t.call_id).filter(Boolean));
+  const [view] = useViewSettings();
+  const chat = view.layout === "chat";
+  // Color by the requested model ID so Dialogue and Compare agree.
+  const modelOf = (turn) =>
+    calls.get(turn.call_id)?.settings?.model || data.case.condition[turn.actor]?.model || "";
+  const colorOf = (turn) =>
+    view.colorBy === "model" ? modelColor(modelOf(turn)) : turn.actor === "traveler" ? "#e7ebf0" : "#2f6fd6";
+  const style = {
+    "--rv-size": `${SIZES[view.size] - (chat ? 1 : 0)}px`,
+    "--rv-font": view.font === "sans" ? "Inter, -apple-system, BlinkMacSystemFont, sans-serif" : 'Georgia, "Times New Roman", serif',
+  };
   return (
-    <div className="result-viewer">
-      <header className="rv-introduction">
-        <p className="rv-eyebrow">
-          Saved Simulation ·{" "}
-          {data.offline ? "Offline Fixture" : "Model-Generated Dialogue"}
-        </p>
-        <h3>{eventName(data.case.event.id)}</h3>
-        <p>
-          {conditionName(data.case.condition.id)} ·{" "}
-          {author
-            ? "One script author writes both characters"
-            : "Character agents exchange dialogue"}{" "}
-          · {number(turns.length)} turns
-        </p>
-        <p className="caption">
-          {usedCalls.size} dialogue request{usedCalls.size === 1 ? "" : "s"}{" "}
-          linked to these turns. Character names identify the speakers; the
-          agent label opens the model and request details.
-        </p>
+    <div className={`result-viewer ${chat ? "rv-chat" : ""}`} style={style}>
+      <div className="rv-introduction">
+        <span>
+          {author ? "One author" : "Two agents"} · {number(turns.length)} turns
+        </span>
         {data.display_projection && (
-          <p className="rv-alias-note">{data.display_projection.note}</p>
+          <span className="rv-alias-note" title={data.display_projection.note}>
+            Aliased
+          </span>
         )}
-      </header>
-      <section className="rv-instruction">
-        <h4>{data.path ? "Bridge Instruction" : "Intervention Instruction"}</h4>
-        <Prose>{data.case.seed.prompt}</Prose>
-      </section>
-      {data.path && (
-        <RecordedAnchor record={data.path.start} label="Starting Anchor" />
-      )}
-      {!!turns.length && (
-        <nav className="rv-turn-nav" aria-label="Result Turn Navigation">
+        <details className="rv-instruction">
+          <summary>Instruction</summary>
+          <Prose>{data.case.seed.prompt}</Prose>
+        </details>
+        <ViewSettings />
+      </div>
+      {view.events && <EventPlayback data={data} />}
+      {data.path && view.anchors && <RecordedAnchor record={data.path.start} label="Start" />}
+      {!!turns.length && !chat && (
+        <nav className="rv-turn-nav" aria-label="Turn navigation">
           <button onClick={() => jump(index - 1)} disabled={!index}>
             ← Previous
           </button>
           <label>
-            <span className="rv-sr-only">Jump to Turn</span>
+            <span className="rv-sr-only">Jump to turn</span>
             <select
-              aria-label="Jump to Turn"
+              aria-label="Jump to turn"
               value={index}
               onChange={(e) => jump(Number(e.target.value))}
             >
               {turns.map((t, i) => (
                 <option value={i} key={t.id}>
-                  {i + 1} / {turns.length} · {title(t.actor)}
+                  {i + 1} / {turns.length} · {t.actor}
                 </option>
               ))}
             </select>
@@ -377,7 +327,7 @@ export default function ResultViewer({ data, run, onSetup }) {
           </button>
         </nav>
       )}
-      <section className="rv-script" aria-label="Generated Script">
+      <section className="rv-script" aria-label="Generated script">
         {turns.length ? (
           turns.map((turn, i) => {
             const call = calls.get(turn.call_id);
@@ -392,25 +342,28 @@ export default function ResultViewer({ data, run, onSetup }) {
                   s.manifest_hash && s.manifest_hash === call?.manifest_hash,
               ) ||
               data.context_steps?.[i];
+            const color = colorOf(turn);
+            const light = chat && view.colorBy === "speaker" && turn.actor === "traveler";
+            const continued = chat && i > 0 && turns[i - 1].actor === turn.actor;
             return (
               <article
                 key={turn.id || i}
                 ref={(element) => (refs.current[i] = element)}
                 tabIndex={-1}
-                className={`rv-turn ${index === i ? "rv-current" : ""}`}
+                className={`rv-turn from-${turn.actor} ${index === i ? "rv-current" : ""} ${continued ? "continued" : ""}`}
                 id={`result-turn-${i + 1}`}
+                style={{ "--turn-color": color, "--turn-ink": light ? "#17202e" : "#fff" }}
               >
                 <header>
                   <div className="rv-speaker">
-                    <span className="rv-turn-number">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <h4>
-                      {title(turn.actor)}
-                      <small>Simulated Character</small>
-                    </h4>
+                    {view.numbers && (
+                      <span className="rv-turn-number">
+                        {chat ? i + 1 : String(i + 1).padStart(2, "0")}
+                      </span>
+                    )}
+                    {!continued && <h4>{title(turn.actor)}</h4>}
                   </div>
-                  <AgentPreview
+                  {view.models && <AgentPreview
                     turn={turn}
                     index={i}
                     call={call}
@@ -422,16 +375,22 @@ export default function ResultViewer({ data, run, onSetup }) {
                       )
                     }
                     onSetup={onSetup}
-                  />
+                  />}
                 </header>
-                <Prose>{turn.text}</Prose>
+                {chat ? (
+                  <div className="rv-bubble">
+                    <Prose>{turn.text}</Prose>
+                  </div>
+                ) : (
+                  <Prose>{turn.text}</Prose>
+                )}
                 {request?.turn === i && (
                   <>
                     <button
                       className="text-button"
                       onClick={() => setRequest(null)}
                     >
-                      Close Request Details
+                      Close
                     </button>
                     <RequestDetails
                       receipt={receipt}
@@ -444,25 +403,15 @@ export default function ResultViewer({ data, run, onSetup }) {
             );
           })
         ) : (
-          <p className="empty">
-            No completed turns were saved. Inspect the request receipts for
-            partial output.
-          </p>
+          <p className="empty">No completed turns. Partial output is under Requests.</p>
         )}
       </section>
-      {data.path && (
-        <RecordedAnchor
-          record={data.path.endpoint}
-          label="Terminal Anchor · Fixed Target"
-        />
+      {data.path && view.anchors && <RecordedAnchor record={data.path.endpoint} label="End" />}
+      {data.completion_reason && (
+        <footer className="rv-end">
+          Ended by {data.completion_reason.replace(/[-_]/g, " ")}
+        </footer>
       )}
-      <footer className="rv-end">
-        <span>{title(data.completion_reason || data.status)}</span>
-        <p>
-          The dialogue above is simulated. Reaching a stopping condition does
-          not establish a historically faithful or logically complete bridge.
-        </p>
-      </footer>
     </div>
   );
 }

@@ -13,41 +13,40 @@ test("result viewer restores linked cases, opens a readable result, and inspects
   await page.setViewportSize({ width: 715, height: 998 });
   await page.goto(`/?run=script-path-screening&case=${second}`);
   await expect(
-    page.getByRole("tab", { name: "Viewer", exact: true }),
+    page.getByRole("tab", { name: "Dialogue", exact: true }),
   ).toHaveAttribute("aria-selected", "true");
-  await expect(page.locator(".rv-introduction")).toContainText(
-    "One Author · Fixed Dialogue",
+  await expect(page.locator(".inspector-heading h2")).toHaveText(
+    "One author · fixed length",
   );
+  await expect(page.locator(".rv-introduction")).toContainText("One author · 8 turns");
   await expect(page.locator(".rv-script .rv-turn")).toHaveCount(8);
-  await page.getByRole("link", { name: "Open Result ↗" }).click();
+  await page.getByRole("link", { name: "Open ↗" }).click();
   await expect(page.locator("main")).toHaveClass("result-reader-mode");
   await expect(
-    page.getByRole("region", { name: "Scenarios", exact: true }),
+    page.getByRole("region", { name: "Cases", exact: true }),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "Simulation Result", exact: true }),
+    page.getByRole("heading", { name: "Result", exact: true }),
   ).toBeVisible();
   expect(new URL(page.url()).searchParams.get("case")).toBe(second);
   await page.reload();
   await expect(page.locator(".rv-script .rv-turn")).toHaveCount(8);
   await page
-    .getByRole("combobox", { name: "Jump to Turn", exact: true })
+    .getByRole("combobox", { name: "Jump to turn", exact: true })
     .selectOption("2");
   await expect(page.locator("#result-turn-3")).toBeFocused();
   const turn = page.locator("#result-turn-3");
   await turn.locator(".rv-agent-trigger").hover();
-  const preview = page.getByRole("region", { name: "Turn 3 Agent and Setup" });
-  await expect(preview).toContainText("One Author, Both Characters");
+  const preview = page.getByRole("region", { name: "Turn 3 agent" });
+  await expect(preview).toContainText("One author writes both roles");
   await expect(preview).toContainText("invented-offline-model");
-  await expect(preview).toContainText(
-    "Input-Only · No Separate Character Sketch",
-  );
+  await expect(preview).toContainText("Dialogue");
   const bounds = await preview.boundingBox();
   expect(bounds.y).toBeGreaterThanOrEqual(0);
   expect(bounds.y + bounds.height).toBeLessThanOrEqual(998);
   await turn.locator(".rv-agent-trigger").click();
   await page.mouse.move(5, 5);
-  await expect(preview).toContainText("Pinned.");
+  await expect(preview).toContainText("pinned");
   const rect = await preview.boundingBox(),
     viewport = page.viewportSize();
   expect(rect.x).toBeGreaterThanOrEqual(0);
@@ -55,22 +54,22 @@ test("result viewer restores linked cases, opens a readable result, and inspects
   expect(rect.x + rect.width).toBeLessThanOrEqual(viewport.width);
   expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height);
   await preview
-    .getByRole("button", { name: "Read Prompt and Context", exact: true })
+    .getByRole("button", { name: "Prompt and context", exact: true })
     .click();
-  const receipt = page.getByRole("region", { name: "Turn Request Details" });
-  await expect(receipt).toContainText("Prompt and Context for This Request");
+  const receipt = page.getByRole("region", { name: "Turn request details" });
+  await expect(receipt).toContainText("Prompt and context");
   await receipt.getByText("1. System · Instruction", { exact: true }).click();
   await expect(receipt).toContainText("EXACT AUTHOR PROMPT");
   await turn.locator(".rv-agent-trigger").click();
   await page
-    .getByRole("region", { name: "Turn 3 Agent and Setup" })
-    .getByRole("button", { name: "Inspect Request in Setup ↗" })
+    .getByRole("region", { name: "Turn 3 agent" })
+    .getByRole("button", { name: "Open in Setup ↗" })
     .click();
   await expect(
     page.getByRole("tab", { name: "Setup", exact: true }),
   ).toHaveAttribute("aria-selected", "true");
   await expect(
-    page.getByRole("combobox", { name: "Inspect Request" }),
+    page.getByRole("combobox", { name: "Inspect request" }),
   ).toHaveValue("author");
   expect(errors).toEqual([]);
 });
@@ -83,7 +82,7 @@ test("viewer supports mobile touch previews, recorded anchors, and aliased recei
   const projection = {
     mode: "aliases",
     content_changed: true,
-    note: "Display text uses configured aliases. Stored hashes identify original records; private originals remain unchanged.",
+    note: "Names are aliased for display. Hashes refer to the unchanged originals.",
   };
   await page.route(
     `**/api/runs/script-path-screening/cases/${first}`,
@@ -130,16 +129,17 @@ test("viewer supports mobile touch previews, recorded anchors, and aliased recei
     },
   );
   await page.goto(`/?run=script-path-screening&case=${first}&reader=1`);
-  await expect(page.locator(".rv-alias-note")).toContainText(
-    "private originals remain unchanged",
+  await expect(page.locator(".rv-alias-note")).toHaveAttribute(
+    "title",
+    /unchanged originals/,
   );
-  await page.getByText("Starting Anchor", { exact: true }).click();
+  await page.getByText("Start", { exact: true }).click();
   await expect(page.locator(".rv-anchor").first()).toContainText(
     "Invented recorded starting anchor.",
   );
   await page.locator(".rv-agent-trigger").first().click();
-  const preview = page.getByRole("region", { name: "Turn 1 Agent and Setup" });
-  await expect(preview).toContainText("Pinned.");
+  const preview = page.getByRole("region", { name: "Turn 1 agent" });
+  await expect(preview).toContainText("pinned");
   const rect = await preview.boundingBox(),
     viewport = page.viewportSize();
   expect(rect.x).toBeGreaterThanOrEqual(0);
@@ -147,16 +147,17 @@ test("viewer supports mobile touch previews, recorded anchors, and aliased recei
   expect(rect.x + rect.width).toBeLessThanOrEqual(viewport.width);
   expect(rect.y + rect.height).toBeLessThanOrEqual(viewport.height);
   await preview
-    .getByRole("button", { name: "Read Prompt and Context", exact: true })
+    .getByRole("button", { name: "Prompt and context", exact: true })
     .click();
-  const receipt = page.getByRole("region", { name: "Turn Request Details" });
-  await expect(receipt).toContainText("Displayed Payload SHA-256");
+  const receipt = page.getByRole("region", { name: "Turn request details" });
+  await expect(receipt.locator(".hash-line")).toHaveAttribute(
+    "title",
+    /invented-displayed-hash/,
+  );
   await expect(
-    receipt.getByText("Provider Payload With Display Aliases", { exact: true }),
+    receipt.getByText("Provider payload (aliased)", { exact: true }),
   ).toBeVisible();
-  await expect(
-    page.getByText("Terminal Anchor · Fixed Target", { exact: true }),
-  ).toBeVisible();
+  await expect(page.getByText("End", { exact: true })).toBeVisible();
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
@@ -176,4 +177,34 @@ test("invalid linked case falls back to an existing saved result", async ({
   await expect
     .poll(() => new URL(page.url()).searchParams.get("case"))
     .toBe(first);
+});
+
+test("view settings switch to a compact chat layout and persist", async ({
+  page,
+}) => {
+  await page.goto(`/?run=script-path-screening&case=${second}`);
+  await expect(page.locator(".rv-script .rv-turn")).toHaveCount(8);
+  await page.getByRole("button", { name: "View ▾" }).click();
+  const panel = page.getByRole("dialog", { name: "View settings" });
+  await panel.getByRole("radio", { name: "Chat" }).click();
+  await panel.getByRole("radio", { name: "Small" }).click();
+  await panel.getByLabel("Turn numbers").uncheck();
+  await page.keyboard.press("Escape");
+  await expect(panel).toHaveCount(0);
+  await expect(page.locator(".result-viewer")).toHaveClass(/rv-chat/);
+  await expect(page.locator(".rv-bubble")).toHaveCount(8);
+  await expect(page.locator(".rv-turn-number")).toHaveCount(0);
+  await expect(page.getByRole("combobox", { name: "Jump to turn" })).toHaveCount(0);
+  const sides = await page
+    .locator(".rv-script .rv-turn")
+    .evaluateAll((turns) => turns.map((t) => getComputedStyle(t).alignSelf));
+  expect(sides.slice(0, 2)).toEqual(["flex-start", "flex-end"]);
+  await page.reload();
+  await expect(page.locator(".result-viewer")).toHaveClass(/rv-chat/);
+  await page.getByRole("tab", { name: "Compare", exact: true }).click();
+  await expect(page.locator(".dialogue .rv-bubble").first()).toBeVisible();
+  await page.getByRole("button", { name: "View ▾" }).click();
+  await page.getByRole("button", { name: "Reset" }).click();
+  await page.getByRole("tab", { name: "Dialogue", exact: true }).click();
+  await expect(page.locator(".result-viewer")).not.toHaveClass(/rv-chat/);
 });

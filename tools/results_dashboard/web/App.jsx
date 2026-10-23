@@ -3,16 +3,6 @@ import MemoryChart from "./MemoryChart";
 import Inspector from "./Inspector";
 import { conditionName, eventName, getJSON, number, title } from "./data";
 
-function Select({ label, value, onChange, children }) {
-  return (
-    <label className="filter">
-      <span>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
-        {children}
-      </select>
-    </label>
-  );
-}
 export default function App() {
   const [catalog, setCatalog] = useState([]),
     [run, setRun] = useState(
@@ -168,69 +158,72 @@ export default function App() {
       .filter(Boolean),
   );
   const currentRun = catalog.find((r) => r.id === run);
-  const isScript = data?.suite.kind === "script-path";
-  const isPath = isScript || data?.suite.kind === "path-tracing";
+  const isPath = ["script-path", "path-tracing"].includes(data?.suite.kind);
   useEffect(() => {
-    document.title = isPath ? "Path-Tracing Results" : "Counterfactual Results";
-  }, [isPath]);
+    document.title = reader ? "Result" : "Results";
+  }, [reader]);
   const seeds = [
     ...new Set(
       cases.filter((c) => !event || c.event === event).map((c) => c.seed),
     ),
   ];
+  const manySeeds = new Set(cases.map((c) => c.seed)).size > 1;
+  const gap = (id) => cases.find((c) => c.event === id && c.path)?.path.gap_turns;
+  const completed = filtered.filter((c) => c.status === "completed").length;
+  const turns = filtered.reduce((n, c) => n + (c.metrics.completed_turns || 0), 0);
+  const clear = () => {
+    setEvent("");
+    setSeed("");
+    setCondition("");
+    setQuery("");
+  };
   return (
     <main className={reader ? "result-reader-mode" : ""}>
       <header className="page-header">
-        <div>
-          <h1>
-            {reader
-              ? "Simulation Result"
-              : isPath
-                ? "Path-Tracing Results"
-                : "Counterfactual Results"}
-          </h1>
-          <p>
-            {isPath
-              ? "Simulated dialogue between two recorded events."
-              : "Simulated conversations at three intervention points."}
-          </p>
-          {reader && (
-            <a
-              className="text-button"
-              href={`?run=${encodeURIComponent(run)}&case=${encodeURIComponent(selected)}`}
-            >
-              ← All Results
-            </a>
-          )}
-        </div>
-        <div className="run-controls">
+        <h1>{reader ? "Result" : "Results"}</h1>
+        {reader ? (
+          <a
+            className="text-button"
+            href={`?run=${encodeURIComponent(run)}&case=${encodeURIComponent(selected)}`}
+          >
+            ← All results
+          </a>
+        ) : (
           <select
-            aria-label="Result Run"
+            aria-label="Result run"
             value={run}
             onChange={(e) => setRun(e.target.value)}
           >
             {catalog.map((r) => (
               <option key={r.id} value={r.id}>
                 {title(r.id)}
-                {r.offline ? " · Offline" : ""}
+                {r.offline ? " (offline)" : ""}
               </option>
             ))}
           </select>
-          <button
-            className="text-button"
-            onClick={() => setRefresh((v) => v + 1)}
-            disabled={loading}
-          >
-            Refresh
-          </button>
-        </div>
+        )}
+        {data && !reader && (
+          <p className="summary" aria-label="Filtered result summary">
+            {number(filtered.length)} Cases · {number(turns)} Turns ·{" "}
+            {completed} of {filtered.length} Completed · {providers.size}{" "}
+            {providers.size === 1 ? "Provider" : "Providers"}
+            {currentRun?.offline && (
+              <span className="badge" title="Offline fixtures exercise orchestration without model calls.">
+                No model calls
+              </span>
+            )}
+          </p>
+        )}
+        <button
+          className="icon-button"
+          onClick={() => setRefresh((v) => v + 1)}
+          disabled={loading}
+          aria-label="Reload results"
+          title="Reload results"
+        >
+          ↻
+        </button>
       </header>
-      {currentRun?.offline && (
-        <p className="notice">
-          Offline fixtures only. These responses test orchestration and do not
-          contain model inference.
-        </p>
-      )}
       {error && (
         <div className="error" role="alert">
           {error}{" "}
@@ -238,151 +231,80 @@ export default function App() {
             className="text-button"
             onClick={() => setRefresh((v) => v + 1)}
           >
-            Try Again
+            Try again
           </button>
         </div>
       )}
       {loading && (
         <p className="loading" role="status">
-          Loading saved results…
+          Loading…
         </p>
       )}
       {!loading && !error && !catalog.length && (
-        <p className="empty">
-          No saved experiment runs were found. Execute a counterfactual suite to
-          create results.
-        </p>
+        <p className="empty">No saved runs. Run an experiment suite first.</p>
       )}
       {data && (
         <>
           {!reader && (
-            <>
-              <section className="metrics" aria-label="Filtered Result Summary">
-                <div>
-                  <strong>{number(filtered.length)}</strong>
-                  <span>Scenarios</span>
-                </div>
-                <div>
-                  <strong>
-                    {number(
-                      filtered.reduce(
-                        (n, c) => n + (c.metrics.completed_turns || 0),
-                        0,
-                      ),
-                    )}
-                  </strong>
-                  <span>Simulated Turns</span>
-                </div>
-                <div>
-                  <strong>{providers.size}</strong>
-                  <span>Providers</span>
-                </div>
-                <div>
-                  <strong>
-                    {filtered.filter((c) => c.status === "completed").length} /{" "}
-                    {filtered.length}
-                  </strong>
-                  <span>Completed</span>
-                </div>
-              </section>
-              {isPath ? (
-                <section
-                  className="path-overview"
-                  aria-label="Path-Tracing Design"
-                >
-                  <h2>Two Anchors, An Invented Path</h2>
-                  <p>
-                    {isScript
-                      ? "One or two agents bridge recorded events using dialogue, retrospective annotations, or parsed timelines. Fixed-length and model-selected stopping conditions are compared; safety caps remain explicit."
-                      : `The recorded dialogue inside each gap is withheld. ${data.suite.exchanges * 2} generated turns lead toward a fixed later endpoint; completion does not establish a successful handoff.`}
-                  </p>
-                  <div className="path-pairs">
-                    {[...new Set(filtered.map((c) => c.event))].map((id) => {
-                      const rows = filtered.filter((c) => c.event === id);
-                      const gap = rows.find((c) => c.path)?.path.gap_turns;
-                      return (
-                        <div key={id}>
-                          <strong>{eventName(id)}</strong>
-                          <span>
-                            {number(gap)} source turns in gap ·{" "}
-                            {
-                              rows.filter((c) => c.status === "completed")
-                                .length
-                            }
-                            /{rows.length} completed
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="caption">
-                    {isScript
-                      ? "Annotated conditions deliberately expose hindsight"
-                      : `${new Set(data.suite.conditions.map((c) => c.endpoint_policy)).size} endpoint strategies`}{" "}
-                    · {data.suite.conditions.length} conditions. Handoff reviews
-                    are model critiques, not validated quality scores.
-                  </p>
-                </section>
-              ) : (
-                <MemoryChart cases={cases} event={event} seed={seed} />
-              )}
-              <div className="filters">
-                <Select
-                  label={isPath ? "Interval" : "Event"}
-                  value={event}
-                  onChange={(value) => {
-                    setEvent(value);
-                    setSeed("");
-                  }}
-                >
-                  <option value="">All Events</option>
-                  {[...new Set(cases.map((c) => c.event))].map((id) => (
-                    <option key={id} value={id}>
-                      {eventName(id)}
-                    </option>
-                  ))}
-                </Select>
-                <Select label="Seed" value={seed} onChange={setSeed}>
-                  <option value="">All Seeds</option>
+            <div className="filters">
+              <select
+                aria-label={isPath ? "Interval" : "Event"}
+                value={event}
+                onChange={(e) => {
+                  setEvent(e.target.value);
+                  setSeed("");
+                }}
+              >
+                <option value="">{isPath ? "All intervals" : "All events"}</option>
+                {[...new Set(cases.map((c) => c.event))].map((id) => (
+                  <option key={id} value={id}>
+                    {eventName(id)}
+                    {gap(id) ? ` · ${number(gap(id))}-turn gap` : ""}
+                  </option>
+                ))}
+              </select>
+              {manySeeds && (
+                <select aria-label="Seed" value={seed} onChange={(e) => setSeed(e.target.value)}>
+                  <option value="">All seeds</option>
                   {seeds.map((id) => (
                     <option key={id} value={id}>
                       {title(id)}
                     </option>
                   ))}
-                </Select>
-                <Select
-                  label="Condition"
-                  value={condition}
-                  onChange={setCondition}
-                >
-                  <option value="">All Conditions</option>
-                  {[...new Set(cases.map((c) => c.condition))].map((id) => (
-                    <option key={id} value={id}>
-                      {conditionName(id)}
-                    </option>
-                  ))}
-                </Select>
-                <label className="filter search">
-                  <span>Search</span>
-                  <input
-                    type="search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search scenarios…"
-                  />
-                </label>
-              </div>
-            </>
+                </select>
+              )}
+              <select
+                aria-label="Condition"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+              >
+                <option value="">All conditions</option>
+                {[...new Set(cases.map((c) => c.condition))].map((id) => (
+                  <option key={id} value={id}>
+                    {conditionName(id)}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="search"
+                aria-label="Search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search"
+              />
+              {!isPath && <MemoryChart cases={cases} event={event} seed={seed} />}
+            </div>
           )}
           <div className="workspace">
             {!reader && (
-              <section className="case-browser" aria-label="Scenarios">
+              <section className="case-browser" aria-label="Cases">
                 <div className="list-heading">
-                  <span>Event</span>
+                  <span>{isPath ? "Interval" : "Event"}</span>
                   <span>Condition</span>
                   <button
                     onClick={() => setSort((v) => (v === 1 ? -1 : 1))}
                     aria-label={`Sort by input ${sort === 1 ? "descending" : "ascending"}`}
+                    title="Mean input per dialogue request, in bytes"
                   >
                     Input{" "}
                     <svg
@@ -415,10 +337,12 @@ export default function App() {
                           >
                             <span>
                               {eventName(c.event)}
-                              <small>
-                                {title(c.seed)}
-                                {c.repetition ? ` · ${c.repetition + 1}` : ""}
-                              </small>
+                              {(manySeeds || c.repetition) ? (
+                                <small>
+                                  {manySeeds ? title(c.seed) : ""}
+                                  {c.repetition ? ` · ${c.repetition + 1}` : ""}
+                                </small>
+                              ) : null}
                             </span>
                             <span>
                               {conditionName(c.condition)}
@@ -437,25 +361,18 @@ export default function App() {
                     </ul>
                   ) : (
                     <div className="empty">
-                      <p>No scenarios match these filters.</p>
-                      <button
-                        className="text-button"
-                        onClick={() => {
-                          setEvent("");
-                          setSeed("");
-                          setCondition("");
-                          setQuery("");
-                        }}
-                      >
-                        Clear Filters
+                      <p>No matches.</p>
+                      <button className="text-button" onClick={clear}>
+                        Clear filters
                       </button>
                     </div>
                   )}
                 </div>
-                <footer aria-live="polite">
-                  {filtered.length} of {cases.length} scenarios · input is a
-                  byte bound
-                </footer>
+                {filtered.length !== cases.length && (
+                  <footer aria-live="polite">
+                    {filtered.length} of {cases.length}
+                  </footer>
+                )}
               </section>
             )}
             <Inspector
@@ -465,9 +382,6 @@ export default function App() {
               reader={reader}
             />
           </div>
-          <p className="page-note">
-            Private local results · Read-only · {data.content_version}
-          </p>
         </>
       )}
     </main>

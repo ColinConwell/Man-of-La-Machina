@@ -108,6 +108,19 @@ deck *args: deck-build
 
 # --- Documentation ---
 
+# Build the separate synthetic design playground; no production content is loaded
+design-build:
+    npm ci --prefix tools/design_preview
+    npm run build --prefix tools/design_preview
+
+# Preview landscapes and schematic app states using the shared port registry
+design *args: design-build
+    {{ venv_python }} -m tools.design_preview {{ args }}
+
+# Browser acceptance for the isolated design preview
+check-design: design-build
+    node apps/web/node_modules/@playwright/test/cli.js test --config tools/design_preview/playwright.config.mjs
+
 # Preview the human-facing MkDocs site (default http://127.0.0.1:8004);
 # install its dependencies with `uv sync --extra docs`
 docs *args:

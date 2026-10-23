@@ -159,7 +159,7 @@ function BeatCard({ beat, index, current, speed, onTyped, onSelect, cardRef }) {
   );
 }
 
-export default function FlowViz({ flow, sample, variant, onVariant, sourceMode, onSourceMode, register, autoplay }) {
+export default function FlowViz({ flow, sample, variant, onVariant, sourceMode, onSourceMode, register, autoplay, intro }) {
   const variants = flow.variants;
   const variantId = variant && variants[variant] ? variant : Object.keys(variants)[0];
   const saved = sourceMode === "saved" && sample?.beats?.length;
@@ -223,80 +223,80 @@ export default function FlowViz({ flow, sample, variant, onVariant, sourceMode, 
   const bubbleText = beat?.text ? (beat.text.length > 120 ? beat.text.slice(0, 118) + "…" : beat.text) : "";
   return (
     <div className="flow" data-flow={flow.id}>
-      <div className="flow-head">
-        <div className="flow-controls" role="toolbar" aria-label="Simulation controls">
-          <button onClick={() => { setPlaying(false); go(-1); }} title="Restart" aria-label="Restart">⟲</button>
-          <button onClick={() => { setPlaying(false); go(at - 1); }} title="Previous beat ([)" aria-label="Previous beat">◂</button>
-          <button className="play" onClick={toggle} title="Play or pause (P)" aria-label={playing ? "Pause" : "Play"}>
-            {playing ? "❚❚" : "▶"}
-          </button>
-          <button onClick={() => { setPlaying(false); go(at + 1); }} title="Next beat (])" aria-label="Next beat">▸</button>
-          <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} aria-label="Speed">
-            {[0.5, 1, 1.5, 2, 3].map((s) => <option key={s} value={s}>{s}×</option>)}
-          </select>
-        </div>
-        {!saved && Object.keys(variants).length > 1 && (
-          <select className="variant" value={variantId} onChange={(e) => onVariant?.(e.target.value)} aria-label="Condition">
-            {Object.entries(variants).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
-          </select>
+      <svg viewBox="0 0 1000 600" className="graph" role="img" aria-label={`${flow.title} workflow graph`}>
+        <defs>
+          <marker id={`arrow-${flow.id}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" className="arrowhead" />
+          </marker>
+          <pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="8" className="hatch-line" />
+          </pattern>
+        </defs>
+        {edges.map((e) => (
+          <g key={e.id} className={`edge ${lit.has(e.id) ? "lit" : ""}`}>
+            <path id={`p-${flow.id}-${e.id}`} d={e.d} markerEnd={`url(#arrow-${flow.id})`} />
+            {e.label && <text x={e.mx} y={e.my - 6}>{e.label}</text>}
+            {lit.has(e.id) && !reduced() && (
+              <circle r="5" className="pulse" key={`${at}-${e.id}`}>
+                <animateMotion dur={`${1.1 / speed}s`} repeatCount="indefinite" path={e.d} />
+              </circle>
+            )}
+          </g>
+        ))}
+        {flow.nodes.map((n) => (
+          <g
+            key={n.id}
+            className={`node kind-${n.kind} ${beat?.node === n.id ? "active" : ""} ${visited.has(n.id) ? "visited" : ""}`}
+            transform={`translate(${n.x - NODE_W / 2},${n.y - NODE_H / 2})`}
+          >
+            <rect width={NODE_W} height={NODE_H} rx={n.kind === "human" ? 32 : n.kind === "gate" ? 4 : 12} />
+            {n.kind === "withheld" && <rect width={NODE_W} height={NODE_H} rx="12" fill="url(#hatch)" className="hatch" />}
+            <text x={NODE_W / 2} y={28} className="label">{n.label}</text>
+            <text x={NODE_W / 2} y={48} className="sub">{n.sub}</text>
+          </g>
+        ))}
+        {node && bubbleText && (
+          <foreignObject
+            x={Math.min(Math.max(node.x - 160, 4), 676)}
+            y={node.y > 300 ? node.y - NODE_H / 2 - 108 : node.y + NODE_H / 2 + 10}
+            width="320"
+            height="110"
+            className="bubble-wrap"
+          >
+            <div className={`bubble role-${beat.role}`} key={at}>{bubbleText}</div>
+          </foreignObject>
         )}
-        {sample && (
-          <div className="source-toggle" role="group" aria-label="Simulation source">
-            <button className={!saved ? "on" : ""} onClick={() => onSourceMode?.("illustrative")}>Illustrative</button>
-            <button className={saved ? "on" : ""} onClick={() => onSourceMode?.("saved")} disabled={!sample.beats?.length}>Saved run</button>
+      </svg>
+      <aside className="flow-panel">
+        {intro}
+        <div className="flow-head">
+          <div className="flow-controls" role="toolbar" aria-label="Simulation controls">
+            <button onClick={() => { setPlaying(false); go(-1); }} title="Restart" aria-label="Restart">⟲</button>
+            <button onClick={() => { setPlaying(false); go(at - 1); }} title="Previous beat ([)" aria-label="Previous beat">◂</button>
+            <button className="play" onClick={toggle} title="Play or pause (P)" aria-label={playing ? "Pause" : "Play"}>
+              {playing ? "❚❚" : "▶"}
+            </button>
+            <button onClick={() => { setPlaying(false); go(at + 1); }} title="Next beat (])" aria-label="Next beat">▸</button>
+            <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} aria-label="Speed">
+              {[0.5, 1, 1.5, 2, 3].map((s) => <option key={s} value={s}>{s}×</option>)}
+            </select>
           </div>
-        )}
-        <span className="legend">{saved ? sample.meta?.label || "Saved case · alias projection" : flow.legend}</span>
-      </div>
-      <div className="flow-body">
-        <svg viewBox="0 0 1000 600" className="graph" role="img" aria-label={`${flow.title} workflow graph`}>
-          <defs>
-            <marker id={`arrow-${flow.id}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M0,0 L10,5 L0,10 z" className="arrowhead" />
-            </marker>
-            <pattern id="hatch" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="0" y2="8" className="hatch-line" />
-            </pattern>
-          </defs>
-          {edges.map((e) => (
-            <g key={e.id} className={`edge ${lit.has(e.id) ? "lit" : ""}`}>
-              <path id={`p-${flow.id}-${e.id}`} d={e.d} markerEnd={`url(#arrow-${flow.id})`} />
-              {e.label && <text x={e.mx} y={e.my - 6}>{e.label}</text>}
-              {lit.has(e.id) && !reduced() && (
-                <circle r="5" className="pulse" key={`${at}-${e.id}`}>
-                  <animateMotion dur={`${1.1 / speed}s`} repeatCount="indefinite" path={e.d} />
-                </circle>
-              )}
-            </g>
-          ))}
-          {flow.nodes.map((n) => (
-            <g
-              key={n.id}
-              className={`node kind-${n.kind} ${beat?.node === n.id ? "active" : ""} ${visited.has(n.id) ? "visited" : ""}`}
-              transform={`translate(${n.x - NODE_W / 2},${n.y - NODE_H / 2})`}
-            >
-              <rect width={NODE_W} height={NODE_H} rx={n.kind === "human" ? 32 : n.kind === "gate" ? 4 : 12} />
-              {n.kind === "withheld" && <rect width={NODE_W} height={NODE_H} rx="12" fill="url(#hatch)" className="hatch" />}
-              <text x={NODE_W / 2} y={28} className="label">{n.label}</text>
-              <text x={NODE_W / 2} y={48} className="sub">{n.sub}</text>
-            </g>
-          ))}
-          {node && bubbleText && (
-            <foreignObject
-              x={Math.min(Math.max(node.x - 160, 4), 676)}
-              y={node.y > 300 ? node.y - NODE_H / 2 - 108 : node.y + NODE_H / 2 + 10}
-              width="320"
-              height="110"
-              className="bubble-wrap"
-            >
-              <div className={`bubble role-${beat.role}`} key={at}>{bubbleText}</div>
-            </foreignObject>
+          {!saved && Object.keys(variants).length > 1 && (
+            <select className="variant" value={variantId} onChange={(e) => onVariant?.(e.target.value)} aria-label="Condition">
+              {Object.entries(variants).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
+            </select>
           )}
-        </svg>
+          {sample && (
+            <div className="source-toggle" role="group" aria-label="Simulation source">
+              <button className={!saved ? "on" : ""} onClick={() => onSourceMode?.("illustrative")}>Illustrative</button>
+              <button className={saved ? "on" : ""} onClick={() => onSourceMode?.("saved")} disabled={!sample.beats?.length}>Saved run</button>
+            </div>
+          )}
+        </div>
         <ol className="beats" ref={list} aria-live="polite">
           {at < 0 && (
             <li className="beat empty">
-              <p>Press <kbd>▶</kbd> or <kbd>P</kbd> to run the workflow. Each step lights the graph and adds the message it produced, with the context that call received.</p>
+              <p>Press <kbd>▶</kbd> or <kbd>P</kbd> to play.</p>
             </li>
           )}
           {beats.slice(0, at + 1).map((b, i) => (
@@ -312,19 +312,20 @@ export default function FlowViz({ flow, sample, variant, onVariant, sourceMode, 
             />
           ))}
         </ol>
-      </div>
-      <div className="scrub" role="group" aria-label="Beats">
-        {beats.map((b, i) => (
-          <button
-            key={i}
-            className={`tick role-${b.role} ${i === at ? "on" : ""} ${i < at ? "past" : ""}`}
-            onClick={() => { setPlaying(false); go(i); }}
-            title={`${i + 1}. ${b.speaker || b.role}`}
-            aria-label={`Beat ${i + 1}: ${b.speaker || b.role}`}
-          />
-        ))}
-        <span className="count">{at + 1} / {beats.length}</span>
-      </div>
+        <div className="scrub" role="group" aria-label="Beats">
+          {beats.map((b, i) => (
+            <button
+              key={i}
+              className={`tick role-${b.role} ${i === at ? "on" : ""} ${i < at ? "past" : ""}`}
+              onClick={() => { setPlaying(false); go(i); }}
+              title={`${i + 1}. ${b.speaker || b.role}`}
+              aria-label={`Beat ${i + 1}: ${b.speaker || b.role}`}
+            />
+          ))}
+          <span className="count">{at + 1} / {beats.length}</span>
+        </div>
+        <span className="legend">{saved ? sample.meta?.label || "Saved case · alias projection" : flow.legend}</span>
+      </aside>
     </div>
   );
 }
