@@ -6,5 +6,6 @@ export default defineConfig({
   root: at("./"),
   plugins: [react()],
   resolve: { dedupe: ["react", "react-dom"] },
-  build: { outDir: at("./dist"), emptyOutDir: true },
+  // Rive fetches its .riv URL; keep small rigs as same-origin files under CSP.
+  build: { outDir: at("./dist"), emptyOutDir: true, assetsInlineLimit: 0 },
 });
