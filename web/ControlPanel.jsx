@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { OPTIONS, PRESETS } from "./settings.mjs";
-import { TYPE_PRESETS, fontFor } from "./typography.mjs";
+import { FONT_GROUPS, TYPE_PRESETS, fontFor } from "./typography.mjs";
 
 function Select({ field, label, settings, onChange }) {
   return (
@@ -23,7 +23,12 @@ function Select({ field, label, settings, onChange }) {
         value={settings[field]}
         onChange={(e) => onChange(field, e.target.value)}
       >
-        {OPTIONS[field].map(([id, title]) => (
+        {field.endsWith("Font") ? <>
+          {OPTIONS[field].some(([id]) => id === "inherit") && <option value="inherit">Use Reading Font</option>}
+          {FONT_GROUPS.map(group => <optgroup key={group} label={group}>
+            {OPTIONS[field].filter(([id]) => id !== "inherit" && fontFor(id).group === group).map(([id, title]) => <option key={id} value={id}>{title}</option>)}
+          </optgroup>)}
+        </> : OPTIONS[field].map(([id, title]) => (
           <option key={id} value={id}>
             {title}
           </option>
@@ -178,18 +183,25 @@ export default function ControlPanel({
       </section>
       <section className="panel-section">
         <h3>Typography</h3>
-        <Select field="headingFont" label="Heading Font" {...{ settings, onChange }} />
+        <div className="type-pairings" aria-label="Font Sets">
+          {TYPE_PRESETS.map(p => <button key={p.name} type="button" className="panel-button" aria-pressed={Object.entries(p.settings).every(([key, value]) => settings[key] === value)} onClick={() => onPreset(p)}><span>{p.name}</span><small>{p.detail}</small></button>)}
+        </div>
+        <p className="field-note">Sets combine app, reading and speaker fonts with size and line spacing. Your landscape, veil and alignment stay as chosen.</p>
+        <Select field="appFont" label="App Font" {...{ settings, onChange }} />
+        <p className="field-note">Buttons, headings and labels throughout the schematic app.</p>
         <Select field="readingFont" label="Reading Font" {...{ settings, onChange }} />
+        <p className="field-note">The shared dialogue font, unless a speaker overrides it.</p>
+        <Select field="humanFont" label="Human Font" {...{ settings, onChange }} />
+        <Select field="machineFont" label="Machine Font" {...{ settings, onChange }} />
+        <p className="field-note">Human: the Traveler or simulated human. Machine: the Companion or LLM.</p>
         <div className="type-specimen" aria-label="Selected Font Specimen">
-          <div style={{fontFamily: fontFor(settings.headingFont).family, fontSize: `${24 * fontFor(settings.headingFont).scale}px`}}>The Unwritten Road</div>
-          <p style={{fontFamily: fontFor(settings.readingFont).family, fontSize: `${19 * fontFor(settings.readingFont).scale}px`}}>Every journey begins with a possibility.</p>
+          <div style={{fontFamily: fontFor(settings.appFont).family, fontWeight: fontFor(settings.appFont).weight, fontSize: `${24 * fontFor(settings.appFont).scale}px`}}>The Unwritten Road</div>
+          {[["Reading", settings.readingFont, "Every journey begins with a possibility."], ["Human", settings.humanFont === "inherit" ? settings.readingFont : settings.humanFont, "Where might this road take us?"], ["Machine", settings.machineFont === "inherit" ? settings.readingFont : settings.machineFont, "Let us consider what lies ahead."]].map(([label, id, text]) => <div key={label} className="voice-specimen"><small>{label}</small><p style={{fontFamily: fontFor(id).family, fontWeight: fontFor(id).weight, fontSize: `${19 * fontFor(id).scale}px`}}>{text}</p></div>)}
         </div>
         <p className="field-note">{fontFor(settings.readingFont).note}</p>
         <Slider field="textScale" label="Reading Text Size" min={0.85} max={1.35} step={0.05} {...{ settings, onChange }} />
-        <div className="type-pairings" aria-label="Type Pairings">
-          {TYPE_PRESETS.map(p => <button key={p.name} type="button" className="panel-button" onClick={() => onPreset({...p, settings: {...p.settings, travelerFont: "inherit", companionFont: "inherit"}})}>{p.name}</button>)}
-        </div>
-        <p className="field-note">Pairings change headings and reading text. Speaker overrides return to Use Reading Font. Interface controls keep their familiar type.</p>
+        <Slider field="lineHeight" label="Reading Line Spacing" min={1.35} max={2.1} step={0.05} unit="×" {...{ settings, onChange }} />
+        {settings.veilMode === "contours" && <p className="field-note">Text-contour veils use at least 1.65× spacing to keep adjacent line surfaces apart.</p>}
         <a className="font-license-link" href="./font-licenses/index.html" target="_blank" rel="noreferrer">Font Credits & Licenses</a>
       </section>
       <section className="panel-section">
@@ -199,7 +211,6 @@ export default function ControlPanel({
           <legend>{name}</legend>
           <Select field={`${speaker}Position`} label={`${name} Placement`} {...{ settings, onChange }} />
           <Select field={`${speaker}Align`} label={`${name} Text Alignment`} {...{ settings, onChange }} />
-          <Select field={`${speaker}Font`} label={`${name} Font`} {...{ settings, onChange }} />
         </fieldset>)}
         <Slider field="messageWidth" label="Placed Message Width" min={0.55} max={1} step={0.01} {...{ settings, onChange }} />
         <p className="field-note">Placement moves the message. Alignment sets its text edges. Width applies to left, center and right placements; Full Width fills the column.</p>

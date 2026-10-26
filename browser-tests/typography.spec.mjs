@@ -9,6 +9,25 @@ const fonts = [
   ["quintessential", "Quintessential"],
   ["italianno", "Italianno"],
   ["blackletter", "UnifrakturMaguntia"],
+  ["uncial", "Uncial Antiqua"],
+  ["tapestry", "Tapestry"],
+  ["lovers-quarrel", "Lovers Quarrel"],
+  ["monte-carlo", "MonteCarlo"],
+  ["mea-culpa", "Mea Culpa"],
+  ["monsieur", "Monsieur La Doulaise"],
+  ["ruthie", "Ruthie"],
+  ["allison", "Allison"],
+  ["birthstone", "Birthstone"],
+  ["ballet", "Ballet"],
+  ["updock", "Updock"],
+  ["rouge-script", "Rouge Script"],
+  ["ibm-plex-serif", "IBM Plex Serif"],
+  ["tektur", "Tektur"],
+  ["anta", "Anta"],
+  ["tomorrow", "Tomorrow"],
+  ["syne-mono", "Syne Mono"],
+  ["oxanium", "Oxanium"],
+  ["noto-serif", "Noto Serif"],
 ];
 const field = (page, name) => page.locator(`#setting-${name}`);
 const openPanel = async (page) => {
@@ -24,13 +43,14 @@ const firstFamily = locator => locator.evaluate(el => getComputedStyle(el).fontF
 
 async function expectLoadedFont(page, id, family) {
   if (id === "classic") return;
-  const faces = await page.evaluate(async name => {
-    const loaded = await document.fonts.load(`24px "${name}"`, "“A road invites us to begin.” — Andalucía");
-    return loaded.map(face => ({ family: face.family.replaceAll('"', ""), status: face.status }));
-  }, family);
+  const weight = id === "noto-serif" ? "300" : "400";
+  const faces = await page.evaluate(async ({ name, weight }) => {
+    const loaded = await document.fonts.load(`${weight} 24px "${name}"`, "“A road invites us to begin.” — Andalucía");
+    return loaded.map(face => ({ family: face.family.replaceAll('"', ""), status: face.status, weight: face.weight }));
+  }, { name: family, weight });
   // FontFaceSet.check alone also succeeds for a missing font with a fallback.
   expect(faces.length).toBeGreaterThan(0);
-  expect(faces.every(face => face.family === family && face.status === "loaded")).toBe(true);
+  expect(faces.every(face => face.family === family && face.status === "loaded" && face.weight === weight)).toBe(true);
 }
 
 async function expectContainedText(page) {
@@ -50,27 +70,30 @@ async function expectContainedText(page) {
   expect(escaped).toEqual([]);
 }
 
-test("selected faces load as real local fonts while interface labels remain readable", async ({ page }) => {
+test("all 24 bundled faces load locally at their intended weights throughout the schematic app", async ({ page }) => {
   const errors = [], requests = [], fontResponses = [];
   page.on("pageerror", error => errors.push(error.message));
   page.on("request", request => requests.push({ url: request.url(), method: request.method() }));
   page.on("response", response => { if (/\.woff2(?:\?|$)/.test(response.url())) fontResponses.push({ url: response.url(), status: response.status() }); });
   await page.goto("/"); await openPanel(page);
-  const bylineFamily = await firstFamily(page.locator(".message-byline").first());
-  const controlsFamily = await firstFamily(page.locator(".audio-message small").first());
+  const studioFamily = await firstFamily(page.locator(".panel-heading h2"));
   for (const [id, family] of fonts) {
-    await field(page, "headingFont").selectOption(id);
+    await field(page, "appFont").selectOption(id);
     await field(page, "readingFont").selectOption(id);
-    await expect(page.locator(".preview-frame")).toHaveAttribute("data-heading-font", id);
+    await expect(page.locator(".preview-frame")).toHaveAttribute("data-app-font", id);
     await expect(page.locator(".preview-frame")).toHaveAttribute("data-reading-font", id);
     await expectLoadedFont(page, id, family);
     expect(await firstFamily(page.locator(".chapter-heading h1"))).toBe(family);
     expect(await firstFamily(page.locator(".human-message .dialogue"))).toBe(family);
-    expect(await firstFamily(page.locator(".message-byline").first())).toBe(bylineFamily);
-    expect(await firstFamily(page.locator(".audio-message small").first())).toBe(controlsFamily);
+    expect(await firstFamily(page.locator(".message-byline").first())).toBe(family);
+    expect(await firstFamily(page.locator(".audio-message small").first())).toBe(family);
+    expect(await firstFamily(page.locator(".primary-story"))).toBe(family);
+    expect(await firstFamily(page.locator(".app-header nav button").first())).toBe(family);
+    expect(await firstFamily(page.locator(".wordmark"))).toBe(family);
+    expect(await firstFamily(page.locator(".panel-heading h2"))).toBe(studioFamily);
   }
   const origin = new URL(page.url()).origin;
-  expect(fontResponses).toHaveLength(5);
+  expect(fontResponses).toHaveLength(24);
   expect(fontResponses.every(response => response.status === 200 && new URL(response.url).origin === origin)).toBe(true);
   expect(requests.filter(request => request.method !== "GET" || (new URL(request.url).origin !== origin && !request.url.startsWith("data:") && !request.url.startsWith("blob:")))).toEqual([]);
   expect(requests.filter(request => new URL(request.url).pathname.startsWith("/api/"))).toEqual([]);
@@ -79,9 +102,9 @@ test("selected faces load as real local fonts while interface labels remain read
 
 test("font settings persist, export, import and accept presets created before typography", async ({ page }) => {
   await page.goto("/"); await openPanel(page);
-  const expected = { headingFont: "blackletter", readingFont: "garamond", travelerFont: "quintessential", companionFont: "italianno", textScale: 1.35 };
+  const expected = { appFont: "blackletter", readingFont: "garamond", humanFont: "quintessential", machineFont: "italianno", textScale: 1.35, lineHeight: 2.1 };
   for (const [name, value] of Object.entries(expected)) {
-    if (name === "textScale") { await field(page, name).focus(); await page.keyboard.press("End"); }
+    if (name === "textScale" || name === "lineHeight") { await field(page, name).focus(); await page.keyboard.press("End"); }
     else await field(page, name).selectOption(value);
   }
   await page.reload(); await openPanel(page);
@@ -92,20 +115,90 @@ test("font settings persist, export, import and accept presets created before ty
   const exported = JSON.parse(await readFile(filename, "utf8"));
   expect(exported.schemaVersion).toBe(1);
   expect(exported.settings).toMatchObject(expected);
+  for (const oldName of ["headingFont", "travelerFont", "companionFont"]) expect(exported.settings).not.toHaveProperty(oldName);
   await page.getByRole("button", { name: "Reset All Settings" }).click();
   await page.getByLabel("Import Preset JSON").setInputFiles(filename);
   for (const [name, value] of Object.entries(expected)) await expect(field(page, name)).toHaveValue(String(value));
   await importSettings(page, { scene: "windmills", veilMode: "messages", companionAlign: "right" });
-  for (const [name, value] of Object.entries({ headingFont: "classic", readingFont: "classic", travelerFont: "inherit", companionFont: "inherit", textScale: 1 }))
+  for (const [name, value] of Object.entries({ appFont: "classic", readingFont: "classic", humanFont: "inherit", machineFont: "inherit", textScale: 1, lineHeight: 1.6 }))
     await expect(field(page, name)).toHaveValue(String(value));
   await expect(field(page, "scene")).toHaveValue("windmills");
   await expect(field(page, "companionAlign")).toHaveValue("right");
-  for (const [invalid, error] of [[{ readingFont: "unavailable-font" }, "unsupported readingFont"], [{ textScale: 2 }, "invalid textScale"]]) {
+  for (const [invalid, error] of [[{ readingFont: "unavailable-font" }, "unsupported readingFont"], [{ textScale: 2 }, "invalid textScale"], [{ lineHeight: 1 }, "invalid lineHeight"]]) {
     await importSettings(page, invalid);
     await expect(page.locator(".preset-status")).toContainText(error);
     await expect(field(page, "readingFont")).toHaveValue("classic");
     await expect(field(page, "textScale")).toHaveValue("1");
   }
+});
+
+test("previous font aliases migrate in saved and imported presets while canonical values take priority", async ({ page }) => {
+  const oldSettings = { headingFont: "fell", readingFont: "garamond", travelerFont: "quintessential", companionFont: "italianno", scene: "aqueduct", textScale: 1.15 };
+  await page.addInitScript(settings => {
+    if (!localStorage.getItem("la-machina.landscape-studio.v1"))
+      localStorage.setItem("la-machina.landscape-studio.v1", JSON.stringify({ schemaVersion: 1, settings }));
+  }, oldSettings);
+  await page.goto("/"); await openPanel(page);
+  const migrated = { appFont: "fell", readingFont: "garamond", humanFont: "quintessential", machineFont: "italianno", scene: "aqueduct", textScale: 1.15, lineHeight: 1.6 };
+  for (const [name, value] of Object.entries(migrated)) await expect(field(page, name)).toHaveValue(String(value));
+  await page.reload(); await openPanel(page);
+  for (const [name, value] of Object.entries(migrated)) await expect(field(page, name)).toHaveValue(String(value));
+  await page.getByRole("button", { name: "Reset All Settings" }).click();
+  await importSettings(page, oldSettings);
+  for (const [name, value] of Object.entries(migrated)) await expect(field(page, name)).toHaveValue(String(value));
+  await importSettings(page, { ...oldSettings, appFont: "anta", humanFont: "inherit", machineFont: "noto-serif", lineHeight: 1.8 });
+  for (const [name, value] of Object.entries({ appFont: "anta", humanFont: "inherit", machineFont: "noto-serif", readingFont: "garamond", lineHeight: 1.8 }))
+    await expect(field(page, name)).toHaveValue(String(value));
+  const downloadEvent = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  const exported = JSON.parse(await readFile(await (await downloadEvent).path(), "utf8"));
+  expect(exported.settings).toMatchObject({ appFont: "anta", humanFont: "inherit", machineFont: "noto-serif" });
+  for (const oldName of ["headingFont", "travelerFont", "companionFont"]) expect(exported.settings).not.toHaveProperty(oldName);
+});
+
+test("font selectors expose the complete categorized collection after the font sets", async ({ page }) => {
+  await page.goto("/"); await openPanel(page);
+  const expectedIds = fonts.map(([id]) => id).sort();
+  for (const name of ["appFont", "readingFont", "humanFont", "machineFont"]) {
+    const select = field(page, name);
+    const options = await select.locator("option").evaluateAll(nodes => nodes.map(option => option.value));
+    expect(options.filter(id => id !== "inherit").sort()).toEqual(expectedIds);
+    expect(new Set(options).size).toBe(options.length);
+    if (["humanFont", "machineFont"].includes(name)) expect(options[0]).toBe("inherit");
+    const groups = await select.locator("optgroup").evaluateAll(nodes => nodes.map(group => ({ label: group.label, ids: Array.from(group.children, option => option.value) })));
+    expect(groups.map(group => group.label)).toEqual(["Historical", "Literary", "Machine", "Classic"]);
+    expect(groups.every(group => group.label.trim() && group.ids.length)).toBe(true);
+    expect(groups.flatMap(group => group.ids).filter(id => id !== "inherit").sort()).toEqual(expectedIds);
+  }
+  const pairings = page.locator(".type-pairings");
+  expect(await pairings.locator("button").count()).toBe(10);
+  expect(await pairings.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector("#setting-appFont")) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+});
+
+test("app, shared reading and speaker fonts have independent scopes", async ({ page }) => {
+  await page.goto("/"); await openPanel(page);
+  await field(page, "appFont").selectOption("anta");
+  await field(page, "readingFont").selectOption("noto-serif");
+  await field(page, "humanFont").selectOption("allison");
+  await field(page, "machineFont").selectOption("syne-mono");
+  for (const [id, family] of [["anta", "Anta"], ["noto-serif", "Noto Serif"], ["allison", "Allison"], ["syne-mono", "Syne Mono"]]) await expectLoadedFont(page, id, family);
+  const studioFamily = await firstFamily(page.locator(".panel-heading h2"));
+  const uiSelectors = [".wordmark", ".app-header nav button", ".chapter-heading h1", ".message-byline", ".primary-story", ".audio-message small", ".composer-panel > span"];
+  for (const selector of uiSelectors) expect(await firstFamily(page.locator(selector).first())).toBe("Anta");
+  expect(await firstFamily(page.locator(".human-message .dialogue"))).toBe("Allison");
+  expect(await firstFamily(page.locator(".machine-message .dialogue"))).toBe("Syne Mono");
+  await field(page, "humanFont").selectOption("inherit");
+  expect(await firstFamily(page.locator(".human-message .dialogue"))).toBe("Noto Serif");
+  expect(await page.locator(".human-message .dialogue").evaluate(el => getComputedStyle(el).fontWeight)).toBe("300");
+  expect(await firstFamily(page.locator(".machine-message .dialogue"))).toBe("Syne Mono");
+  await field(page, "readingFont").selectOption("ibm-plex-serif");
+  expect(await firstFamily(page.locator(".human-message .dialogue"))).toBe("IBM Plex Serif");
+  expect(await firstFamily(page.locator(".machine-message .dialogue"))).toBe("Syne Mono");
+  await field(page, "appFont").selectOption("tektur");
+  for (const selector of uiSelectors) expect(await firstFamily(page.locator(selector).first())).toBe("Tektur");
+  expect(await firstFamily(page.locator(".human-message .dialogue"))).toBe("IBM Plex Serif");
+  expect(await firstFamily(page.locator(".machine-message .dialogue"))).toBe("Syne Mono");
+  expect(await firstFamily(page.locator(".panel-heading h2"))).toBe(studioFamily);
 });
 
 test("the preview distributes font attribution and complete matching licenses locally", async ({ request }) => {
@@ -117,6 +210,7 @@ test("the preview distributes font attribution and complete matching licenses lo
   const manifest = await response.json();
   expect(manifest.fonts.map(font => font.family).sort()).toEqual(fonts.slice(1).map(([, family]) => family).sort());
   for (const font of manifest.fonts) {
+    expect(font.weight).toBe(font.family === "Noto Serif" ? 300 : 400);
     expect(font.license.spdx).toBe("OFL-1.1");
     const license = await request.get(`/font-licenses/${font.license.file}`);
     expect(license.status()).toBe(200);
@@ -134,8 +228,8 @@ test("speaker overrides and type pairings preserve independent landscape and lay
   await field(page, "layout").selectOption("conversation");
   await field(page, "veilMode").selectOption("contours");
   await field(page, "readingFont").selectOption("garamond");
-  await field(page, "travelerFont").selectOption("quintessential");
-  await field(page, "companionFont").selectOption("italianno");
+  await field(page, "humanFont").selectOption("quintessential");
+  await field(page, "machineFont").selectOption("italianno");
   for (const state of ["reader", "comparison"]) {
     await field(page, "schematic").selectOption(state);
     for (const [speaker, id, family] of [["traveler", "quintessential", "Quintessential"], ["companion", "italianno", "Italianno"]]) {
@@ -151,40 +245,83 @@ test("speaker overrides and type pairings preserve independent landscape and lay
   expect((await fontSize()) / originalSize).toBeCloseTo(1.35, 2);
   await page.keyboard.press("Home");
   expect((await fontSize()) / originalSize).toBeCloseTo(.85, 2);
-  for (const [name, heading, reading] of [["Renaissance Book", "garamond", "garamond"], ["Quill & Print", "fell", "quintessential"], ["Flowing Script", "garamond", "italianno"], ["Blackletter Title", "blackletter", "garamond"]]) {
-    await field(page, "travelerFont").selectOption("fell");
-    await field(page, "companionFont").selectOption("blackletter");
-    await page.getByRole("button", { name, exact: true }).click();
-    for (const [setting, value] of Object.entries({ headingFont: heading, readingFont: reading, travelerFont: "inherit", companionFont: "inherit", scene: "aqueduct", treatment: "ink-sepia", layout: "conversation", veilMode: "contours", textScale: "0.85" }))
-      await expect(field(page, setting)).toHaveValue(value);
-    for (const message of await page.locator(".message").all()) await expect(message).toHaveAttribute("data-font", reading);
+  const sets = [
+    ["Quixotic Chronicle", "tapestry", "uncial", "inherit", "inherit", 1, 1.7],
+    ["Letters & Logic", "ibm-plex-serif", "noto-serif", "monte-carlo", "syne-mono", 1.05, 1.7],
+    ["Courtly Correspondence", "tapestry", "birthstone", "mea-culpa", "monsieur", 1.05, 1.8],
+    ["Human & Automaton", "tektur", "ibm-plex-serif", "lovers-quarrel", "oxanium", 1, 1.75],
+    ["Flourished Letters", "fell", "rouge-script", "ballet", "ruthie", 1.1, 1.85],
+    ["Light & Mechanical", "anta", "noto-serif", "allison", "tomorrow", 1.05, 1.75],
+    ["Renaissance Book", "garamond", "garamond", "inherit", "inherit", 1, 1.6],
+    ["Quill & Print", "fell", "quintessential", "inherit", "inherit", 1, 1.6],
+    ["Flowing Script", "garamond", "italianno", "inherit", "inherit", 1, 1.7],
+    ["Blackletter Title", "blackletter", "garamond", "inherit", "inherit", 1, 1.6],
+  ];
+  for (const [name, appFont, readingFont, humanFont, machineFont, textScale, lineHeight] of sets) {
+    await field(page, "humanFont").selectOption("fell");
+    await field(page, "machineFont").selectOption("blackletter");
+    await field(page, "textScale").focus(); await page.keyboard.press("Home");
+    await field(page, "lineHeight").focus(); await page.keyboard.press("End");
+    await page.getByRole("button", { name: new RegExp(`^${name}`) }).click();
+    for (const [setting, value] of Object.entries({ appFont, readingFont, humanFont, machineFont, textScale, lineHeight, scene: "aqueduct", treatment: "ink-sepia", layout: "conversation", veilMode: "contours" }))
+      await expect(field(page, setting)).toHaveValue(String(value));
+    await expect(page.locator('.message[data-speaker="traveler"]').first()).toHaveAttribute("data-font", humanFont === "inherit" ? readingFont : humanFont);
+    await expect(page.locator('.message[data-speaker="companion"]').first()).toHaveAttribute("data-font", machineFont === "inherit" ? readingFont : machineFont);
   }
 });
 
 test("A/B retains its own fonts and speaker overrides with identical content", async ({ page }) => {
   await page.goto("/"); await openPanel(page);
-  await field(page, "headingFont").selectOption("blackletter");
+  await field(page, "appFont").selectOption("blackletter");
   await field(page, "readingFont").selectOption("garamond");
-  await field(page, "companionFont").selectOption("quintessential");
+  await field(page, "machineFont").selectOption("quintessential");
+  await field(page, "lineHeight").focus(); await page.keyboard.press("End");
   await page.getByRole("button", { name: "Pin Current Design as A" }).click();
-  await field(page, "headingFont").selectOption("fell");
+  await field(page, "appFont").selectOption("fell");
   await field(page, "readingFont").selectOption("italianno");
-  await field(page, "companionFont").selectOption("inherit");
+  await field(page, "machineFont").selectOption("inherit");
+  await field(page, "lineHeight").focus(); await page.keyboard.press("Home");
   await field(page, "density").selectOption("long");
   await closePanel(page);
-  for (const [id, family] of fonts.slice(1)) await expectLoadedFont(page, id, family);
+  for (const [id, family] of fonts.slice(1, 6)) await expectLoadedFont(page, id, family);
   const a = page.getByRole("region", { name: "Design A", exact: true });
   const b = page.getByRole("region", { name: "Design B", exact: true });
-  await expect(a).toHaveAttribute("data-heading-font", "blackletter");
-  await expect(b).toHaveAttribute("data-heading-font", "fell");
+  await expect(a).toHaveAttribute("data-app-font", "blackletter");
+  await expect(b).toHaveAttribute("data-app-font", "fell");
   expect(await firstFamily(a.locator(".chapter-heading h1"))).toBe("UnifrakturMaguntia");
   expect(await firstFamily(b.locator(".chapter-heading h1"))).toBe("IM Fell English");
   expect(await firstFamily(a.locator(".human-message .dialogue"))).toBe("EB Garamond");
   expect(await firstFamily(a.locator(".machine-message .dialogue"))).toBe("Quintessential");
   expect(await firstFamily(b.locator(".human-message .dialogue"))).toBe("Italianno");
   expect(await firstFamily(b.locator(".machine-message .dialogue"))).toBe("Italianno");
+  const leading = locator => locator.evaluate(el => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize));
+  expect(await leading(a.locator(".human-message .dialogue"))).toBeCloseTo(2.1, 2);
+  expect(await leading(b.locator(".human-message .dialogue"))).toBeCloseTo(1.35, 2);
   expect(await a.locator(".reading-inner").textContent()).toBe(await b.locator(".reading-inner").textContent());
   await expectContainedText(page);
+});
+
+test("line spacing changes rendered prose across layouts and veil shapes", async ({ page }) => {
+  await page.goto("/"); await openPanel(page);
+  await field(page, "density").selectOption("long");
+  await field(page, "readingFont").selectOption("noto-serif");
+  await expectLoadedFont(page, "noto-serif", "Noto Serif");
+  for (const layout of ["conversation", "folio", "theater"]) {
+    await field(page, "layout").selectOption(layout);
+    for (const veil of ["messages", "contours"]) {
+      await field(page, "veilMode").selectOption(veil);
+      const contourNote = page.getByText("Text-contour veils use at least 1.65× spacing to keep adjacent line surfaces apart.", { exact: true });
+      if (veil === "contours") await expect(contourNote).toBeVisible();
+      else await expect(contourNote).toHaveCount(0);
+      for (const [key, expected] of [["End", 2.1], ["Home", 1.35]]) {
+        await field(page, "lineHeight").focus(); await page.keyboard.press(key);
+        const leading = await page.locator(".message .dialogue, .message .passage p").evaluateAll(nodes => nodes.map(el => parseFloat(getComputedStyle(el).lineHeight) / parseFloat(getComputedStyle(el).fontSize)));
+        expect(leading.length).toBeGreaterThan(2);
+        for (const ratio of leading) expect(ratio).toBeCloseTo(veil === "contours" ? Math.max(1.65, expected) : expected, 2);
+        await closePanel(page); await expectContainedText(page); await openPanel(page);
+      }
+    }
+  }
 });
 
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
@@ -194,7 +331,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
     await page.getByRole("button", { name: "Traveler Left · Companion Right", exact: true }).click();
     await field(page, "textScale").focus(); await page.keyboard.press("End");
     for (const [id, family] of fonts) {
-      await field(page, "headingFont").selectOption(id);
+      await field(page, "appFont").selectOption(id);
       await field(page, "readingFont").selectOption(id);
       await expectLoadedFont(page, id, family);
       for (const veil of ["messages", "contours"]) {
@@ -211,9 +348,9 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
   });
 }
 
-test("heading and reading families remain coherent in every schematic state and layout", async ({ page }) => {
+test("app and reading families remain independent in every schematic state and layout", async ({ page }) => {
   await page.goto("/"); await openPanel(page);
-  await field(page, "headingFont").selectOption("fell");
+  await field(page, "appFont").selectOption("fell");
   await field(page, "readingFont").selectOption("quintessential");
   await field(page, "density").selectOption("long");
   await expectLoadedFont(page, "fell", "IM Fell English");
@@ -225,6 +362,8 @@ test("heading and reading families remain coherent in every schematic state and 
       await field(page, "schematic").selectOption(state);
       expect(await firstFamily(page.locator(".chapter-heading h1"))).toBe("IM Fell English");
       expect(await firstFamily(page.locator(selector).first())).toBe("Quintessential");
+      expect(await firstFamily(page.locator(".app-header nav button").first())).toBe("IM Fell English");
+      expect(await firstFamily(page.locator(".audio-message small").first())).toBe("IM Fell English");
       await expectContainedText(page);
     }
   }
