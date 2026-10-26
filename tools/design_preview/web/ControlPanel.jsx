@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { OPTIONS, PRESETS } from "./settings.mjs";
+import { FONT_GROUPS, TYPE_PRESETS, fontFor } from "./typography.mjs";
 
 function Select({ field, label, settings, onChange }) {
   return (
@@ -22,7 +23,12 @@ function Select({ field, label, settings, onChange }) {
         value={settings[field]}
         onChange={(e) => onChange(field, e.target.value)}
       >
-        {OPTIONS[field].map(([id, title]) => (
+        {field.endsWith("Font") ? <>
+          {OPTIONS[field].some(([id]) => id === "inherit") && <option value="inherit">Use Reading Font</option>}
+          {FONT_GROUPS.map(group => <optgroup key={group} label={group}>
+            {OPTIONS[field].filter(([id]) => id !== "inherit" && fontFor(id).group === group).map(([id, title]) => <option key={id} value={id}>{title}</option>)}
+          </optgroup>)}
+        </> : OPTIONS[field].map(([id, title]) => (
           <option key={id} value={id}>
             {title}
           </option>
@@ -139,14 +145,23 @@ export default function ControlPanel({
           label="Interface Palette"
           {...{ settings, onChange }}
         />
+        <div className="treatment-shortcuts" aria-label="Sketch Studies">
+          <button type="button" className="panel-button" onClick={() => onChange("treatment", "ink-sepia")} aria-pressed={settings.treatment === "ink-sepia"}>Sepia Ink</button>
+          <button type="button" className="panel-button" onClick={() => onChange("treatment", "graphite")} aria-pressed={settings.treatment === "graphite"}>Graphite</button>
+        </div>
       </section>
       <section className="panel-section">
         <h3>Surface & Legibility</h3>
+        <Select field="veilMode" label="Veil Shape" {...{ settings, onChange }} />
+        <p className="field-note">
+          {settings.veilMode === "window" ? "Fits the available reading window as you resize, including each A/B pane." : settings.veilMode === "messages" ? "A soft, beveled surface fits each message and its speaker label." : settings.veilMode === "contours" ? "The surface follows each wrapped line and reshapes as text reflows." : "A broad, feathered veil keeps the reading column quiet."}
+        </p>
         <Slider
           field="readingOpacity"
           label="Reading Veil"
           {...{ settings, onChange }}
         />
+        {(settings.veilMode === "messages" || settings.veilMode === "contours") && <Slider field="veilPadding" label="Veil Breathing Room" min={8} max={40} step={1} unit="px" {...{ settings, onChange }} />}
         <Slider
           field="controlOpacity"
           label="Control Opacity"
@@ -165,6 +180,40 @@ export default function ControlPanel({
           Illustration color changes independently of text and controls. Low
           opacities are exploratory.
         </p>
+      </section>
+      <section className="panel-section">
+        <h3>Typography</h3>
+        <div className="type-pairings" aria-label="Font Sets">
+          {TYPE_PRESETS.map(p => <button key={p.name} type="button" className="panel-button" aria-pressed={Object.entries(p.settings).every(([key, value]) => settings[key] === value)} onClick={() => onPreset(p)}><span>{p.name}</span><small>{p.detail}</small></button>)}
+        </div>
+        <p className="field-note">Sets combine app, reading and speaker fonts with size and line spacing. Your landscape, veil and alignment stay as chosen.</p>
+        <Select field="appFont" label="App Font" {...{ settings, onChange }} />
+        <p className="field-note">Buttons, headings and labels throughout the schematic app.</p>
+        <Select field="readingFont" label="Reading Font" {...{ settings, onChange }} />
+        <p className="field-note">The shared dialogue font, unless a speaker overrides it.</p>
+        <Select field="humanFont" label="Human Font" {...{ settings, onChange }} />
+        <Select field="machineFont" label="Machine Font" {...{ settings, onChange }} />
+        <p className="field-note">Human: the Traveler or simulated human. Machine: the Companion or LLM.</p>
+        <div className="type-specimen" aria-label="Selected Font Specimen">
+          <div style={{fontFamily: fontFor(settings.appFont).family, fontWeight: fontFor(settings.appFont).weight, fontSize: `${24 * fontFor(settings.appFont).scale}px`}}>The Unwritten Road</div>
+          {[["Reading", settings.readingFont, "Every journey begins with a possibility."], ["Human", settings.humanFont === "inherit" ? settings.readingFont : settings.humanFont, "Where might this road take us?"], ["Machine", settings.machineFont === "inherit" ? settings.readingFont : settings.machineFont, "Let us consider what lies ahead."]].map(([label, id, text]) => <div key={label} className="voice-specimen"><small>{label}</small><p style={{fontFamily: fontFor(id).family, fontWeight: fontFor(id).weight, fontSize: `${19 * fontFor(id).scale}px`}}>{text}</p></div>)}
+        </div>
+        <p className="field-note">{fontFor(settings.readingFont).note}</p>
+        <Slider field="textScale" label="Reading Text Size" min={0.85} max={1.35} step={0.05} {...{ settings, onChange }} />
+        <Slider field="lineHeight" label="Reading Line Spacing" min={1.35} max={2.1} step={0.05} unit="×" {...{ settings, onChange }} />
+        {settings.veilMode === "contours" && <p className="field-note">Text-contour veils use at least 1.65× spacing to keep adjacent line surfaces apart.</p>}
+        <a className="font-license-link" href="./font-licenses/index.html" target="_blank" rel="noreferrer">Font Credits & Licenses</a>
+      </section>
+      <section className="panel-section">
+        <h3>Conversation Voices</h3>
+        <button type="button" className="panel-button" onClick={() => onPreset({name:"Opposing Voices", settings:{travelerPosition:"left", travelerAlign:"left", companionPosition:"right", companionAlign:"right"}})}>Traveler Left · Companion Right</button>
+        {[["traveler", "Traveler"], ["companion", "Companion"]].map(([speaker, name]) => <fieldset className="speaker-settings" key={speaker}>
+          <legend>{name}</legend>
+          <Select field={`${speaker}Position`} label={`${name} Placement`} {...{ settings, onChange }} />
+          <Select field={`${speaker}Align`} label={`${name} Text Alignment`} {...{ settings, onChange }} />
+        </fieldset>)}
+        <Slider field="messageWidth" label="Placed Message Width" min={0.55} max={1} step={0.01} {...{ settings, onChange }} />
+        <p className="field-note">Placement moves the message. Alignment sets its text edges. Width applies to left, center and right placements; Full Width fills the column.</p>
       </section>
       <section className="panel-section">
         <h3>Movement</h3>

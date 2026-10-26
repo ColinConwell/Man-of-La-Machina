@@ -12,7 +12,7 @@ def test_design_routes_are_absent_from_production(bundle, monkeypatch):
     monkeypatch.setenv("MACHINA_ALLOWED_HOSTS", "man-of-la-machina.com")
     with TestClient(create_app(bundle), base_url="https://man-of-la-machina.com") as client:
         for path in ["/design", "/design-preview", "/tools/design_preview/index.html",
-                     "/tools/design_preview/web/assets/olive-plains.webp"]:
+                     "/tools/design_preview/web/assets/olive-plains.webp", "/font-licenses/index.html"]:
             assert client.get(path).status_code == 404
 
 
@@ -33,3 +33,6 @@ def test_design_server_serves_only_built_synthetic_files(monkeypatch):
         asset = next((dist / "assets").glob("*.webp"))
         assert client.get(f"/assets/{asset.name}").status_code == 200
         assert client.get("/assets/../Caddyfile").status_code == 404
+        assert client.get("/font-licenses/index.html").status_code == 200
+        assert client.get("/font-licenses/manifest.json").status_code == 200
+        assert client.get("/font-licenses/../web/assets/fonts/manifest.json").status_code == 404

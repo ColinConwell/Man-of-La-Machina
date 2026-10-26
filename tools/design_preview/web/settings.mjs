@@ -1,3 +1,5 @@
+import { FONT_OPTIONS } from "./typography.mjs";
+
 export const STORAGE_KEY = "la-machina.landscape-studio.v1";
 export const SCENES = [
   ["olive-plains", "Andalusian Olive Plains"],
@@ -8,6 +10,10 @@ export const SCENES = [
   ["andorran-valley", "An Andorran Valley"],
 ];
 export const OPTIONS = {
+  appFont: FONT_OPTIONS,
+  readingFont: FONT_OPTIONS,
+  humanFont: [["inherit", "Use Reading Font"], ...FONT_OPTIONS],
+  machineFont: [["inherit", "Use Reading Font"], ...FONT_OPTIONS],
   scene: SCENES,
   composition: [
     ["margins", "Illustrated Margins"],
@@ -16,8 +22,10 @@ export const OPTIONS = {
   ],
   treatment: [
     ["natural", "Natural Color"],
-    ["sepia", "Sepia Sketch"],
-    ["grayscale", "Graphite Sketch"],
+    ["sepia", "Deep Sepia Wash"],
+    ["grayscale", "Monochrome Wash"],
+    ["ink-sepia", "Sepia Ink & Hatching"],
+    ["graphite", "Graphite & Hatching"],
   ],
   theme: [
     ["parchment", "Parchment & Rust"],
@@ -54,7 +62,19 @@ export const OPTIONS = {
     ["desktop", "Responsive Desktop"],
     ["mobile", "Mobile · 390 px"],
   ],
+  veilMode: [
+    ["column", "Soft Reading Column"],
+    ["window", "Fit Window Automatically"],
+    ["messages", "Beveled Message Boxes"],
+    ["contours", "Follow Text Contours"],
+  ],
 };
+const positions = [["full", "Full Width"], ["left", "Left"], ["center", "Center"], ["right", "Right"]];
+const alignments = [["left", "Left / Ragged Right"], ["center", "Centered"], ["right", "Right / Ragged Left"], ["justify", "Fully Justified"]];
+for (const speaker of ["traveler", "companion"]) {
+  OPTIONS[`${speaker}Position`] = positions;
+  OPTIONS[`${speaker}Align`] = alignments;
+}
 export const DEFAULTS = Object.freeze({
   scene: "olive-plains",
   composition: "full",
@@ -71,6 +91,19 @@ export const DEFAULTS = Object.freeze({
   intensity: 0.35,
   speed: 0.65,
   paused: false,
+  veilMode: "column",
+  veilPadding: 20,
+  messageWidth: 0.88,
+  travelerPosition: "full",
+  travelerAlign: "left",
+  companionPosition: "full",
+  companionAlign: "left",
+  appFont: "classic",
+  readingFont: "classic",
+  humanFont: "inherit",
+  machineFont: "inherit",
+  textScale: 1,
+  lineHeight: 1.6,
 });
 export const PRESETS = [
   {
@@ -88,7 +121,7 @@ export const PRESETS = [
     detail: "An illustrated manuscript",
     settings: {
       composition: "margins",
-      treatment: "sepia",
+      treatment: "ink-sepia",
       readingOpacity: 0.96,
       controlOpacity: 1,
     },
@@ -120,10 +153,19 @@ const RANGES = {
   blur: [0, 30],
   intensity: [0, 1],
   speed: [0.25, 2],
+  veilPadding: [8, 40],
+  messageWidth: [0.55, 1],
+  textScale: [0.85, 1.35],
+  lineHeight: [1.35, 2.1],
 };
 export function validateSettings(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("Choose a Landscape Studio preset JSON file.");
+  // Migrate earlier exports and browser settings without discarding their choices.
+  value = { ...value };
+  for (const [oldKey, newKey] of [["headingFont", "appFont"], ["travelerFont", "humanFont"], ["companionFont", "machineFont"]]) {
+    if (!(newKey in value) && oldKey in value) value[newKey] = value[oldKey];
+  }
   const result = { ...DEFAULTS };
   for (const key of Object.keys(DEFAULTS)) {
     if (!(key in value)) continue;

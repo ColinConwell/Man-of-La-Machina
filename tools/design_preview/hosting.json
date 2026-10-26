@@ -3,6 +3,7 @@
   "sourceBranch": "codex/landscape-preview-hosted",
   "rootDirectory": "/",
   "dockerfilePath": "Dockerfile",
+  "watchPatterns": [],
   "healthcheckPath": "/healthz",
   "healthcheckTimeout": 60,
   "restartPolicyType": "ON_FAILURE",

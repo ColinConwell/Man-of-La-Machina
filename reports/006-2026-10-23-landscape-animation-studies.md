@@ -58,3 +58,31 @@ Research was refreshed on 2026-10-23. No provider generation was submitted, and 
 Before adopting an animation engine for the main application, compare the same final drawing and timing under the same viewport and device conditions. Record compressed transfer size including runtime and WASM, startup delay, frame timing, memory use, and behavior after repeated pause/resume and tab hiding. Test a long reading passage and both light and dark themes. The small exported artwork sizes above exclude runtime costs and must not be interpreted as total page weight.
 
 The immediate design decision is the landscape composition and amount of motion. Character authoring choice can follow once the preferred composition demonstrates legibility and the interaction design survives every layout. Functional narration, voice selection, generation budgets, caching, and persisted audio remain a separate implementation phase.
+
+## Adaptive Veil and Monochrome Follow-Up
+
+The October 23 follow-up adds three alternatives to the original feathered reading column. The automatic veil fits the available preview window, while beveled message boxes fit their contents and inline text contours follow line wrapping. Independent speaker placement and text alignment allow opposing traveler/companion positioning without coupling the typographic choices to the interface theme. These are selectable design proposals rather than evidence of improved comprehension.
+
+The same six paintings now support fully desaturated sepia and monochrome washes, plus sepia-ink and graphite rendering studies. The latter use a pale tonal underpainting, static SVG edge extraction, shadow-masked crosshatching and a paper texture. No image-generation request or new source artwork was required. The methods remain separate from interface text, theme-colored composition masks and animated overlay layers.
+
+Thirteen browser acceptance tests passed, including measured responsive sizing, long-passage containment, speaker alignment, line-contour reflow, preset compatibility, A/B consistency and unchanged interface colors under sketch treatments. Desktop and mobile-sized Chromium screenshots were visually inspected. This establishes working exploratory controls, not a controlled reading study or physical-device performance evaluation. Extremely low opacity, narrow message widths, and fully justified small-screen passages may be less comfortable to read and remain available for comparison.
+
+## Calligraphic and Printing Studies
+
+The typography follow-up compares the same synthetic content with six reading choices: the original Georgia plus five locally served, openly licensed faces. Heading and reading fonts are independent, and each speaker can override the shared reading face. Four named pairings permit quick comparisons while preserving the current landscape and veil. These are aesthetic studies; no reading-speed, comprehension or preference measurement has been collected.
+
+| Typeface | Study Role | Historical Scope |
+| --- | --- | --- |
+| [EB Garamond](https://github.com/octaviopardo/EBGaramond12) | Renaissance book typography | Revival of sixteenth-century roman type. |
+| [IM Fell English](https://github.com/google/fonts/tree/main/ofl/imfellenglish) | Worn letterpress | Based on later Oxford types; not a Renaissance facsimile. |
+| [Quintessential](https://github.com/google/fonts/tree/main/ofl/quintessential) | Calligraphic hand | Modern lettering based on the Italic Hand. |
+| [Italianno](https://github.com/google/fonts/tree/main/ofl/italianno) | Flowing cursive | Modern connected script. |
+| [UnifrakturMaguntia](https://github.com/google/fonts/tree/main/ofl/unifrakturmaguntia) | Blackletter headings and short passages | Based on a 1901 design; an aesthetic comparison rather than a period reconstruction. |
+
+The [font manifest](../tools/design_preview/web/assets/fonts/manifest.json) pins sources, licenses, checksums, subset limits and glyph verification. All five normal-weight Latin WOFF2s total 157,260 bytes; the preview serves them and their complete OFL licenses from its own origin. English and Spanish characters, quotation marks, dashes and ellipsis were verified against the actual font maps. Script-specific size adjustments and an independent reading-size slider support comparison, while control labels and narration states retain familiar type. Desktop/mobile inspection and automated font-loading/layout checks establish implementation behavior, not the suitability of cursive or blackletter for long-form reading.
+
+### Expanded Role-Based Typography
+
+On October 25, the requested Google Fonts choices expanded the library to 25 faces including system Georgia. Historical studies add Uncial Antiqua and Tapestry; letter-like studies add Lovers Quarrel, MonteCarlo, Mea Culpa, Monsieur La Doulaise, Ruthie, Allison, Birthstone, Ballet, Updock and Rouge Script. Machine-voice studies add IBM Plex Serif, Tektur, Anta, Tomorrow, Syne Mono, Oxanium and Light 300 Noto Serif. The initial choices remain available. These groupings describe intended aesthetic comparisons rather than historical provenance or a claim that a typeface is intrinsically human or robotic.
+
+Four independent roles now distinguish app chrome, shared reading text, human dialogue and machine dialogue. Human and machine choices inherit shared reading by default, and existing saved presets migrate without discarding choices. Ten named sets, placed above the individual selectors, combine these roles with reading size and line spacing. Sets such as Letters & Logic and Human & Automaton permit within-conversation contrast while keeping the landscape and alignment fixed. The source manifest documents each font's upstream metadata and license; 24 locally served WOFF2 files total 509,016 bytes, with actual English/Spanish glyph and weight verification. No remote runtime font requests or provider calls are introduced. Browser layout checks and visual inspection remain implementation evidence, not a measured reading or preference study.

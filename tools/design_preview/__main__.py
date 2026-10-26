@@ -24,6 +24,7 @@ def create_preview():
         return FileResponse(dist / "index.html", headers={"Cache-Control": "no-store"})
 
     app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+    app.mount("/font-licenses", StaticFiles(directory=dist / "font-licenses"), name="font-licenses")
     return app
 
 
