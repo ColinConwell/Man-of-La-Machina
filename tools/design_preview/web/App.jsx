@@ -41,14 +41,16 @@ function Preview({ settings, policy, label }) {
     <section
       className={`preview-frame viewport-${settings.viewport} theme-${settings.theme} composition-${settings.composition} ${settings.density === "none" ? "landscape-only" : ""}`}
       aria-label={label ? `Design ${label}` : "Design Preview"}
-      data-heading-font={settings.headingFont}
+      data-app-font={settings.appFont}
       data-reading-font={settings.readingFont}
       style={{
         ...readingFontStyle(settings.readingFont),
-        "--heading-font": fontFor(settings.headingFont).family,
-        "--heading-scale": fontFor(settings.headingFont).scale,
-        "--heading-tracking": settings.headingFont === "classic" ? "-.035em" : "0px",
+        "--app-font": fontFor(settings.appFont).family,
+        "--app-weight": fontFor(settings.appFont).weight,
+        "--app-scale": fontFor(settings.appFont).scale,
+        "--heading-tracking": settings.appFont === "classic" ? "-.035em" : "0px",
         "--text-scale": settings.textScale,
+        "--reading-leading": settings.lineHeight,
         "--reading-alpha": settings.readingOpacity,
         "--control-alpha": settings.controlOpacity,
         "--glass-blur": `${settings.blur}px`,

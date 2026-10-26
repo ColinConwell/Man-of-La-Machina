@@ -54,7 +54,7 @@ function Passage({ long = false }) {
   );
 }
 function ConversationMessage({ speaker, settings, className = "", children }) {
-  const choice = settings[`${speaker}Font`];
+  const choice = settings[speaker === "traveler" ? "humanFont" : "machineFont"];
   const font = choice === "inherit" ? settings.readingFont : choice;
   return <div
     className={`message ${speaker === "traveler" ? "human-message" : "machine-message"} position-${settings[`${speaker}Position`]} align-${settings[`${speaker}Align`]} ${className}`}

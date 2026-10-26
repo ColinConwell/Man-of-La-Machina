@@ -10,8 +10,10 @@ export const SCENES = [
   ["andorran-valley", "An Andorran Valley"],
 ];
 export const OPTIONS = {
-  headingFont: FONT_OPTIONS,
+  appFont: FONT_OPTIONS,
   readingFont: FONT_OPTIONS,
+  humanFont: [["inherit", "Use Reading Font"], ...FONT_OPTIONS],
+  machineFont: [["inherit", "Use Reading Font"], ...FONT_OPTIONS],
   scene: SCENES,
   composition: [
     ["margins", "Illustrated Margins"],
@@ -72,7 +74,6 @@ const alignments = [["left", "Left / Ragged Right"], ["center", "Centered"], ["r
 for (const speaker of ["traveler", "companion"]) {
   OPTIONS[`${speaker}Position`] = positions;
   OPTIONS[`${speaker}Align`] = alignments;
-  OPTIONS[`${speaker}Font`] = [["inherit", "Use Reading Font"], ...FONT_OPTIONS];
 }
 export const DEFAULTS = Object.freeze({
   scene: "olive-plains",
@@ -97,11 +98,12 @@ export const DEFAULTS = Object.freeze({
   travelerAlign: "left",
   companionPosition: "full",
   companionAlign: "left",
-  headingFont: "classic",
+  appFont: "classic",
   readingFont: "classic",
-  travelerFont: "inherit",
-  companionFont: "inherit",
+  humanFont: "inherit",
+  machineFont: "inherit",
   textScale: 1,
+  lineHeight: 1.6,
 });
 export const PRESETS = [
   {
@@ -154,10 +156,16 @@ const RANGES = {
   veilPadding: [8, 40],
   messageWidth: [0.55, 1],
   textScale: [0.85, 1.35],
+  lineHeight: [1.35, 2.1],
 };
 export function validateSettings(value) {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("Choose a Landscape Studio preset JSON file.");
+  // Migrate earlier exports and browser settings without discarding their choices.
+  value = { ...value };
+  for (const [oldKey, newKey] of [["headingFont", "appFont"], ["travelerFont", "humanFont"], ["companionFont", "machineFont"]]) {
+    if (!(newKey in value) && oldKey in value) value[newKey] = value[oldKey];
+  }
   const result = { ...DEFAULTS };
   for (const key of Object.keys(DEFAULTS)) {
     if (!(key in value)) continue;
