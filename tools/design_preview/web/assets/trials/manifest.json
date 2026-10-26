@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "created": "2026-10-23",
+  "title": "Original Articulated Traveler Studies",
+  "provenance": "Original synthetic artwork created for Man of La Machina. No historical image was traced. The 1965 reference attachment was unavailable.",
+  "canvas": {
+    "width": 600,
+    "height": 400
+  },
+  "common_action": "Two-second walking-in-place loop with opposite leg angles of approximately -14 and +14 degrees.",
+  "differences": {
+    "native": "Separate original drawing implemented in Landscape.jsx; same walking concept, not identical geometry.",
+    "rive": "60 fps,120-frame loop; leg, arm, cloak, head rotations and body bob; cubic easing.",
+    "lottie": "60 fps,120-frame duration; leg rotation keys only at frames0,60,119; linear interpolation."
+  },
+  "assets": [
+    {
+      "file": "traveler-source.svg",
+      "bytes": 1287,
+      "sha256": "56718604b71c5be253e1d924b4aa0fcb88d79c01005027c5eb9bf7ad7c747eb3",
+      "method": "Original nine-part vector geometry, authored as polygons for this study. Static source imported into Lottie Creator."
+    },
+    {
+      "file": "traveler-rive.riv",
+      "bytes": 1759,
+      "sha256": "93809632c0304f74789edb3cf82a3c4dac1d1353e1f603b3a13f67a1156531b9",
+      "method": "Created in Rive desktop through its official MCP and exported through export_file inline_base64. Runtime file, not a .rev backup."
+    },
+    {
+      "file": "traveler-lottie.json",
+      "bytes": 16065,
+      "sha256": "da01af2bfeb93e969d5f81e4cf4519676b3b315b82137798e8433e1169f7f06b",
+      "method": "Original SVG imported into Lottie Creator; rotations keyed through its UI; standard JSON downloaded using the editor Export control."
+    },
+    {
+      "file": "traveler-rive-poster.png",
+      "bytes": 48963,
+      "sha256": "1e6b3e961d7fc334d206110b1e895da1c70c294de12b2fa82c6cbb694d2b88bb",
+      "method": "Static Rive capture_artboard rendering of the original cutout; fallback poster, not a frame-accurate recording."
+    }
+  ]
+}

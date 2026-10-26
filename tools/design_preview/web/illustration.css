@@ -1,0 +1,76 @@
+/* Keep all monochrome processing below the composition masks. The interface
+   palette and reading veil remain independent of the illustration treatment. */
+.landscape.treatment-sepia,
+.landscape.treatment-grayscale,
+.landscape.treatment-ink-sepia,
+.landscape.treatment-graphite {
+  filter: none;
+}
+.landscape.treatment-sepia {
+  background: #e9dfca;
+}
+.landscape.treatment-sepia .landscape-painting {
+  filter: grayscale(1) sepia(1) saturate(.6) contrast(.9) brightness(1.04);
+}
+.landscape.treatment-grayscale {
+  background: #dfdfd8;
+}
+.landscape.treatment-grayscale .landscape-painting {
+  filter: grayscale(1) contrast(.92) brightness(1.04);
+}
+.landscape.treatment-sepia .illustration-layer,
+.landscape.treatment-ink-sepia .illustration-layer {
+  color: #59432a;
+}
+.landscape.treatment-grayscale .illustration-layer,
+.landscape.treatment-graphite .illustration-layer {
+  color: #41423e;
+}
+.landscape.treatment-grayscale .atmosphere-layer,
+.landscape.treatment-grayscale .landscape-grain,
+.landscape.treatment-graphite .atmosphere-layer,
+.landscape.treatment-graphite .landscape-grain,
+.landscape.treatment-graphite .illustration-paper {
+  filter: grayscale(1);
+}
+.landscape.treatment-ink-sepia {
+  background: #eee3ca;
+  --sketch-ink: #60462d;
+}
+.landscape.treatment-graphite {
+  background: #e8e7df;
+  --sketch-ink: #484b46;
+}
+.landscape.treatment-ink-sepia .landscape-painting {
+  filter: grayscale(1) sepia(1) saturate(.62) contrast(.84) brightness(1.1);
+  opacity: .44;
+}
+.landscape.treatment-graphite .landscape-painting {
+  filter: grayscale(1) contrast(.84) brightness(1.1);
+  opacity: .44;
+}
+.sketch-illustration {
+  position: absolute;
+  inset: 0;
+  color: var(--sketch-ink);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.sketch-contours {
+  opacity: .88;
+}
+.sketch-hatching {
+  opacity: .47;
+}
+.illustration-paper {
+  position: absolute;
+  inset: 0;
+  opacity: .22;
+  background-image: repeating-linear-gradient(0deg, #6a584614 0, #6a584614 1px, transparent 1px, transparent 3px), repeating-linear-gradient(90deg, #ffffef21 0, #ffffef21 1px, transparent 1px, transparent 5px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.landscape.treatment-ink-sepia .landscape-grain,
+.landscape.treatment-graphite .landscape-grain {
+  opacity: .14;
+}
