@@ -1,6 +1,7 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useId, useLayoutEffect, useRef, useState } from "react";
 import { readingFontStyle } from "./typography.mjs";
 import ReplyStudy, { ReplyComposer, ReplyDisclosure } from "./ReplyStudy.jsx";
+import { Roadmap, ContextSidebar } from "./Roadmap.jsx";
 import {
   ArrowRight,
   ArrowUp,
@@ -140,10 +141,7 @@ function Reader({ long, settings }) {
           </span>
         </p>
       </ConversationMessage>
-      {settings.replyLayout === "buttons" ? <>
-        <ReplyActions />
-        <div className="context-fallback"><MockButton className="secondary-story">Explore Context</MockButton></div>
-      </> : settings.replyLayout === "attached" ? <div className="reply-study attached-original"><ReplyDisclosure /></div> : <ReplyStudy key={settings.replyLayout} layout={settings.replyLayout} />}
+      {settings.replyLayout === "buttons" ? <ReplyActions /> : settings.replyLayout === "attached" ? <div className="reply-study attached-original"><ReplyDisclosure /></div> : <ReplyStudy key={settings.replyLayout} layout={settings.replyLayout} />}
       {long && (
         <>
         <ConversationMessage speaker="traveler" settings={settings} className="long-continuation">
@@ -375,29 +373,29 @@ export function AppHeader() {
 }
 export function SchematicContent({ settings }) {
   const Content = layouts[settings.schematic];
+  const [selected, setSelected] = useState(1);
+  const [contextOpen, setContextOpen] = useState(false);
+  const contextId = useId();
+  const trigger = useRef(null);
+  const permanent = settings.roadmapLayout === "sidebar";
+  const showContext = permanent || contextOpen;
   return (
+    <div className={`journey-workspace roadmap-${settings.roadmapLayout} ${showContext ? "has-context" : ""}`}>
     <div className={`reading-area layout-${settings.layout} veil-${settings.veilMode} message-edges-${settings.messageEdges}`}
       style={{"--veil-padding": `${settings.veilPadding}px`, "--message-width": `${settings.messageWidth * 100}%`}}
     >
-      <aside className="journey-rail">
-        <h2>The Journey</h2>
-        <ol>
-          <li>The Beginning</li>
-          <li className="current">A Turning Point</li>
-          <li>Naming the Companion</li>
-        </ol>
-        {(settings.schematic !== "reader" || settings.replyLayout === "buttons") && <MockButton className="secondary-story journey-context">Explore Context</MockButton>}
-      </aside>
+      <Roadmap selected={selected} onSelect={setSelected} contextId={contextId} onExplore={(index, element) => { setSelected(index); trigger.current = element; setContextOpen(true); }} />
       <div className="reading-inner">
         <div className="chapter-heading">
           <h1><span className="veil-text">{titles[settings.schematic][0]}</span></h1>
           <p className="section-caption">{titles[settings.schematic][1]}</p>
-          {settings.schematic === "reader" && settings.replyLayout === "attached" && <div className="reply-study attached-context"><ReplyDisclosure kind="context" /></div>}
         </div>
         <div className={`schematic-body state-${settings.schematic}`}>
           <Content long={settings.density === "long"} settings={settings} />
         </div>
       </div>
+    </div>
+    <ContextSidebar id={contextId} selected={selected} open={showContext} permanent={permanent} onClose={() => { setContextOpen(false); trigger.current?.focus(); }} />
     </div>
   );
 }

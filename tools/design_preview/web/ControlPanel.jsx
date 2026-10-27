@@ -243,7 +243,9 @@ export default function ControlPanel({
       <section className="panel-section">
         <h3>Conversation Thread</h3>
         <Select field="replyLayout" label="Reply Actions" {...{ settings, onChange }} />
-        <p className="field-note">Compare five ways to reply, read the original and explore context in the Reading state. Original Buttons keeps the earlier arrangement. New studies support local draft typing, tabs and disclosures; drafts are never submitted or saved.</p>
+        <p className="field-note">Compare reply and original-continuation controls in the Reading state. Inline Original Link places the continuation beside the invitation. Drafts are never submitted or saved.</p>
+        <Select field="roadmapLayout" label="Roadmap & Context" {...{ settings, onChange }} />
+        <p className="field-note">Context lives in The Journey. Vertical Roadmap is hidden in compact layouts. Responsive Roadmap moves above the reading area with context links on hover, keyboard focus or tap. The sidebar study keeps context open, pushing the chat left on wide screens and stacking above it on phones.</p>
         <Select field="messageEdges" label="Message Edges" {...{ settings, onChange }} />
         <p className="field-note">Width limits cap each box. Outer insets move it inward from its aligned side. Defined Outer Edges adds a firm left or right boundary following text alignment; opposing alignments distinguish the voices.</p>
         <Slider field="messageWidth" label="Placed Message Width" min={0.55} max={1} step={0.01} {...{ settings, onChange }} />

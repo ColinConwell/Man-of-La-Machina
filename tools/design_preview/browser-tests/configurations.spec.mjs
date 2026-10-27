@@ -87,12 +87,8 @@ test("speaker labels, outer limits and revised action rows fit at desktop and mo
     await expect(page.locator(".schematic-note")).toHaveCSS("opacity","1");
     await expect(page.locator(".dialogue mark")).toHaveCount(0);
     if(viewport.width>1000) {
-      const rail=await page.locator(".journey-rail").evaluate(el=>{
-        const r=el.getBoundingClientRect(), b=el.querySelector("button").getBoundingClientRect(), list=el.querySelector("ol").getBoundingClientRect();
-        return {gap:b.top-list.bottom,center:b.left+b.width/2-(r.left+(r.width-parseFloat(getComputedStyle(el).paddingRight))/2)};
-      });
-      expect(rail.gap).toBeLessThanOrEqual(12);
-      expect(Math.abs(rail.center)).toBeLessThan(1);
+      await page.getByRole("button", {name:"A Turning Point",exact:true}).click();
+      await expect(page.getByRole("button", {name:"Explore Context: A Turning Point",exact:true})).toBeVisible();
     }
     const [reply,recorded,inner]=await Promise.all([".primary-story",".recorded-link",".reading-inner"].map(s=>page.locator(s).boundingBox()));
     expect(recorded.y).toBeGreaterThan(reply.y+reply.height);
@@ -101,7 +97,7 @@ test("speaker labels, outer limits and revised action rows fit at desktop and mo
     expect(Math.abs(recorded.x-reply.x)).toBeLessThan(1);
     expect(reply.x).toBeGreaterThan(inner.x);
     await expect(page.getByRole("button",{name:"Read Original Reply",exact:true})).toBeVisible();
-    await expect(page.locator(viewport.width>1000 ? ".journey-context" : ".context-fallback .mock-button")).toBeVisible();
+    await expect(page.locator(".context-fallback")).toHaveCount(0);
     for(const selector of [".primary-story", ".recorded-link"]) {
       const gap=await page.locator(selector).evaluate(el=>el.getBoundingClientRect().right-el.querySelector("svg").getBoundingClientRect().right);
       expect(gap).toBeLessThan(20);

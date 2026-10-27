@@ -10,22 +10,20 @@ const directions = [
 ];
 
 function OriginalReply() {
-  return <div className="reply-reveal"><small>Original Reply · Illustrative</small><p>“Begin with what matters to you, then consider what each path makes possible.”</p></div>;
-}
-function Context() {
-  return <div className="reply-reveal"><small>Context · Illustrative</small><p>The traveler and companion have reached a fork in the road. Their conversation considers how to choose between a familiar route and an uncertain one.</p></div>;
+  return <div className="reply-reveal"><small>Original Reply · Illustrative</small><p>“Let us walk far enough to see beyond the bend. We need not choose the whole journey before taking its first step.”</p></div>;
 }
 export function ReplyDisclosure({ kind = "original", children }) {
-  const label = kind === "context" ? "Explore Context" : kind === "respond" ? "Try Your Own Reply" : "Read Original Reply";
+  const label = kind === "respond" ? "Try Your Own Reply" : "Read Original Reply";
   return <details className={`reply-disclosure disclosure-${kind}`}>
     <summary>{label}<ChevronDown size={15} aria-hidden="true" /></summary>
-    {children || (kind === "context" ? <Context /> : <OriginalReply />)}
+    {children || <OriginalReply />}
   </details>;
 }
-export function ReplyComposer({ suggestions = false, footer = false }) {
+export function ReplyComposer({ suggestions = false, footer = false, inlineOriginal = false }) {
   const id = useId();
   const input = useRef(null);
   const [draft, setDraft] = useState("");
+  const [originalOpen, setOriginalOpen] = useState(false);
   useLayoutEffect(() => {
     const field = input.current;
     let alive = true;
@@ -46,7 +44,11 @@ export function ReplyComposer({ suggestions = false, footer = false }) {
     return () => { alive = false; observer.disconnect(); document.fonts.removeEventListener("loadingdone", fit); };
   });
   return <div className="reply-entry">
-    <label className="reply-entry-label" htmlFor={id}>Enter the journey with your own reply...</label>
+    <div className="reply-entry-invitation">
+      <label className="reply-entry-label" htmlFor={id}>Enter the journey with your own reply...</label>
+      {inlineOriginal && <button type="button" className="inline-original-link" aria-expanded={originalOpen} aria-controls={`${id}-original`} onClick={() => setOriginalOpen(!originalOpen)}>or continue with the original</button>}
+    </div>
+    {inlineOriginal && <div id={`${id}-original`} hidden={!originalOpen}><OriginalReply /></div>}
     <div className="reply-composer">
     <div className="reply-draft">
       <div className="reply-input-wrap" data-empty={!draft}>
@@ -60,7 +62,7 @@ export function ReplyComposer({ suggestions = false, footer = false }) {
       </div>}
       <div className="reply-submit-row"><small id={`${id}-note`}>Draft only · Not saved or sent</small><button type="button" disabled title="Send · Keyboard shortcut preview"><span>Send</span><kbd aria-hidden="true"><CornerDownLeft size={15} /></kbd></button></div>
     </div>
-    {footer && <div className="reply-footer"><ReplyDisclosure /><ReplyDisclosure kind="context" /></div>}
+    {footer && <div className="reply-footer"><ReplyDisclosure /></div>}
     </div>
   </div>;
 }
@@ -69,9 +71,9 @@ function IntentTabs() {
   const [active, setActive] = useState("respond");
   const id = useId();
   const refs = useRef([]);
-  const tabs = [["respond", "Try Your Own Reply"], ["original", "Read Original Reply"], ["context", "Explore Context"]];
+  const tabs = [["respond", "Try Your Own Reply"], ["original", "Read Original Reply"]];
   const move = (e, i) => {
-    const next = e.key === "ArrowRight" ? (i + 1) % 3 : e.key === "ArrowLeft" ? (i + 2) % 3 : e.key === "Home" ? 0 : e.key === "End" ? 2 : null;
+    const next = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i + tabs.length - 1) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : null;
     if (next === null) return;
     e.preventDefault(); setActive(tabs[next][0]); refs.current[next]?.focus();
   };
@@ -80,7 +82,7 @@ function IntentTabs() {
       {tabs.map(([key, label], i) => <button key={key} ref={el => { refs.current[i] = el; }} type="button" role="tab" id={`${id}-${key}`} aria-controls={`${id}-${key}-panel`} aria-selected={active === key} tabIndex={active === key ? 0 : -1} onClick={() => setActive(key)} onKeyDown={e => move(e, i)}>{label}</button>)}
     </div>
     {tabs.map(([key]) => <div key={key} role="tabpanel" id={`${id}-${key}-panel`} aria-labelledby={`${id}-${key}`} hidden={active !== key} tabIndex={0}>
-      {key === "respond" ? <ReplyComposer /> : key === "original" ? <OriginalReply /> : <Context />}
+      {key === "respond" ? <ReplyComposer /> : <OriginalReply />}
     </div>)}
   </div>;
 }
@@ -91,7 +93,6 @@ export default function ReplyStudy({ layout }) {
       <ReplyDisclosure />
       <p className="reply-invitation">Or take the conversation somewhere else.</p>
       <ReplyDisclosure kind="respond"><ReplyComposer /></ReplyDisclosure>
-      <ReplyDisclosure kind="context" />
-    </> : <ReplyComposer suggestions={layout === "suggestions"} footer />}
+    </> : <ReplyComposer suggestions={layout === "suggestions"} inlineOriginal={layout === "inline"} footer={layout !== "inline"} />}
   </section>;
 }

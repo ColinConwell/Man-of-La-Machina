@@ -163,9 +163,9 @@ Validation: preview build, all 36 Chromium acceptance cases, two Python isolatio
 
 ### Reply Action Studies and Animation Cycle
 
-Updated October 26, 2026: Conversation Thread → Reply Actions offers Original Buttons, Open Composer, Three Intent Tabs, Reading First, Suggested Directions and Attached to Messages. The original arrangement remains the default for old presets. All studies use Try Your Own Reply, Read Original Reply and Explore Context. New arrangements replace the separate bottom composer in the Reading state and remove the duplicate Journey context action. Other app states retain their previous controls.
+Updated October 26, 2026: Conversation Thread → Reply Actions offers Original Buttons, Open Composer, Inline Original Link, Reply Tabs, Reading First, Suggested Directions and Attached to Messages. The original arrangement remains the default for old presets. Reply studies offer an own reply and the original continuation; Explore Context is available through the roadmap. New arrangements replace the separate bottom composer in the Reading state and remove the duplicate Journey context action. Other app states retain their previous controls.
 
-Open Composer places both disclosures in its footer. Three Intent Tabs switches a shared panel using clicks or Left/Right/Home/End keys. Reading First gives the original reply priority and expands the composer on request. Suggested Directions fills editable example replies. Attached to Messages places the reply invitation below the Traveler, the original-reply disclosure below the Companion and context beside the chapter heading. Inputs and disclosure content remain synthetic previews; drafts live only in component state, are not saved or sent, and disappear on reload or when their study unmounts. Send stays disabled.
+Open Composer places the original-reply disclosure in its footer. Reply Tabs switches between two panels using clicks or Left/Right/Home/End keys. Reading First gives the original reply priority and expands the composer on request. Suggested Directions fills editable example replies. Attached to Messages places the reply invitation below the Traveler, the original-reply disclosure below the Companion. Inputs and disclosure content remain synthetic previews; drafts live only in component state, are not saved or sent, and disappear on reload or when their study unmounts. Send stays disabled.
 
 The layout setting participates in validated imports/exports, local persistence, named designs and independent A/B appearances. Drafts and open disclosures are not part of saved designs. Shared typography, palette and control-surface settings apply to the studies; the composer footer stacks at narrow widths.
 
@@ -184,3 +184,15 @@ The input and rotating prompt examples use the selected Human Font, falling back
 Updated October 26, 2026: Animation Layers now includes Placeholder Text-Only as the default for new settings, resets and presets that omit a motion choice. Explicit saved animation choices remain intact. This mode does not mount the atmospheric, figure or brushstroke overlays, leaving only the static artwork and optional static illustration treatment. Starting Points still apply their intentionally chosen animation modes.
 
 Placeholders now unfurl left to right through a continuous reveal across the actual text width, preserving connected Human Font letterforms. Each prompt is written, held briefly, then cleared before the next begins. This is a directional text reveal, not a reconstruction of individual pen strokes. Speed controls the writing cycle; Intensity is hidden in Placeholder Text-Only because there are no landscape overlays to adjust. Still Landscape now keeps the prompt static too. Pause, Off, reduced motion, hidden-document and focus/typing behavior remain supported.
+
+### Inline Continuation and Roadmap Context
+
+Conversation Thread → Reply Actions → Inline Original Link puts “or continue with the original” immediately after the invitation. The link expands a distinct synthetic original reply above the composer without discarding a typed draft. Explore Context has been removed from the reading window in every reply layout, including Original Buttons.
+
+Conversation Thread → Roadmap & Context offers three independent design options:
+
+- Vertical Roadmap reveals a small Explore Context link on an L-shaped branch when a journey stop is clicked. This roadmap is hidden at compact widths.
+- Responsive Roadmap changes to a horizontal timeline above reading at compact widths, with a short entrance transition. Context appears on hover or keyboard focus; tapping a stop also focuses it so touch users can reach the action.
+- Always-Open Context Sidebar keeps the selected stop’s context visible, reserving space to the right and moving the reading area left. On phones, context stacks above the reading area.
+
+In the first two options, Explore Context opens the same secondary sidebar; closing it restores focus to the triggering link. These settings persist in saved designs, imports/exports and A/B configurations. Reduced motion suppresses transitions. Roadmap clicks change the synthetic selection and context only: they do not navigate or generate conversation. A TODO beside the production branch-submission flow records the next functionality pass for progressive navigation, context selection, own replies and original continuation.

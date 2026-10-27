@@ -388,6 +388,10 @@ export default function App() {
                   tags={exp.data!.tags}
                   preview={branch.preview}
                   onSubmit={() => {
+                    // TODO(progressive-chat-flow): Revisit in the next functionality pass:
+                    // unify roadmap entry, context selection, own-reply submission and
+                    // original continuation into a progressive conversation flow;
+                    // preserve the draft/reading position and make branch transitions explicit.
                     goToTab("branch");
                     void (s.pairMode ? branch.submitPair() : branch.submit());
                   }}

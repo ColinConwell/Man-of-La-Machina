@@ -16,7 +16,8 @@ export const SCENES = [
   ["brass-aqueduct", "The Brass Aqueduct"],
 ];
 export const OPTIONS = {
-  replyLayout: [["buttons", "Original Buttons"], ["composer", "Open Composer"], ["tabs", "Three Intent Tabs"], ["reading", "Reading First"], ["suggestions", "Suggested Directions"], ["attached", "Attached to Messages"]],
+  replyLayout: [["buttons", "Original Buttons"], ["composer", "Open Composer"], ["inline", "Inline Original Link"], ["tabs", "Reply Tabs"], ["reading", "Reading First"], ["suggestions", "Suggested Directions"], ["attached", "Attached to Messages"]],
+  roadmapLayout: [["vertical", "Vertical Roadmap"], ["responsive", "Responsive Roadmap"], ["sidebar", "Always-Open Context Sidebar"]],
   navbarSurface: [["soft", "Soft / Open"], ["beveled", "Beveled Bar"]],
   footerSurface: [["plain", "Compact Note"], ["beveled", "Beveled Bar"], ["text", "Text Only"]],
   messageEdges: [["natural", "Natural Edges"], ["opposed", "Defined Outer Edges"]],
@@ -96,6 +97,7 @@ for (const speaker of ["traveler", "companion"]) {
 }
 export const DEFAULTS = Object.freeze({
   replyLayout: "buttons",
+  roadmapLayout: "vertical",
   readingBevel: .4,
   navbarBevel: 1,
   footerBevel: 1,

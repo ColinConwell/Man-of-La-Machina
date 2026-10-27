@@ -13,15 +13,13 @@ test("all reply studies fit desktop and mobile without duplicating the composer 
   await page.goto("/");
   for (const width of [1440, 820, 390]) {
     await page.setViewportSize({ width, height: 988 });
-    for (const layout of ["composer", "tabs", "reading", "suggestions", "attached"]) {
+    for (const layout of ["composer", "inline", "tabs", "reading", "suggestions", "attached"]) {
       await choose(page, layout);
       await expect(page.locator(".composer-panel")).toHaveCount(0);
       await expect(page.locator(".journey-context, .context-fallback")).toHaveCount(0);
       if (["reading", "attached"].includes(layout)) await page.locator(".disclosure-respond > summary").click();
       await expect(page.getByRole("textbox", { name: "Enter the journey with your own reply...", exact: true })).toBeVisible();
-      if (layout === "tabs") await page.getByRole("tab", { name: "Explore Context" }).click();
-      else await page.locator(".disclosure-context > summary").click();
-      await expect(page.getByText("Context · Illustrative", { exact: true })).toBeVisible();
+      await expect(page.locator(".reading-inner").getByText("Explore Context", { exact: true })).toHaveCount(0);
       const geometry = await page.locator(".preview-canvas").evaluate(el => {
         const r = el.getBoundingClientRect();
         return { overflow: el.scrollWidth - el.clientWidth, controls: [...el.querySelectorAll('.reply-study button, .reply-study summary, .reply-study textarea')].filter(x => x.getClientRects().length).map(x => { const b = x.getBoundingClientRect(); return b.left >= r.left - 1 && b.right <= r.right + 1; }) };
@@ -43,7 +41,7 @@ test("tabs support keyboard navigation and retain only an in-memory draft", asyn
   await expect(page.getByRole("tab", { name: "Read Original Reply" })).toBeFocused();
   await expect(page.getByText("Original Reply · Illustrative")).toBeVisible();
   await page.keyboard.press("End");
-  await expect(page.getByRole("tab", { name: "Explore Context" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { name: "Read Original Reply" })).toHaveAttribute("aria-selected", "true");
   await page.keyboard.press("Home");
   await expect(page.getByRole("textbox", { name: "Enter the journey with your own reply...", exact: true })).toHaveValue("A temporary visitor reply");
   await expect(page.getByRole("button", { name: "Send", exact: true })).toBeDisabled();
