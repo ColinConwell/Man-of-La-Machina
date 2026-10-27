@@ -123,6 +123,14 @@ function Reeds() {
     </g>
   );
 }
+function Brushstrokes() {
+  return ["left", "right"].map(side => (
+    <svg key={side} className={`brush-corner brush-corner-${side}`} viewBox="0 0 400 220" preserveAspectRatio="none">
+      <path className="brush-wash" pathLength="1" d="M-20 178 Q55 125 110 162 T235 158 T400 190 M-20 206 Q80 166 155 191 T380 213" />
+      <path className="brush-wash brush-line" pathLength="1" d="M0 170 Q60 130 115 159 T235 156 M22 202 Q40 148 30 116 M40 183 Q66 136 83 131 M59 177 Q51 138 65 109 M170 202 Q230 171 290 190" />
+    </svg>
+  ));
+}
 export default function Landscape({ settings, stopped }) {
   const id = useId().replaceAll(":", "");
   const { motion, composition, treatment, intensity, speed } = settings;
@@ -141,6 +149,7 @@ export default function Landscape({ settings, stopped }) {
       />
       {isSketch && <SketchIllustration source={sceneImages[settings.scene]} id={id} graphite={treatment === "graphite"} />}
       {isSketch && <div className="illustration-paper" />}
+      {settings.animationsEnabled && motion !== "placeholder" && <>
       <div className="atmosphere-layer">
         <div className="cloud cloud-one" />
         <div className="cloud cloud-two" />
@@ -179,6 +188,8 @@ export default function Landscape({ settings, stopped }) {
           <Traveler />
         </g>
       </svg>
+      <Brushstrokes />
+      </>}
       <div className="landscape-grain" />
     </div>
   );

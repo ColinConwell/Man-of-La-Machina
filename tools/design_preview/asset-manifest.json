@@ -58,6 +58,78 @@
       "sha256": "19af9ecd03ef6fd5c7fe0990875dc74823c479810d39171b12aebe9282baf31c",
       "bytes": 345444,
       "scene_prompt": "Andorran Pyrenean valley: granite peaks higher on both sides and deep distant central valley, sparse mountain pine at edges, alpine meadow at bottom center, tiny medieval stone tower at one distant margin. No olives or Moorish palaces in this alpine scene."
+    },
+    {
+      "scene": "rose-windmills",
+      "file": "rose-windmills.webp",
+      "source_generation_id": "68387e37-a9c4-4720-a76b-62f7ae94af7f",
+      "source_sha256": "dcfc75de3449f921e43ca76733a9fbb5b39470e9b6864dddb23953a3fb26a2ca",
+      "sha256": "fc0dbaada0ef84f6ad8a99a3647ccf7afd3d8195e1dca7d3b83580ce99628649",
+      "bytes": 183876,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Warm ivory paper, dusty rose washes, muted terracotta and graphite. Two tiny old La Mancha windmills at bottom left amid barely suggested grasses, distant chalk ridge, loose olive grove twigs and rocky ground bottom right. Mostly drawing with sparing color. No technological elements.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "celadon-circuitry",
+      "file": "celadon-circuitry.webp",
+      "source_generation_id": "42e0b7bf-f79b-4f41-b6ea-64c077bc0092",
+      "source_sha256": "35975df336728d062e5c75527e40859514fe951c4c2d8090cde642c6c40cd30d",
+      "sha256": "a039f6754dd4bb174e170b00fc7c6798051cad58e8106fef6e636e32eb307fa3",
+      "bytes": 274782,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Pale celadon mist paper, sage and oxidized copper, delicate sepia pencil. Tiny historical windmill bottom left with subtly copper mechanical joints; olive roots and stones bottom right quietly transform into a few fine circuit-trace branching lines and small connection nodes embedded in the terrain. Human craft and cybernetics blend delicately. No floating icons, no neon, no screens, no large machinery.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "lilac-automata",
+      "file": "lilac-automata.webp",
+      "source_generation_id": "08988de5-dc3f-4696-a144-47730a3d2ac0",
+      "source_sha256": "856d0243181802c90eba33a86160b9a2cbb66e2f8de538c7afae654f6ba88df2",
+      "sha256": "85025bf92413e44d2017975811a9a308fe4fa8666d02285ed3fca67f05788e46",
+      "bytes": 259222,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Pale blue-violet ivory paper, faded indigo graphite, lilac and antique brass wash. Broken small aqueduct at bottom left whose masonry contains very subtle clockwork brass arcs; distant low Iberian hill. Bottom right a small windmill skeleton drawn as fine mechanical draftsmanship blending into dry grasses and a few subtle circuit paths. Delicate quiet Quixotic machine-age sketch, no robots, no neon, no interface symbols in sky.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "clockwork-windmills",
+      "file": "clockwork-windmills.webp",
+      "source_generation_id": "9c17b1c7-fc05-4b20-9501-41a4343844ef",
+      "source_sha256": "144eb48c7e504b34871de300dfbe700d2a2ae83c88bf532189279c28a7f09e51",
+      "sha256": "ea5f463ceeb328fb96d757189e3b5033973fecfb074b477fee8d3b2a7f1259e6",
+      "bytes": 389608,
+      "scene_prompt": "Generate one standalone wide 16:9 illustration for a literary reading interface, not a UI mockup. Fine graphite, copper ink and translucent dry-brush watercolor on pale textured paper. Quiet upper 60% with almost no detail. Keep center 40% of width low contrast and minimal. Cluster all recognizable objects in lower left and lower right margins, never place a dominant object in the center. Quixotic La Mancha and Iberian hills merged unmistakably with analog machinery and cybernetic construction. Elegant handcrafted speculative engineering, not neon sci-fi, not a futuristic city. Mechanical elements must be clearly visible on first glance, not only microscopic details. No text, numbers, letters, labels, diagrams floating in the sky, people, watermarks or border. Warm ivory, sienna and verdigris palette. Lower left: an old whitewashed Spanish windmill cut away to expose large interlocking brass gears and copper flywheels; its familiar four sails are an elegant open metal lattice with tension cables. Lower right: a modest ruined stone wall threaded with copper conductors and a large half-buried gear, dry grasses integrated with delicate wire coils. Distant low quiet ridge, abundant empty paper above.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "circuit-orchard",
+      "file": "circuit-orchard.webp",
+      "source_generation_id": "f9ba101a-0742-4935-a3e6-60a4a3865cbd",
+      "source_sha256": "2f597a1c37f371cc0c95a88745cb9fe1bd79b10c4b7776ca8312e28515d0239a",
+      "sha256": "fa6642f0477d3a645c7dca5b4fbd3e4eb16beefafeda6f94d5ac817aeabc7e24",
+      "bytes": 484476,
+      "scene_prompt": "Generate one standalone wide 16:9 illustration for a literary reading interface, not a UI mockup. Fine graphite, copper ink and translucent dry-brush watercolor on pale textured paper. Quiet upper 60% with almost no detail. Keep center 40% of width low contrast and minimal. Cluster all recognizable objects in lower left and lower right margins, never place a dominant object in the center. Quixotic La Mancha and Iberian hills merged unmistakably with analog machinery and cybernetic construction. Elegant handcrafted speculative engineering, not neon sci-fi, not a futuristic city. Mechanical elements must be clearly visible on first glance, not only microscopic details. No text, numbers, letters, labels, diagrams floating in the sky, people, watermarks or border. Pale jade, ink teal and muted amber palette. Lower right: an ancient olive tree with an unmistakable articulated copper-and-wood trunk, hinged mechanical branches, fine wires trailing into olive leaves; its exposed roots become a clearly visible network of copper circuit traces with small ceramic nodes spreading across stones. Lower left: small classic La Mancha windmill with gear-shaped sail hub and copper conductors in stone ruins. Machine elements visibly part of landscape anatomy, not pasted symbols.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "brass-aqueduct",
+      "file": "brass-aqueduct.webp",
+      "source_generation_id": "fd246fe5-d5e0-46fc-bacf-c064aa93dbad",
+      "source_sha256": "2f6c0d8920d11bc271544b611503cc9e0af4263028833059812d392ef6a01457",
+      "sha256": "863836b9ec44c982d1537af7b55f6a03e9e52c01570b38072eec1e5a97d36146",
+      "bytes": 318716,
+      "scene_prompt": "Generate one standalone wide 16:9 illustration for a literary reading interface, not a UI mockup. Fine graphite, copper ink and translucent dry-brush watercolor on pale textured paper. Quiet upper 60% with almost no detail. Keep center 40% of width low contrast and minimal. Cluster all recognizable objects in lower left and lower right margins, never place a dominant object in the center. Quixotic La Mancha and Iberian hills merged unmistakably with analog machinery and cybernetic construction. Elegant handcrafted speculative engineering, not neon sci-fi, not a futuristic city. Mechanical elements must be clearly visible on first glance, not only microscopic details. No text, numbers, letters, labels, diagrams floating in the sky, people, watermarks or border. Pale lilac-gray paper with faded indigo and antique golden brass. Lower left: a broken Roman aqueduct whose arches are visibly lined with enormous finely toothed brass rings, thin linkages and exposed cogs fitted into weathered stone. Lower right: a small historical windmill with one skeletal metallic sail and exposed mechanical transmission, leaning wooden fence turning into copper wires and ceramic insulators. Minimal low distant hills across center, strong lower-corner detail but empty upper 60%.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
     }
   ]
 }

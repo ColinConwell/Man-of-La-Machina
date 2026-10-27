@@ -8,8 +8,18 @@ export const SCENES = [
   ["aqueduct", "A Ruined Aqueduct"],
   ["moorish-palace", "A Distant Moorish Palace"],
   ["andorran-valley", "An Andorran Valley"],
+  ["rose-windmills", "Rose & Graphite Windmills"],
+  ["celadon-circuitry", "Celadon Circuitry"],
+  ["lilac-automata", "Lilac Automata"],
+  ["clockwork-windmills", "Clockwork Windmills"],
+  ["circuit-orchard", "The Circuit Orchard"],
+  ["brass-aqueduct", "The Brass Aqueduct"],
 ];
 export const OPTIONS = {
+  replyLayout: [["buttons", "Original Buttons"], ["composer", "Open Composer"], ["tabs", "Three Intent Tabs"], ["reading", "Reading First"], ["suggestions", "Suggested Directions"], ["attached", "Attached to Messages"]],
+  navbarSurface: [["soft", "Soft / Open"], ["beveled", "Beveled Bar"]],
+  footerSurface: [["plain", "Compact Note"], ["beveled", "Beveled Bar"], ["text", "Text Only"]],
+  messageEdges: [["natural", "Natural Edges"], ["opposed", "Defined Outer Edges"]],
   appFont: FONT_OPTIONS,
   readingFont: FONT_OPTIONS,
   humanFont: [["inherit", "Use Reading Font"], ...FONT_OPTIONS],
@@ -31,6 +41,9 @@ export const OPTIONS = {
     ["parchment", "Parchment & Rust"],
     ["sage", "Linen & Sage"],
     ["moonlight", "Moonlight & Copper"],
+    ["rose", "Rose & Graphite"],
+    ["celadon", "Celadon & Copper"],
+    ["lilac", "Lilac & Brass"],
   ],
   layout: [
     ["conversation", "Conversation"],
@@ -51,11 +64,13 @@ export const OPTIONS = {
     ["none", "Landscape Only"],
   ],
   motion: [
+    ["placeholder", "Placeholder Text-Only"],
     ["all", "Atmosphere & Figures"],
     ["atmosphere", "Clouds & Mist"],
     ["vegetation", "Vegetation"],
     ["windmill", "Windmill Sails"],
     ["traveler", "Traveler Silhouette"],
+    ["brush", "Living Brushstrokes"],
     ["none", "Still Landscape"],
   ],
   viewport: [
@@ -67,6 +82,9 @@ export const OPTIONS = {
     ["window", "Fit Window Automatically"],
     ["messages", "Beveled Message Boxes"],
     ["contours", "Follow Text Contours"],
+    ["cloud", "Soft Reading Cloud"],
+    ["message-clouds", "Message Clouds"],
+    ["contour-clouds", "Text Contour Clouds"],
   ],
 };
 const positions = [["full", "Full Width"], ["left", "Left"], ["center", "Center"], ["right", "Right"]];
@@ -74,8 +92,25 @@ const alignments = [["left", "Left / Ragged Right"], ["center", "Centered"], ["r
 for (const speaker of ["traveler", "companion"]) {
   OPTIONS[`${speaker}Position`] = positions;
   OPTIONS[`${speaker}Align`] = alignments;
+  OPTIONS[`${speaker}Label`] = [["enclosed", "Enclosed in Message"], ["above", "Above Message"], ["hidden", "Hidden"]];
 }
 export const DEFAULTS = Object.freeze({
+  replyLayout: "buttons",
+  readingBevel: .4,
+  navbarBevel: 1,
+  footerBevel: 1,
+  controlBevel: 1,
+  animationsEnabled: true,
+  backgroundOpacity: 1,
+  navbarSurface: "soft",
+  footerSurface: "plain",
+  messageEdges: "natural",
+  travelerLabel: "enclosed",
+  companionLabel: "enclosed",
+  travelerWidth: 1,
+  companionWidth: 1,
+  travelerInset: 0,
+  companionInset: 0,
   scene: "olive-plains",
   composition: "full",
   treatment: "natural",
@@ -83,7 +118,7 @@ export const DEFAULTS = Object.freeze({
   layout: "theater",
   schematic: "reader",
   density: "short",
-  motion: "atmosphere",
+  motion: "placeholder",
   viewport: "desktop",
   readingOpacity: 0.84,
   controlOpacity: 0.82,
@@ -98,10 +133,10 @@ export const DEFAULTS = Object.freeze({
   travelerAlign: "left",
   companionPosition: "full",
   companionAlign: "left",
-  appFont: "classic",
-  readingFont: "classic",
-  humanFont: "inherit",
-  machineFont: "inherit",
+  appFont: "tektur",
+  readingFont: "ibm-plex-serif",
+  humanFont: "allison",
+  machineFont: "tektur",
   textScale: 1,
   lineHeight: 1.6,
 });
@@ -112,6 +147,7 @@ export const PRESETS = [
     settings: {
       composition: "margins",
       treatment: "natural",
+      veilMode: "cloud", motion: "vegetation", blur: 8, intensity: 0.25, speed: 0.65,
       readingOpacity: 0.98,
       controlOpacity: 1,
     },
@@ -122,6 +158,7 @@ export const PRESETS = [
     settings: {
       composition: "margins",
       treatment: "ink-sepia",
+      veilMode: "contour-clouds", motion: "brush", blur: 0, intensity: 0.25, speed: 0.65,
       readingOpacity: 0.96,
       controlOpacity: 1,
     },
@@ -132,6 +169,7 @@ export const PRESETS = [
     settings: {
       composition: "horizon",
       treatment: "natural",
+      veilMode: "cloud", motion: "atmosphere", blur: 8, intensity: 0.25, speed: 0.65,
       readingOpacity: 0.84,
       controlOpacity: 1,
     },
@@ -142,12 +180,34 @@ export const PRESETS = [
     settings: {
       composition: "full",
       treatment: "natural",
+      veilMode: "messages", motion: "atmosphere", blur: 14, intensity: 0.35, speed: 0.65,
       readingOpacity: 0.84,
       controlOpacity: 0.72,
     },
   },
+  {
+    name: "Rose Reverie", detail: "Rose pencil landscape, soft reading cloud and quiet brushstrokes",
+    settings: { scene: "rose-windmills", theme: "rose", composition: "full", treatment: "natural", veilMode: "cloud", motion: "brush", readingOpacity: .9, controlOpacity: .9, blur: 8, intensity: .25, speed: .5 },
+  },
+  {
+    name: "Copper & Code", detail: "Celadon and copper landscape with separate message clouds",
+    settings: { scene: "celadon-circuitry", theme: "celadon", composition: "full", treatment: "natural", veilMode: "message-clouds", motion: "brush", readingOpacity: .92, controlOpacity: .9, blur: 8, intensity: .3, speed: .5 },
+  },
+  {
+    name: "Mechanical Dusk", detail: "Lilac and brass drawing with clouds around each line",
+    settings: { scene: "lilac-automata", theme: "lilac", composition: "full", treatment: "natural", veilMode: "contour-clouds", motion: "brush", readingOpacity: .92, controlOpacity: .9, blur: 8, intensity: .25, speed: .5 },
+  },
 ];
 const RANGES = {
+  readingBevel: [0, 2],
+  navbarBevel: [0, 2],
+  footerBevel: [0, 2],
+  controlBevel: [0, 2],
+  backgroundOpacity: [0, 1],
+  travelerWidth: [.55, 1],
+  companionWidth: [.55, 1],
+  travelerInset: [0, .2],
+  companionInset: [0, .2],
   readingOpacity: [0, 1],
   controlOpacity: [0, 1],
   blur: [0, 30],
@@ -179,8 +239,8 @@ export function validateSettings(value) {
         value[key] > RANGES[key][1])
     )
       throw new Error(`The preset has an invalid ${key}.`);
-    if (key === "paused" && typeof value[key] !== "boolean")
-      throw new Error("The preset has an invalid pause setting.");
+    if (["paused", "animationsEnabled"].includes(key) && typeof value[key] !== "boolean")
+      throw new Error(`The preset has an invalid ${key} setting.`);
     result[key] = value[key];
   }
   return result;

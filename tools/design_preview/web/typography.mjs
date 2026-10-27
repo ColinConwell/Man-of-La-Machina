@@ -43,18 +43,19 @@ export function readingFontStyle(id) {
     "--font-tracking": id === "classic" ? "-.45px" : "0px",
   };
 }
-const typeSet = (name, detail, appFont, readingFont, humanFont = "inherit", machineFont = "inherit", textScale = 1, lineHeight = 1.6) => ({
-  name, detail, settings: { appFont, readingFont, humanFont, machineFont, textScale, lineHeight },
+const typeSet = (name, appFont, readingFont, humanFont = "inherit", machineFont = "inherit", textScale = 1, lineHeight = 1.6) => ({
+  name, detail: [...new Set([appFont, readingFont, humanFont, machineFont].map(id => id === "inherit" ? readingFont : id))].map(id => fontFor(id).name).join(" · "), settings: { appFont, readingFont, humanFont, machineFont, textScale, lineHeight },
 });
 export const TYPE_PRESETS = [
-  typeSet("Quixotic Chronicle", "Tapestry & Uncial Antiqua", "tapestry", "uncial", "inherit", "inherit", 1, 1.7),
-  typeSet("Letters & Logic", "MonteCarlo · Syne Mono", "ibm-plex-serif", "noto-serif", "monte-carlo", "syne-mono", 1.05, 1.7),
-  typeSet("Courtly Correspondence", "Mea Culpa · Monsieur La Doulaise", "tapestry", "birthstone", "mea-culpa", "monsieur", 1.05, 1.8),
-  typeSet("Human & Automaton", "Lovers Quarrel · Oxanium", "tektur", "ibm-plex-serif", "lovers-quarrel", "oxanium", 1, 1.75),
-  typeSet("Flourished Letters", "Ballet · Ruthie", "fell", "rouge-script", "ballet", "ruthie", 1.1, 1.85),
-  typeSet("Light & Mechanical", "Allison · Tomorrow", "anta", "noto-serif", "allison", "tomorrow", 1.05, 1.75),
-  typeSet("Renaissance Book", "EB Garamond throughout", "garamond", "garamond"),
-  typeSet("Quill & Print", "IM Fell English & Quintessential", "fell", "quintessential"),
-  typeSet("Flowing Script", "EB Garamond & Italianno", "garamond", "italianno", "inherit", "inherit", 1, 1.7),
-  typeSet("Blackletter Title", "UnifrakturMaguntia & EB Garamond", "blackletter", "garamond"),
+  typeSet("Man of La Machina", "tektur", "ibm-plex-serif", "allison", "tektur"),
+  typeSet("Quixotic Chronicle", "tapestry", "uncial", "inherit", "inherit", 1, 1.7),
+  typeSet("Letters & Logic", "ibm-plex-serif", "noto-serif", "monte-carlo", "syne-mono", 1.05, 1.7),
+  typeSet("Courtly Correspondence", "tapestry", "birthstone", "mea-culpa", "monsieur", 1.05, 1.8),
+  typeSet("Human & Automaton", "tektur", "ibm-plex-serif", "lovers-quarrel", "oxanium", 1, 1.75),
+  typeSet("Flourished Letters", "fell", "rouge-script", "ballet", "ruthie", 1.1, 1.85),
+  typeSet("Light & Mechanical", "anta", "noto-serif", "allison", "tomorrow", 1.05, 1.75),
+  typeSet("Renaissance Book", "garamond", "garamond"),
+  typeSet("Quill & Print", "fell", "quintessential"),
+  typeSet("Flowing Script", "garamond", "italianno", "inherit", "inherit", 1, 1.7),
+  typeSet("Blackletter Title", "blackletter", "garamond"),
 ];

@@ -76,6 +76,8 @@ test("all 24 bundled faces load locally at their intended weights throughout the
   page.on("request", request => requests.push({ url: request.url(), method: request.method() }));
   page.on("response", response => { if (/\.woff2(?:\?|$)/.test(response.url())) fontResponses.push({ url: response.url(), status: response.status() }); });
   await page.goto("/"); await openPanel(page);
+  await field(page, "humanFont").selectOption("inherit");
+  await field(page, "machineFont").selectOption("inherit");
   const studioFamily = await firstFamily(page.locator(".panel-heading h2"));
   for (const [id, family] of fonts) {
     await field(page, "appFont").selectOption(id);
@@ -120,14 +122,14 @@ test("font settings persist, export, import and accept presets created before ty
   await page.getByLabel("Import Preset JSON").setInputFiles(filename);
   for (const [name, value] of Object.entries(expected)) await expect(field(page, name)).toHaveValue(String(value));
   await importSettings(page, { scene: "windmills", veilMode: "messages", companionAlign: "right" });
-  for (const [name, value] of Object.entries({ appFont: "classic", readingFont: "classic", humanFont: "inherit", machineFont: "inherit", textScale: 1, lineHeight: 1.6 }))
+  for (const [name, value] of Object.entries({ appFont: "tektur", readingFont: "ibm-plex-serif", humanFont: "allison", machineFont: "tektur", textScale: 1, lineHeight: 1.6 }))
     await expect(field(page, name)).toHaveValue(String(value));
   await expect(field(page, "scene")).toHaveValue("windmills");
   await expect(field(page, "companionAlign")).toHaveValue("right");
   for (const [invalid, error] of [[{ readingFont: "unavailable-font" }, "unsupported readingFont"], [{ textScale: 2 }, "invalid textScale"], [{ lineHeight: 1 }, "invalid lineHeight"]]) {
     await importSettings(page, invalid);
     await expect(page.locator(".preset-status")).toContainText(error);
-    await expect(field(page, "readingFont")).toHaveValue("classic");
+    await expect(field(page, "readingFont")).toHaveValue("ibm-plex-serif");
     await expect(field(page, "textScale")).toHaveValue("1");
   }
 });
@@ -171,7 +173,7 @@ test("font selectors expose the complete categorized collection after the font s
     expect(groups.flatMap(group => group.ids).filter(id => id !== "inherit").sort()).toEqual(expectedIds);
   }
   const pairings = page.locator(".type-pairings");
-  expect(await pairings.locator("button").count()).toBe(10);
+  expect(await pairings.locator("button").count()).toBe(11);
   expect(await pairings.evaluate(node => Boolean(node.compareDocumentPosition(document.querySelector("#setting-appFont")) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
 });
 
@@ -246,6 +248,7 @@ test("speaker overrides and type pairings preserve independent landscape and lay
   await page.keyboard.press("Home");
   expect((await fontSize()) / originalSize).toBeCloseTo(.85, 2);
   const sets = [
+    ["Man of La Machina", "tektur", "ibm-plex-serif", "allison", "tektur", 1, 1.6],
     ["Quixotic Chronicle", "tapestry", "uncial", "inherit", "inherit", 1, 1.7],
     ["Letters & Logic", "ibm-plex-serif", "noto-serif", "monte-carlo", "syne-mono", 1.05, 1.7],
     ["Courtly Correspondence", "tapestry", "birthstone", "mea-culpa", "monsieur", 1.05, 1.8],
@@ -272,6 +275,7 @@ test("speaker overrides and type pairings preserve independent landscape and lay
 
 test("A/B retains its own fonts and speaker overrides with identical content", async ({ page }) => {
   await page.goto("/"); await openPanel(page);
+  await field(page, "humanFont").selectOption("inherit");
   await field(page, "appFont").selectOption("blackletter");
   await field(page, "readingFont").selectOption("garamond");
   await field(page, "machineFont").selectOption("quintessential");
@@ -328,13 +332,15 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
   test(`all fonts contain long text in message and contour veils at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport); await page.goto("/"); await openPanel(page);
     await field(page, "density").selectOption("long");
+    await field(page, "humanFont").selectOption("inherit");
+    await field(page, "machineFont").selectOption("inherit");
     await page.getByRole("button", { name: "Traveler Left · Companion Right", exact: true }).click();
     await field(page, "textScale").focus(); await page.keyboard.press("End");
     for (const [id, family] of fonts) {
       await field(page, "appFont").selectOption(id);
       await field(page, "readingFont").selectOption(id);
       await expectLoadedFont(page, id, family);
-      for (const veil of ["messages", "contours"]) {
+      for (const veil of ["messages", "contours", "cloud", "message-clouds", "contour-clouds"]) {
         await field(page, "veilMode").selectOption(veil);
         for (const state of ["reader", "comparison"]) {
           await field(page, "schematic").selectOption(state);
@@ -350,6 +356,8 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
 
 test("app and reading families remain independent in every schematic state and layout", async ({ page }) => {
   await page.goto("/"); await openPanel(page);
+  await field(page, "humanFont").selectOption("inherit");
+  await field(page, "machineFont").selectOption("inherit");
   await field(page, "appFont").selectOption("fell");
   await field(page, "readingFont").selectOption("quintessential");
   await field(page, "density").selectOption("long");

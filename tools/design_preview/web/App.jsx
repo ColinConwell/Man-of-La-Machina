@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Columns2, Pause, Play, SlidersHorizontal } from "lucide-react";
+import { Columns2, Pause, Play, SlidersHorizontal, CircleOff } from "lucide-react";
 import {
   DEFAULTS,
+  PRESETS,
   STORAGE_KEY,
   loadSettings,
   parsePreset,
   serializePreset,
 } from "./settings.mjs";
+import { readSavedDesigns, saveDesign, quickNames, STARTING_POINT_KEY } from "./saved-designs.mjs";
 import Landscape from "./Landscape.jsx";
 import ControlPanel from "./ControlPanel.jsx";
 import { fontFor, readingFontStyle } from "./typography.mjs";
@@ -32,15 +34,21 @@ function useMotionPolicy() {
   return { hidden, reduced };
 }
 function Preview({ settings, policy, label }) {
+  const humanFont = fontFor(settings.humanFont === "inherit" ? settings.readingFont : settings.humanFont);
   const stopped =
-    settings.paused ||
+    !settings.animationsEnabled || settings.paused ||
     policy.hidden ||
     policy.reduced ||
-    settings.motion === "none";
+    settings.motion === "none" || settings.motion === "placeholder";
   return (
     <section
       className={`preview-frame viewport-${settings.viewport} theme-${settings.theme} composition-${settings.composition} ${settings.density === "none" ? "landscape-only" : ""}`}
       aria-label={label ? `Design ${label}` : "Design Preview"}
+      data-animations={settings.animationsEnabled ? "on" : "off"}
+      data-placeholder-motion={!settings.animationsEnabled || policy.reduced || settings.motion === "none" ? "off" : settings.paused || policy.hidden ? "paused" : "play"}
+      data-navbar-surface={settings.navbarSurface}
+      data-footer-surface={settings.footerSurface}
+      data-veil-mode={settings.veilMode}
       data-app-font={settings.appFont}
       data-reading-font={settings.readingFont}
       style={{
@@ -48,9 +56,19 @@ function Preview({ settings, policy, label }) {
         "--app-font": fontFor(settings.appFont).family,
         "--app-weight": fontFor(settings.appFont).weight,
         "--app-scale": fontFor(settings.appFont).scale,
+        "--human-font": humanFont.family,
+        "--human-weight": humanFont.weight,
+        "--human-scale": humanFont.scale,
+        "--placeholder-duration": `${12 / settings.speed}s`,
+        "--placeholder-step": `${4 / settings.speed}s`,
         "--heading-tracking": settings.appFont === "classic" ? "-.035em" : "0px",
         "--text-scale": settings.textScale,
         "--reading-leading": settings.lineHeight,
+        "--reading-bevel": settings.readingBevel,
+        "--navbar-bevel": settings.navbarBevel,
+        "--footer-bevel": settings.footerBevel,
+        "--control-bevel": settings.controlBevel,
+        "--background-opacity": settings.backgroundOpacity,
         "--reading-alpha": settings.readingOpacity,
         "--control-alpha": settings.controlOpacity,
         "--glass-blur": `${settings.blur}px`,
@@ -74,7 +92,7 @@ function Preview({ settings, policy, label }) {
             >
               <SchematicContent settings={settings} />
             </div>
-            <PlaybackControls />
+            <PlaybackControls showComposer={settings.schematic !== "reader" || settings.replyLayout === "buttons"} />
           </>
         )}
         <div className="scene-caption">
@@ -88,12 +106,22 @@ function Preview({ settings, policy, label }) {
 }
 export default function App() {
   const [settings, setSettings] = useState(loadSettings);
+  const [savedDesigns, setSavedDesigns] = useState(readSavedDesigns);
+  const [startingPoint, setStartingPoint] = useState(() => {
+    try { const name = localStorage.getItem(STARTING_POINT_KEY); return PRESETS.some(p => p.name === name) ? name : "Default"; } catch { return "Default"; }
+  });
+  useEffect(() => { try { localStorage.setItem(STARTING_POINT_KEY, startingPoint); } catch {} }, [startingPoint]);
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(null);
   const [animationStudy, setAnimationStudy] = useState(false);
   const [status, setStatus] = useState("");
   const toggle = useRef(null);
   const policy = useMotionPolicy();
+  const animationState = !settings.animationsEnabled ? "Off" : settings.paused ? "Pause" : "Play";
+  const nextAnimationState = { Play: "Pause", Pause: "Off", Off: "Play" }[animationState];
+  const cycleAnimation = () => setSettings(s => !s.animationsEnabled
+    ? { ...s, animationsEnabled: true, paused: false }
+    : s.paused ? { ...s, animationsEnabled: false, paused: false } : { ...s, paused: true });
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, serializePreset(settings));
@@ -138,6 +166,7 @@ export default function App() {
       if (file.size > 65536)
         throw new Error("Choose a preset smaller than 64 KB.");
       setSettings(parsePreset(await file.text()));
+      setStartingPoint("Default");
       setStatus("Preset imported successfully.");
     } catch (error) {
       setStatus(
@@ -147,6 +176,14 @@ export default function App() {
       );
     }
   };
+  const keepDesign = (name) => {
+    try {
+      setSavedDesigns(saveDesign(savedDesigns, name, settings, startingPoint));
+      setStatus(`Saved “${name.trim()}” on this device.`);
+    } catch (error) {
+      setStatus(error.name === "QuotaExceededError" || error.name === "SecurityError" ? "Browser storage is unavailable or full. Export this design to keep it." : error.message);
+    }
+  };
   const a = pinned
     ? {
         ...pinned,
@@ -154,6 +191,7 @@ export default function App() {
         density: settings.density,
         viewport: settings.viewport,
         paused: settings.paused,
+        animationsEnabled: settings.animationsEnabled,
       }
     : null;
   return (
@@ -167,15 +205,13 @@ export default function App() {
         <div className="studio-toolbar-actions">
           <button
             type="button"
-            className="toolbar-button"
-            onClick={() => change("paused", !settings.paused)}
-            aria-label={
-              settings.paused ? "Resume All Animation" : "Pause All Animation"
-            }
-            aria-pressed={settings.paused}
+            className="toolbar-button animation-cycle"
+            onClick={cycleAnimation}
+            aria-label={`Animation: ${animationState}. Switch to ${nextAnimationState}`}
+            title={`Play → Pause → Off. Next: ${nextAnimationState}`}
           >
-            {settings.paused ? <Play size={14} /> : <Pause size={14} />}
-            <span>{settings.paused ? "Resume" : "Pause"}</span>
+            {animationState === "Off" ? <CircleOff size={14} /> : animationState === "Pause" ? <Pause size={14} /> : <Play size={14} />}
+            <span>Animation · {animationState}</span>
           </button>
           <button
             type="button"
@@ -213,12 +249,14 @@ export default function App() {
           onChange={change}
           onClose={close}
           onPreset={(p) => {
+            if (PRESETS.some(preset => preset.name === p.name)) setStartingPoint(p.name);
             setSettings((s) => ({ ...s, ...p.settings }));
             setStatus(
-              `${p.name} applied. Your scene, layout and palette are preserved.`,
+              `${p.name} applied. Other controls stay as chosen.`,
             );
           }}
           onReset={() => {
+            setStartingPoint("Default");
             setSettings({ ...DEFAULTS });
             setPinned(null);
             setStatus("Restored the original landscape study.");
@@ -228,6 +266,13 @@ export default function App() {
           onCompare={() => setPinned(pinned ? null : { ...settings })}
           comparing={!!pinned}
           status={status}
+          savedDesigns={savedDesigns}
+          quickSaveNames={quickNames(savedDesigns, startingPoint)}
+          onSave={keepDesign}
+          onLoad={(name) => {
+            const saved = savedDesigns.find(item => item.name === name);
+            if (saved) { setSettings({ ...saved.settings }); setStartingPoint(saved.startingPoint); setStatus(`Loaded “${name}”.`); }
+          }}
           reducedMotion={policy.reduced}
           onAnimationStudy={() => setAnimationStudy(true)}
         />
@@ -242,8 +287,9 @@ export default function App() {
         {animationStudy && (
           <AnimationStudy
             onClose={() => setAnimationStudy(false)}
+            animationsEnabled={settings.animationsEnabled}
             paused={settings.paused}
-            onTogglePause={() => change("paused", !settings.paused)}
+            onTogglePause={() => { if (settings.animationsEnabled) change("paused", !settings.paused); }}
             policy={policy}
           />
         )}

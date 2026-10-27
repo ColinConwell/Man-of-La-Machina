@@ -89,10 +89,11 @@ test("themes survive all layouts and states; A/B has identical content",async({p
 
 test("motion respects pause, reduced motion and hidden-tab policy",async({page})=>{
  await page.goto("/"); await panel(page); await field(page,"motion").selectOption("all");
- await page.getByRole("button",{name:"Pause All Animation"}).click();
+ await page.getByRole("button",{name:"Animation: Play. Switch to Pause"}).click();
  await expect(page.locator(".landscape")).toHaveClass(/is-still/);
  expect(await page.locator(".cloud-one").evaluate(el=>getComputedStyle(el).animationPlayState)).toBe("paused");
- await page.getByRole("button",{name:"Resume All Animation"}).click();
+ await page.getByRole("button",{name:"Animation: Pause. Switch to Off"}).click();
+  await page.getByRole("button",{name:"Animation: Off. Switch to Play"}).click();
  await page.emulateMedia({reducedMotion:"reduce"});
  await expect(page.locator(".landscape")).toHaveClass(/is-still/);
  await page.emulateMedia({reducedMotion:"no-preference"});

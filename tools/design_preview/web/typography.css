@@ -66,5 +66,5 @@
   .chapter-heading h1 { font-size: calc(34px * var(--app-scale)); }
 }
 /* Keep room for adjacent line contours even with tall script capitals. */
-.veil-contours .message :is(.dialogue, .passage p),
-.veil-contours .comparison-passages .message > p { line-height: max(1.65, var(--reading-leading)); }
+:is(.veil-contours, .veil-contour-clouds) .message :is(.dialogue, .passage p),
+:is(.veil-contours, .veil-contour-clouds) .comparison-passages .message > p { line-height: max(1.65, var(--reading-leading)); }

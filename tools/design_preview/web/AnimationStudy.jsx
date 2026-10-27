@@ -126,11 +126,12 @@ function LottieTraveler({ stopped }) {
 export default function AnimationStudy({
   onClose,
   paused,
+  animationsEnabled = true,
   onTogglePause,
   policy,
 }) {
   const dialog = useRef(null);
-  const stopped = paused || policy.hidden || policy.reduced;
+  const stopped = !animationsEnabled || paused || policy.hidden || policy.reduced;
   useEffect(() => {
     const previous = document.activeElement;
     dialog.current?.showModal();
@@ -160,7 +161,7 @@ export default function AnimationStudy({
           <X size={19} />
         </button>
       </div>
-      <div className="trial-comparison">
+      {animationsEnabled && <div className="trial-comparison">
         <section>
           <h3>Native CSS & SVG</h3>
           <div
@@ -200,15 +201,17 @@ export default function AnimationStudy({
           </p>
         </section>
       </div>
+      }
       <div className="trial-footer">
         <p>
-          {policy.reduced
+          {!animationsEnabled ? "All animation is turned off in Design Controls." : policy.reduced
             ? "Your reduced-motion setting keeps all three studies still."
             : "These compare a walking action, with different rigs and timing details. The native drawing differs; none recreates the unavailable 1965 reference."}
         </p>
         <button
           type="button"
           className="panel-button"
+          disabled={!animationsEnabled}
           onClick={onTogglePause}
           aria-pressed={paused}
         >
