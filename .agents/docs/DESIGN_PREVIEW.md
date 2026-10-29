@@ -196,3 +196,10 @@ Conversation Thread → Roadmap & Context offers three independent design option
 - Always-Open Context Sidebar keeps the selected stop’s context visible, reserving space to the right and moving the reading area left. On phones, context stacks above the reading area.
 
 In the first two options, Explore Context opens the same secondary sidebar; closing it restores focus to the triggering link. These settings persist in saved designs, imports/exports and A/B configurations. Reduced motion suppresses transitions. Roadmap clicks change the synthetic selection and context only: they do not navigate or generate conversation. A TODO beside the production branch-submission flow records the next functionality pass for progressive navigation, context selection, own replies and original continuation.
+
+
+### Main App Adoption and Final Annotation Fixes
+
+Updated October 27, 2026: The compact responsive roadmap now centers labels beneath the points, spans its container, highlights the selected event, hides the redundant chapter heading and remains sticky while reading. Inline Original Link fills and focuses the editable composer rather than opening a disclosure.
+
+The user selected the current Rose & Graphite template for the main app. The selected artwork and fonts were copied into a production-owned asset directory with provenance and licenses; preview runtime, schematic content and experimental controls remain isolated. See [Guided Reading and Narration](GUIDED_READING.md) for real conversation, settings, audio behavior and review limitations.

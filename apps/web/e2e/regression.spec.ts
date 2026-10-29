@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { curatorFixtureURL, explorationFixtureURL } from "./fixture-ports";
 
-test("landing copy, compact theme control, and all three beginnings", async ({
+test("landing copy, saved appearance controls, and all three beginnings", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -19,12 +19,11 @@ test("landing copy, compact theme control, and all three beginnings", async ({
     "Local Curator / Demo",
   );
   await expect(page.locator(".beginning")).toHaveCount(3);
-  const theme = page.getByRole("combobox", { name: "Theme", exact: true });
-  const width = (await theme.boundingBox())!.width;
-  await theme.selectOption("western-gothic");
-  expect((await theme.boundingBox())!.width).toBeGreaterThan(width + 25);
-  await theme.selectOption("archive");
-  expect((await theme.boundingBox())!.width).toBeLessThan(105);
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByLabel("Interface Palette").selectOption("moonlight");
+  await expect(page.locator(".landscape-app")).toHaveAttribute("data-palette", "moonlight");
+  await page.getByLabel("Interface Palette").selectOption("rose");
+  await page.getByRole("button", { name: "Close Settings" }).click();
   for (const [title, entry] of [
     ["From the beginning · April 1", "test-0-0"],
     ["Rain in Spain · May 8", "test-2-1"],
@@ -32,13 +31,7 @@ test("landing copy, compact theme control, and all three beginnings", async ({
   ]) {
     await page.getByRole("button", { name: new RegExp(title) }).click();
     await expect(page).toHaveURL(new RegExp(`entry=${entry}`));
-    await expect(page.locator(`#turn-${entry}`)).toContainText(
-      "Selected cutoff",
-    );
-    if (entry === "test-2-1")
-      await expect(
-        page.getByLabel("Replace the selected human turn"),
-      ).toBeDisabled();
+    await expect(page.locator(".guided-reading")).toContainText("Invented dialogue");
     await page.getByRole("button", { name: "Reset", exact: true }).click();
   }
   expect(errors).toEqual([]);
@@ -51,7 +44,7 @@ test("breadth changes actual context without creating branches, and generation u
   page.on("request", (r) => {
     if (r.method() === "POST" && r.url().endsWith("/branches")) branches++;
   });
-  await page.goto("/?entry=test-3-9&anchor=naming-mirrows");
+  await page.goto("/?view=advanced&entry=test-3-9&anchor=naming-mirrows");
   for (const [scope, count] of [
     ["Scene", 6],
     ["Thread", 10],
@@ -99,7 +92,7 @@ test("rapid changes cannot overwrite the selected scope with a stale preview", a
       await route.fulfill({ response });
     } else await route.continue();
   });
-  await page.goto("/?entry=test-3-9");
+  await page.goto("/?view=advanced&entry=test-3-9");
   const pending = page.waitForRequest(
     (r) =>
       r.url().endsWith("/context/preview") &&
@@ -125,7 +118,7 @@ test("preview failure recovers and tag and beginning controls change included hi
       json: { detail: "Preview temporarily unavailable" },
     }),
   );
-  await page.goto("/?entry=test-3-9");
+  await page.goto("/?view=advanced&entry=test-3-9");
   await expect(page.getByTestId("context-coverage")).toContainText(
     "Preview temporarily unavailable",
   );
@@ -134,7 +127,7 @@ test("preview failure recovers and tag and beginning controls change included hi
   await expect(page.getByTestId("context-coverage")).toContainText("10 of 10");
   await page.getByLabel("Practical details").uncheck();
   await expect(page.getByTestId("context-coverage")).toContainText("5 of 5");
-  await page.getByText("More context controls", { exact: true }).click();
+  await page.getByText("More Context Controls", { exact: true }).click();
   await page
     .getByLabel("Where context begins")
     .selectOption("begin_context_here");
@@ -145,7 +138,7 @@ test("preview failure recovers and tag and beginning controls change included hi
 test("breadth radio keyboard and mobile controls remain accessible", async ({
   page,
 }) => {
-  await page.goto("/?entry=test-3-9");
+  await page.goto("/?view=advanced&entry=test-3-9");
   await page.getByRole("radio", { name: "Thread", exact: true }).focus();
   await page.keyboard.press("ArrowRight");
   await expect(page.getByTestId("context-coverage")).toContainText("30 of 30");
@@ -174,7 +167,7 @@ test("paired mode answers one turn under two contexts with distinct receipts", a
   page.on("request", (r) => {
     if (r.method() === "POST") posts.push(new URL(r.url()).pathname);
   });
-  await page.goto("/?entry=test-3-9");
+  await page.goto("/?view=advanced&entry=test-3-9");
   await expect(page.getByTestId("context-coverage")).toContainText("10 of 10");
   await page.getByRole("radio", { name: "Compare two contexts" }).check();
   const composer = page.locator(".branch-composer");
@@ -202,10 +195,10 @@ test("paired mode answers one turn under two contexts with distinct receipts", a
   await expect(a).toContainText("using 10 historical turns");
   await expect(b).toContainText("less of the earlier detail");
   await expect(b).toContainText("using 5 historical turns");
-  await expect(b).toContainText("Without Practical details");
+  await expect(b).toContainText("Without Practical Details");
   await expect(pair.locator(".branch-message.visitor")).toHaveCount(1);
   await expect(pair.locator(".branch-message.visitor")).toContainText(
-    "held fixed for both contexts",
+    "Held Fixed for Both Contexts",
   );
   await expect(pair.locator(".pair-summary")).toContainText(
     "5 recorded turns removed",

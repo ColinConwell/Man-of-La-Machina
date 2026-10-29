@@ -50,7 +50,7 @@ export function ContinuationComparison({
       </p>
       <div className="comparison-columns">
         <div>
-          <h3>Recorded continuation</h3>
+          <h3>Recorded Continuation</h3>
           {query.isPending && <p>Opening the record…</p>}
           {query.isError && <p role="alert">{query.error.message}</p>}
           {recorded.length === 0 && !query.isPending && (
@@ -61,7 +61,7 @@ export function ContinuationComparison({
           ))}
         </div>
         <div>
-          <h3>Generated branch</h3>
+          <h3>Generated Branch</h3>
           {generated.length === 0 && (
             <p className="empty-state">
               Begin a branch to place its continuation beside the record.

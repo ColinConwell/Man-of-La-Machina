@@ -1,3 +1,4 @@
+import { labelCase } from "../labels";
 import { Fragment } from "react";
 import { ArrowUpRight, Download, RefreshCw } from "lucide-react";
 import { useExperience } from "../store";
@@ -21,7 +22,7 @@ export function BranchMessage({
       className={"branch-message " + message.origin}
       aria-label={
         message.origin === "visitor"
-          ? "Visitor intervention"
+          ? "Visitor Intervention"
           : "Generated model reply"
       }
     >
@@ -29,8 +30,8 @@ export function BranchMessage({
         <strong>{message.speaker === "visitor" ? "You" : "Companion"}</strong>
         <span>
           {message.origin === "visitor"
-            ? "Visitor intervention"
-            : "Generated · simulation"}
+            ? "Visitor Intervention"
+            : "Generated · Simulation"}
         </span>
       </div>
       <MessageText body={message.body} />
@@ -116,7 +117,7 @@ export function BranchConversation({
             <div className="message-meta">
               <strong>You</strong>
               <span>
-                Visitor intervention ·{" "}
+                Visitor Intervention ·{" "}
                 {busy ? "in progress" : "uncommitted attempt"}
               </span>
             </div>
@@ -126,7 +127,7 @@ export function BranchConversation({
             <div className="message-meta">
               <strong>Companion</strong>
               <span>
-                Generated · {busy ? "streaming" : "partial / interrupted"}
+                Generated · {busy ? "Streaming" : "Partial / Interrupted"}
               </span>
             </div>
             <div aria-live="polite" aria-atomic="false">
@@ -186,7 +187,7 @@ function PairControls({
                 })
               }
             />
-            {t.label}
+            {labelCase(t.label)}
           </label>
         ))}
       <details className="pair-turns">

@@ -40,6 +40,7 @@ from packages.content.editorial import (
     reading_document,
 )
 from apps.api.limits import GenerationLimits
+from apps.api.narration import NarrationStore, narration_router
 from packages.domain.context import (
     build_context,
     compare_contexts,
@@ -128,6 +129,7 @@ def create_app(
     provider_factory=get_provider,
     aliases: AliasRewriter | None = None,
     editorial: EditorialRelease | None = None,
+    speech_synthesizer=None,
 ):
     @asynccontextmanager
     async def lifespan(app):
@@ -135,10 +137,12 @@ def create_app(
             while True:
                 await asyncio.sleep(30)
                 sessions.clean()
+                narration.clean()
 
         task = asyncio.create_task(sweep())
         yield
         task.cancel()
+        narration.clear()
         for id in list(sessions.branches):
             sessions.remove(id)
 
@@ -211,6 +215,9 @@ def create_app(
     )
     app.state.repo = repo
     app.state.sessions = sessions
+    narration = NarrationStore(sessions, repo, speech_synthesizer)
+    app.state.narration = narration
+    app.include_router(narration_router(narration))
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=allowed_hosts,
@@ -489,6 +496,7 @@ def create_app(
     def delete(id: str, request: Request):
         branch(id, request)
         sessions.remove(id)
+        narration.clean()
         return {"deleted": True}
 
     @app.post(api + "/branches/{id}/context/preview", response_model=Manifest)
@@ -907,6 +915,8 @@ def create_app(
     dist = ROOT / "apps/web/dist"
     if dist.exists():
         app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+        if (dist / "font-licenses").is_dir():
+            app.mount("/font-licenses", StaticFiles(directory=dist / "font-licenses"), name="font-licenses")
 
         @app.api_route("/", methods=["GET", "HEAD"])
         def index():

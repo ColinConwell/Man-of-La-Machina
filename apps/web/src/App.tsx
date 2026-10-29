@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  RotateCcw,
-  X,
-  ArrowUpRight,
-  PanelRightOpen,
-  ChevronDown,
-} from "lucide-react";
+import { RotateCcw, X, ArrowUpRight, PanelRightOpen } from "lucide-react";
 import { api, dateLabel } from "./api";
 import type {
   Anchor,
@@ -28,6 +22,9 @@ import { ArtifactViewer } from "./features/ArtifactViewer";
 import { TimelineExplorer } from "./features/TimelineExplorer";
 import { EditorialReader } from "./features/EditorialReader";
 import { EventTimeline } from "./features/EventTimeline";
+import { GuidedConversation } from "./features/GuidedConversation";
+import { AppearanceSettings, useAppearance } from "./design/appearance";
+import "./design/landscape.css";
 type Page = "explore" | "events" | "about" | "essay";
 function currentPage(): Page {
   const value = new URLSearchParams(location.search).get("page");
@@ -35,13 +32,14 @@ function currentPage(): Page {
     ? value
     : "explore";
 }
-const names: Record<string, string> = {
-  archive: "Archive",
-  "western-gothic": "Western Gothic",
-  "context-lab": "Context Lab",
-};
 export default function App() {
   const s = useExperience();
+  const appearance = useAppearance();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsTrigger = useRef<HTMLButtonElement>(null);
+  const [advanced, setAdvanced] = useState(
+    () => new URLSearchParams(location.search).get("view") === "advanced",
+  );
   const [page, setPage] = useState<Page>(currentPage);
   const pageURL = (next: Page) => {
     const url = new URL(location.href);
@@ -147,7 +145,12 @@ export default function App() {
   const rangeAction = (id: string, end: boolean) =>
     end ? s.setRange(s.first || id, id) : s.setRange(id, s.last || id);
   return (
-    <>
+    <div
+      className={`landscape-app ${s.entered && page === "explore" && !advanced ? "is-guided" : ""}`}
+      data-palette={appearance.value.palette}
+      data-motion={appearance.value.motion}
+      style={appearance.style}
+    >
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
@@ -156,30 +159,9 @@ export default function App() {
           Man of La Machina<span>Don Qui-CoPilot</span>
         </button>
         <div className="header-actions">
-          <label className="theme-picker">
-            <span className="sr-only">Theme</span>
-            <span className="theme-size" aria-hidden="true">
-              {names[s.theme] || s.theme}
-            </span>
-            <ChevronDown size={13} aria-hidden="true" />
-            <select
-              aria-label="Theme"
-              value={s.theme}
-              onChange={(e) => s.setTheme(e.target.value)}
-            >
-              {(
-                exp.data?.profile.enabled_themes || [
-                  "archive",
-                  "western-gothic",
-                  "context-lab",
-                ]
-              ).map((t) => (
-                <option value={t} key={t}>
-                  {names[t] || t}
-                </option>
-              ))}
-            </select>
-          </label>
+          <button ref={settingsTrigger} onClick={() => setSettingsOpen(true)}>
+            Settings
+          </button>
           <button className="text-button reset" onClick={resetAll}>
             <RotateCcw size={16} /> Reset
           </button>
@@ -197,39 +179,54 @@ export default function App() {
                   ?.name || s.settings.provider}
           </span>
         </div>
+        <nav className="primary-nav" aria-label="Primary navigation">
+          {(
+            [
+              ["explore", "Explore", true],
+              ["events", "Events", true],
+              ["about", "About", exp.data?.editorial?.about],
+              ["essay", "Read the Essay", exp.data?.editorial?.essay],
+            ] as const
+          )
+            .filter(([, , enabled]) => enabled)
+            .map(([target, label]) => (
+              <a
+                key={target}
+                href={pageURL(target)}
+                aria-current={page === target ? "page" : undefined}
+                onClick={(event) => {
+                  if (
+                    event.button === 0 &&
+                    !event.metaKey &&
+                    !event.ctrlKey &&
+                    !event.shiftKey &&
+                    !event.altKey
+                  ) {
+                    event.preventDefault();
+                    openPage(target);
+                  }
+                }}
+              >
+                {label}
+              </a>
+            ))}
+        </nav>
       </header>
-      <nav className="primary-nav" aria-label="Primary navigation">
-        {(
-          [
-            ["explore", "Explore", true],
-            ["events", "Events", true],
-            ["about", "About", exp.data?.editorial?.about],
-            ["essay", "Read the Essay", exp.data?.editorial?.essay],
-          ] as const
-        )
-          .filter(([, , enabled]) => enabled)
-          .map(([target, label]) => (
-            <a
-              key={target}
-              href={pageURL(target)}
-              aria-current={page === target ? "page" : undefined}
-              onClick={(event) => {
-                if (
-                  event.button === 0 &&
-                  !event.metaKey &&
-                  !event.ctrlKey &&
-                  !event.shiftKey &&
-                  !event.altKey
-                ) {
-                  event.preventDefault();
-                  openPage(target);
-                }
-              }}
-            >
-              {label}
-            </a>
-          ))}
-      </nav>
+      {settingsOpen && (
+        <AppearanceSettings
+          value={appearance.value}
+          onChange={appearance.setValue}
+          storageError={appearance.storageError}
+          record={{
+            messages: exp.data?.counts.messages || 0,
+            version: exp.data?.content_version || "Unavailable",
+          }}
+          onClose={() => {
+            setSettingsOpen(false);
+            requestAnimationFrame(() => settingsTrigger.current?.focus());
+          }}
+        />
+      )}
       {exp.isPending ? (
         <main className="loading">
           <h1>Opening the archive…</h1>
@@ -254,8 +251,24 @@ export default function App() {
         />
       ) : !s.entered ? (
         <ExperienceThreshold experience={exp.data!} onSelect={select} />
+      ) : !advanced ? (
+        <GuidedConversation
+          experience={exp.data!}
+          anchors={anchors.data || []}
+          threads={threads.data || []}
+          position={position.data}
+          branch={branch}
+          onSelect={select}
+          onAdvanced={() => setAdvanced(true)}
+        />
       ) : (
         <>
+          <button
+            className="advanced-switch"
+            onClick={() => setAdvanced(false)}
+          >
+            Return to Guided Reading
+          </button>
           <div
             className={
               "workspace " + (s.tab === "compare" ? "comparison-mode" : "")
@@ -388,10 +401,6 @@ export default function App() {
                   tags={exp.data!.tags}
                   preview={branch.preview}
                   onSubmit={() => {
-                    // TODO(progressive-chat-flow): Revisit in the next functionality pass:
-                    // unify roadmap entry, context selection, own-reply submission and
-                    // original continuation into a progressive conversation flow;
-                    // preserve the draft/reading position and make branch transitions explicit.
                     goToTab("branch");
                     void (s.pairMode ? branch.submitPair() : branch.submit());
                   }}
@@ -427,21 +436,12 @@ export default function App() {
           />
         </>
       )}
-      <footer className="status-bar">
-        <span>
-          <i /> Recorded history and generated branches remain distinct.
-        </span>
-        <span>
-          {exp.data?.counts.messages || 0} recorded turns ·{" "}
-          {exp.data?.content_version.slice(0, 8) || "…"}
-        </span>
-      </footer>
       {branch.receipt && (
         <ReceiptDialog
           receipt={branch.receipt}
           onClose={() => branch.setReceipt(null)}
         />
       )}
-    </>
+    </div>
   );
 }

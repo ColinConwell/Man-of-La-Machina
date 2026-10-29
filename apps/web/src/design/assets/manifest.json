@@ -1,0 +1,52 @@
+{
+  "adopted": "2026-10-27",
+  "authorization": "Selected Landscape Studio design adopted into main app for local review before deployment.",
+  "source_manifest": "tools/design_preview/asset-manifest.json",
+  "assets": [
+    {
+      "scene": "olive-plains",
+      "file": "olive-plains.webp",
+      "source_generation_id": "e11a33c8-89ce-4397-9f50-ced593df0c85",
+      "source_sha256": "792aeb65cbd5a4fd604fb68dc5aee870915c82d017f685985ad7b469b7195a22",
+      "sha256": "3683d311c7539cb205d33e74f53ad5507e1f090a77c9574a16947786c652064b",
+      "bytes": 367794,
+      "scene_prompt": "Andalusian olive plains: open pale wheat and ochre plains across the center; ancient olive trees and a few holm oaks frame outer edges; blue Sierra ridges far away. No buildings."
+    },
+    {
+      "scene": "rose-windmills",
+      "file": "rose-windmills.webp",
+      "source_generation_id": "68387e37-a9c4-4720-a76b-62f7ae94af7f",
+      "source_sha256": "dcfc75de3449f921e43ca76733a9fbb5b39470e9b6864dddb23953a3fb26a2ca",
+      "sha256": "fc0dbaada0ef84f6ad8a99a3647ccf7afd3d8195e1dca7d3b83580ce99628649",
+      "bytes": 183876,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Warm ivory paper, dusty rose washes, muted terracotta and graphite. Two tiny old La Mancha windmills at bottom left amid barely suggested grasses, distant chalk ridge, loose olive grove twigs and rocky ground bottom right. Mostly drawing with sparing color. No technological elements.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "celadon-circuitry",
+      "file": "celadon-circuitry.webp",
+      "source_generation_id": "42e0b7bf-f79b-4f41-b6ea-64c077bc0092",
+      "source_sha256": "35975df336728d062e5c75527e40859514fe951c4c2d8090cde642c6c40cd30d",
+      "sha256": "a039f6754dd4bb174e170b00fc7c6798051cad58e8106fef6e636e32eb307fa3",
+      "bytes": 274782,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Pale celadon mist paper, sage and oxidized copper, delicate sepia pencil. Tiny historical windmill bottom left with subtly copper mechanical joints; olive roots and stones bottom right quietly transform into a few fine circuit-trace branching lines and small connection nodes embedded in the terrain. Human craft and cybernetics blend delicately. No floating icons, no neon, no screens, no large machinery.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    },
+    {
+      "scene": "lilac-automata",
+      "file": "lilac-automata.webp",
+      "source_generation_id": "08988de5-dc3f-4696-a144-47730a3d2ac0",
+      "source_sha256": "856d0243181802c90eba33a86160b9a2cbb66e2f8de538c7afae654f6ba88df2",
+      "sha256": "85025bf92413e44d2017975811a9a308fe4fa8666d02285ed3fca67f05788e46",
+      "bytes": 259222,
+      "scene_prompt": "Create one standalone 16:9 landscape background illustration for a literary reading interface, no UI, no text, no labels, no frame, no people. Extremely sparse hand-drawn pencil and dry-brush watercolor on pale paper, unfinished sketchbook with delicate visible broken strokes. Composition is paramount: top 65 percent is almost empty pale paper with only the faintest tint, middle 45 percent of width remains almost empty throughout, all visually interesting landscape detail clustered in the bottom left and bottom right corners, landscape no higher than bottom 30 percent. Low contrast, restrained sophisticated pigments, evocative Quixotic Iberian landscape, not fantasy game art. Wide 1536x1024 or wider landscape image. Pale blue-violet ivory paper, faded indigo graphite, lilac and antique brass wash. Broken small aqueduct at bottom left whose masonry contains very subtle clockwork brass arcs; distant low Iberian hill. Bottom right a small windmill skeleton drawn as fine mechanical draftsmanship blending into dry grasses and a few subtle circuit paths. Delicate quiet Quixotic machine-age sketch, no robots, no neon, no interface symbols in sky.",
+      "created": "2026-10-25",
+      "generator": "Built-in OpenAI image generation",
+      "derivation": "WebP format conversion only; source geometry retained"
+    }
+  ]
+}

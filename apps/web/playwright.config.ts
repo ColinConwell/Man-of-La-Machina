@@ -10,14 +10,18 @@ if (fixture && process.env.TEST_WORKER_INDEX === undefined) {
   process.env.MACHINA_EXPLORATION_FIXTURE_PORT = String(exploration);
   process.env.MACHINA_CURATOR_FIXTURE_PORT = String(curator);
 }
-const { curatorFixtureURL, explorationFixtureURL } = await import(
-  "./e2e/fixture-ports"
-);
+const { curatorFixtureURL, explorationFixtureURL } =
+  await import("./e2e/fixture-ports");
 
 export default defineConfig({
   testDir: "./e2e",
   testMatch: fixture
-    ? ["regression.spec.ts", "editorial.spec.ts"]
+    ? [
+        "regression.spec.ts",
+        "editorial.spec.ts",
+        "guided.spec.ts",
+        "refinements.spec.ts",
+      ]
     : "exploration.spec.ts",
   // Fixtures get freshly chosen ports, so an existing server there is never ours.
   webServer: fixture

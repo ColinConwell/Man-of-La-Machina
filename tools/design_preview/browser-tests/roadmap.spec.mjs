@@ -3,7 +3,7 @@ import AxeBuilder from "../../../apps/web/node_modules/@axe-core/playwright/dist
 const open = page => page.getByRole("button", { name: "Design Controls", exact: true }).click();
 const close = page => page.getByRole("button", { name: "Close Design Controls", exact: true }).click();
 
-test("inline continuation reveals a distinct sample without losing the draft", async ({page}) => {
+test("inline continuation inserts editable original text and focuses the composer", async ({page}) => {
   await page.goto("/"); await open(page);
   await page.getByRole("combobox", {name:"Reply Actions",exact:true}).selectOption("inline");
   await close(page);
@@ -11,12 +11,11 @@ test("inline continuation reveals a distinct sample without losing the draft", a
   await field.fill("My own path");
   const link=page.getByRole("button",{name:"or continue with the original",exact:true});
   await link.click();
-  await expect(link).toHaveAttribute("aria-expanded","true");
-  await expect(page.locator(".reply-study .reply-reveal p")).toContainText("Let us walk far enough");
-  expect(await page.locator(".reply-study .reply-reveal p").textContent()).not.toBe(await page.locator(".machine-message .dialogue").textContent());
-  await expect(field).toHaveValue("My own path");
-  await expect(page.locator(".reply-footer")).toHaveCount(0);
-  await link.click(); await expect(page.locator(".reply-reveal")).toBeHidden();
+  await expect(field).toHaveValue("Let us walk far enough to see beyond the bend. We need not choose the whole journey before taking its first step.");
+  await expect(field).toBeFocused();
+  await expect(page.locator(".reply-study .reply-reveal")).toHaveCount(0);
+  await field.fill("My edited continuation");
+  await expect(field).toHaveValue("My edited continuation");
   await page.reload(); await expect(link).toBeVisible();
 });
 
@@ -50,7 +49,13 @@ test("responsive roadmap reflows above reading, reveals context on hover and key
     await page.mouse.move(0,0);
     const nav=page.getByRole("navigation",{name:"The Journey Roadmap"});
     await expect(nav).toBeVisible();
-    expect((await nav.boundingBox()).y).toBeLessThan((await page.locator(".chapter-heading").boundingBox()).y);
+    await expect(page.locator(".chapter-heading")).toBeHidden();
+    await expect(nav).toHaveCSS("position", "sticky");
+    const geometry = await nav.locator("li").evaluateAll(items => items.map(el => {
+      const dot = getComputedStyle(el, "::before"); const label = el.querySelector(".journey-stop");
+      return Math.abs(parseFloat(dot.left) + parseFloat(dot.width)/2 - label.offsetLeft - label.offsetWidth/2);
+    }));
+    expect(Math.max(...geometry)).toBeLessThanOrEqual(2);
     const stop=page.getByRole("button",{name:"The Beginning",exact:true});
     const link=page.getByRole("button",{name:"Explore Context: The Beginning",exact:true});
     await expect(link).toBeHidden(); await stop.hover(); await expect(link).toBeVisible();

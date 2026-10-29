@@ -1,3 +1,4 @@
+import { labelCase } from "../labels";
 import { useState } from "react";
 import { Eye, RotateCcw, Save } from "lucide-react";
 import { useExperience } from "../store";
@@ -133,7 +134,7 @@ export function ContextWorkbench({
                 }
               />
               <span>
-                {t.label}
+                {labelCase(t.label)}
                 <small>
                   {t.id === "practical"
                     ? "Plans, money, travel, and everyday constraints."
@@ -163,7 +164,7 @@ export function ContextWorkbench({
           </span>
         </label>
         <details className="advanced-context">
-          <summary>More context controls</summary>
+          <summary>More Context Controls</summary>
           <label>
             Where context begins
             <select
@@ -220,7 +221,7 @@ export function ContextWorkbench({
                 />
                 <span>
                   {i.body.slice(0, 85)}…
-                  <small>{i.protected ? "Protected local turn" : i.id}</small>
+                  <small>{i.protected ? "Protected Local Turn" : i.id}</small>
                 </span>
               </label>
             ))}
@@ -246,7 +247,7 @@ export function ContextWorkbench({
           </button>
         </div>
         <details className="provider-settings">
-          <summary>Generation settings</summary>
+          <summary>Generation Settings</summary>
           <label>
             Provider
             <select
@@ -313,7 +314,7 @@ export function ContextWorkbench({
           </small>
         </details>
         <details className="saved-presets">
-          <summary>Saved context presets</summary>
+          <summary>Saved Context Presets</summary>
           {Object.keys(presets).map((name) => (
             <button
               className="text-button"

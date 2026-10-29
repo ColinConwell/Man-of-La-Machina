@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 async function enter(page: Page) {
-  await page.goto("/");
+  await page.goto("/?view=advanced");
   await page.getByRole("button", { name: /Rain in Spain · May 8/ }).click();
   await expect(
     page.getByRole("heading", { name: "Rain in Spain", exact: true }),
@@ -12,7 +12,7 @@ async function enter(page: Page) {
 test("complete-history, arbitrary boundaries, resolution, search and deep links", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?view=advanced");
   const experience = await (
     await page.request.get("/api/v1/experience")
   ).json();
@@ -82,7 +82,7 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
     await page.request.get(`/api/v1/continuations/${start}`)
   ).json();
   // Replacing a human reply is still supported after entering on the agent advice.
-  await page.goto(`/?entry=${next[0].id}&anchor=rain-in-spain`);
+  await page.goto(`/?view=advanced&entry=${next[0].id}&anchor=rain-in-spain`);
   await page
     .getByLabel("Write your next turn", { exact: true })
     .fill("I want to rest tonight. What would keep the decision small?");
@@ -91,7 +91,9 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
     .click();
   await expect(page.getByTestId("manifest-hash")).toHaveText(/[a-f0-9]{64}/);
   const before = await page.getByTestId("manifest-hash").textContent();
-  await page.getByLabel("Theme", { exact: true }).selectOption("context-lab");
+  await page.getByRole("button", { name: "Settings", exact: true }).click();
+  await page.getByLabel("Interface Palette", { exact: true }).selectOption("linen");
+  await page.getByRole("button", { name: "Close Settings" }).click();
   await page
     .getByRole("button", { name: "Preview context", exact: true })
     .click();
@@ -140,10 +142,10 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
   ).toHaveCount(2);
   await page.getByRole("button", { name: "Compare", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Recorded continuation", exact: true }),
+    page.getByRole("heading", { name: "Recorded Continuation", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Generated branch", exact: true }),
+    page.getByRole("heading", { name: "Generated Branch", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Artifacts", exact: true }).click();
   await expect(
@@ -176,7 +178,7 @@ test("keyboard entry, reduced motion, responsive geometry and accessibility", as
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/?view=advanced");
   await page.getByRole("button", { name: /Rain in Spain · May 8/ }).focus();
   await page.keyboard.press("Enter");
   await expect(
@@ -224,8 +226,10 @@ test("keyboard entry, reduced motion, responsive geometry and accessibility", as
 
 test("theme contrast and provider-failure recovery", async ({ page }) => {
   await enter(page);
-  for (const theme of ["archive", "western-gothic", "context-lab"]) {
-    await page.getByLabel("Theme", { exact: true }).selectOption(theme);
+  for (const theme of ["rose", "linen", "moonlight"]) {
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await page.getByLabel("Interface Palette", { exact: true }).selectOption(theme);
+    await page.getByRole("button", { name: "Close Settings" }).click();
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
       .analyze();
@@ -401,7 +405,7 @@ test("event timeline preserves source uncertainty, filters, selection, and reduc
     page.getByRole("heading", { name: "The Traveler spends a night there." }),
   ).toBeVisible();
   await expect(page.locator(".event-card-meta")).toContainText(
-    "Occurrence date unknown",
+    "Occurrence Date Unknown",
   );
   await expect(page.locator(".event-date-note")).toContainText(
     "Disclosed May 8, 2026",

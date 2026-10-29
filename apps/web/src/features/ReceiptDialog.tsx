@@ -21,7 +21,7 @@ export function ReceiptDialog({
       onCancel={onClose}
     >
       <div className="dialog-heading">
-        <h2 id="receipt-heading">Generation receipt</h2>
+        <h2 id="receipt-heading">Generation Receipt</h2>
         <button autoFocus aria-label="Close receipt" onClick={onClose}>
           <X size={20} />
         </button>

@@ -8,7 +8,7 @@ export function ArtifactViewer({ threadId }: { threadId: string }) {
     queryFn: () => api<Artifact[]>("/artifacts?thread_id=" + threadId),
   });
   return (
-    <section className="artifacts" aria-label="Documentary artifacts">
+    <section className="artifacts" aria-label="Documentary Artifacts">
       <p className="branch-explanation">
         Documentary material linked to this moment. Opening an artifact does not
         add it to model context.
@@ -28,12 +28,12 @@ export function ArtifactViewer({ threadId }: { threadId: string }) {
         <article key={a.id}>
           <p className="origin-label">
             {a.kind === "annotation"
-              ? "Retrospective annotation"
-              : "Documentary artifact"}{" "}
+              ? "Retrospective Annotation"
+              : "Documentary Artifact"}{" "}
             ·{" "}
             {a.rights_status === "approved"
               ? "Approved"
-              : "Curator review pending"}
+              : "Curator Review Pending"}
           </p>
           <h3>{a.title}</h3>
           <p className="artifact-note">{a.curatorial_note}</p>
@@ -62,7 +62,7 @@ export function ArtifactViewer({ threadId }: { threadId: string }) {
           <footer>
             {a.credits}
             <details>
-              <summary>Source provenance</summary>
+              <summary>Source Provenance</summary>
               <p>
                 {a.provenance.source_path.split("/").at(-1)}
                 <br />

@@ -12,7 +12,7 @@ def test_design_routes_are_absent_from_production(bundle, monkeypatch):
     monkeypatch.setenv("MACHINA_ALLOWED_HOSTS", "man-of-la-machina.com")
     with TestClient(create_app(bundle), base_url="https://man-of-la-machina.com") as client:
         for path in ["/design", "/design-preview", "/tools/design_preview/index.html",
-                     "/tools/design_preview/web/assets/olive-plains.webp", "/font-licenses/index.html"]:
+                     "/tools/design_preview/web/assets/olive-plains.webp"]:
             assert client.get(path).status_code == 404
 
 

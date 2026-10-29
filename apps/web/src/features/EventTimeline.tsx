@@ -1,3 +1,4 @@
+import { labelCase } from "../labels";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -5,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPin,
+  Info,
   Pause,
   Play,
   RefreshCw,
@@ -30,7 +32,7 @@ function readState() {
   };
 }
 function eventDate(event: PlainEvent, year = false) {
-  if (!event.occurred_at) return "Occurrence date unknown";
+  if (!event.occurred_at) return "Occurrence Date Unknown";
   return (
     dateLabel(event.occurred_at, year) +
     (event.occurred_end_at && event.occurred_end_at !== event.occurred_at
@@ -51,6 +53,9 @@ export function EventTimeline({
   const initial = useMemo(readState, []);
   const [selectedId, setSelectedId] = useState(initial.id);
   const [filter, setFilter] = useState<Filter>(initial.filter);
+  const [timelineMode, setTimelineMode] = useState<"sequence" | "time">(
+    "sequence",
+  );
   const [playing, setPlaying] = useState(false);
   const [seconds, setSeconds] = useState(4);
   const [reducedMotion, setReducedMotion] = useState(
@@ -94,7 +99,31 @@ export function EventTimeline({
     events.findIndex((e) => e.id === selectedId),
   );
   const selected = events[index];
-  const progress = events.length > 1 ? index / (events.length - 1) : 0;
+  const times = events.map((event) =>
+    disclosureTime(event.disclosed_at || event.disclosed_end_at),
+  );
+  const dated = times.filter(Number.isFinite);
+  const firstDate = dated.length ? Math.min(...dated) : 0;
+  const lastDate = dated.length ? Math.max(...dated) : 0;
+  const positions = events.map((_, i) =>
+    timelineMode === "sequence"
+      ? events.length > 1
+        ? i / (events.length - 1)
+        : 0.5
+      : Number.isFinite(times[i])
+        ? lastDate > firstDate
+          ? (times[i] - firstDate) / (lastDate - firstDate)
+          : 0.5
+        : null,
+  );
+  const progress = positions[index];
+  const tickHeight = (i: number) => {
+    if (i === index) return 26;
+    const gap = i > 0 ? (times[i] - times[i - 1]) / 86_400_000 : 0;
+    return timelineMode === "sequence" && Number.isFinite(gap)
+      ? 8 + Math.min(12, Math.sqrt(Math.max(0, gap)) * 2)
+      : 10;
+  };
   const counts = useMemo(() => {
     const values = { reported: 0, planned: 0, uncertain: 0 };
     for (const event of query.data?.events || []) values[event.status]++;
@@ -227,22 +256,6 @@ export function EventTimeline({
                       : "This extraction is incomplete. The events shown cover only the processed sources."}
               </div>
             )}
-            {!!query.data.events.length && (
-              <div className="event-review-note">
-                <span>
-                  {query.data.semantic_review
-                    ? query.data.semantic_review.status === "completed"
-                      ? "Model Review Complete"
-                      : "Model Review Partial"
-                    : "Model-Extracted · Review Not Recorded"}
-                </span>
-                <p>
-                  {query.data.semantic_review
-                    ? `${query.data.semantic_review.provider} / ${query.data.semantic_review.model} reviewed the extraction. Model review does not constitute human verification.`
-                    : "The extracted events have not passed a recorded semantic review and may contain interpretation errors."}
-                </p>
-              </div>
-            )}
             <div className="event-toolbar">
               <div
                 className="event-filters"
@@ -268,9 +281,40 @@ export function EventTimeline({
               </div>
               <span className="event-coverage">
                 {typeof query.data.coverage.sources_total === "number"
-                  ? `${query.data.coverage.sources_processed} / ${query.data.coverage.sources_total} sources processed`
+                  ? `${query.data.coverage.sources_processed} / ${query.data.coverage.sources_total} Sources Processed`
                   : "No extraction coverage available"}
+                {!!query.data.events.length && (
+                  <button
+                    className="event-review-trigger"
+                    popoverTarget="event-review-details"
+                    aria-label="Extraction Review"
+                  >
+                    <Info size={15} />
+                  </button>
+                )}
               </span>
+              {!!query.data.events.length && (
+                <div
+                  id="event-review-details"
+                  popover="auto"
+                  className="event-review-note"
+                  role="dialog"
+                  aria-label="Extraction Review"
+                >
+                  <span>
+                    {query.data.semantic_review
+                      ? query.data.semantic_review.status === "completed"
+                        ? "Model Review Complete"
+                        : "Model Review Partial"
+                      : "Model-Extracted · Review Not Recorded"}
+                  </span>
+                  <p>
+                    {query.data.semantic_review
+                      ? `${query.data.semantic_review.provider} / ${query.data.semantic_review.model} reviewed the extraction. Model review does not constitute human verification.`
+                      : "The extracted events have not passed a recorded semantic review and may contain interpretation errors."}
+                  </p>
+                </div>
+              )}
             </div>
             {!selected ? (
               <section className="event-empty">
@@ -292,9 +336,24 @@ export function EventTimeline({
                       <strong>{String(index + 1).padStart(2, "0")}</strong>
                       <span> / {events.length} events</span>
                     </p>
-                    <span>
-                      Record sequence · spacing does not represent elapsed time
-                    </span>
+                    <div
+                      className="event-view-toggle"
+                      role="group"
+                      aria-label="Timeline view"
+                    >
+                      <button
+                        aria-pressed={timelineMode === "sequence"}
+                        onClick={() => setTimelineMode("sequence")}
+                      >
+                        Record Sequence
+                      </button>
+                      <button
+                        aria-pressed={timelineMode === "time"}
+                        onClick={() => setTimelineMode("time")}
+                      >
+                        Elapsed Time
+                      </button>
+                    </div>
                   </div>
                   <div className="event-trace" aria-hidden="true">
                     <svg viewBox="0 0 1000 52" preserveAspectRatio="none">
@@ -304,27 +363,82 @@ export function EventTimeline({
                         d="M 12 26 H 988"
                         pathLength="1"
                         strokeDasharray="1"
-                        strokeDashoffset={1 - progress}
+                        strokeDashoffset={1 - (progress ?? 0)}
                       />
-                      {events.map((event, i) => (
-                        <line
-                          key={event.id}
-                          x1={12 + (976 * i) / Math.max(1, events.length - 1)}
-                          x2={12 + (976 * i) / Math.max(1, events.length - 1)}
-                          y1={i === index ? 13 : 21}
-                          y2={i === index ? 39 : 31}
-                          className={
-                            (i <= index ? "reached " : "") +
-                            (event.status !== "reported" ? "tentative" : "")
-                          }
-                        />
-                      ))}
+                      {events.map((event, i) =>
+                        positions[i] === null ? null : (
+                          <line
+                            key={event.id}
+                            x1={12 + 976 * positions[i]!}
+                            x2={12 + 976 * positions[i]!}
+                            y1={26 - tickHeight(i) / 2}
+                            y2={26 + tickHeight(i) / 2}
+                            data-event-id={event.id}
+                            className={
+                              (i <= index ? "reached " : "") +
+                              (event.status !== "reported" ? "tentative" : "")
+                            }
+                          />
+                        ),
+                      )}
                     </svg>
-                    <span
-                      className="event-trace-head"
-                      style={{ left: `${1.2 + 97.6 * progress}%` }}
-                    />
+                    {progress !== null && (
+                      <span
+                        className="event-trace-head"
+                        style={{ left: `${1.2 + 97.6 * progress}%` }}
+                      />
+                    )}
                   </div>
+                  {timelineMode === "time" ? (
+                    <>
+                      <div className="event-time-axis">
+                        {dated.length ? (
+                          <>
+                            <span>
+                              {dateLabel(
+                                new Date(firstDate).toISOString(),
+                                true,
+                              )}
+                            </span>
+                            <span>Disclosure Dates</span>
+                            <span>
+                              {dateLabel(
+                                new Date(lastDate).toISOString(),
+                                true,
+                              )}
+                            </span>
+                          </>
+                        ) : (
+                          <span>No Known Disclosure Dates</span>
+                        )}
+                      </div>
+                      {times.some((time) => !Number.isFinite(time)) && (
+                        <div className="event-undated">
+                          <span>Disclosure Date Unknown</span>
+                          {events.map(
+                            (event, i) =>
+                              !Number.isFinite(times[i]) && (
+                                <button
+                                  key={event.id}
+                                  aria-current={
+                                    i === index ? "step" : undefined
+                                  }
+                                  onClick={() => choose(i)}
+                                  aria-label={`Select undated event ${i + 1}: ${event.text}`}
+                                >
+                                  {i + 1}
+                                </button>
+                              ),
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="event-spacing-note">
+                      Equal steps · taller marks indicate longer gaps between
+                      disclosures
+                    </p>
+                  )}
                   <label className="event-scrubber">
                     <span className="sr-only">Select event in sequence</span>
                     <input
@@ -484,7 +598,9 @@ export function EventTimeline({
                               <div>
                                 <dt>Evidence Review</dt>
                                 <dd>
-                                  {selected.provenance.semantic_entailment}
+                                  {labelCase(
+                                    selected.provenance.semantic_entailment,
+                                  )}
                                 </dd>
                               </div>
                             )}

@@ -1,3 +1,4 @@
+import { labelCase } from "../labels";
 import { MessageText } from "./ConversationReader";
 import type { PendingPair } from "../useBranch";
 import type {
@@ -83,7 +84,7 @@ export function CompositionBar({
   );
 }
 function withheldLabel(w: PairWithholding, tags: Record<string, string>) {
-  const groups = w.excluded_tags.map((t) => tags[t] || t);
+  const groups = w.excluded_tags.map((t) => labelCase(tags[t] || t));
   if (w.excluded_ids.length)
     groups.push(
       `${w.excluded_ids.length} selected turn${w.excluded_ids.length === 1 ? "" : "s"}`,
@@ -153,7 +154,7 @@ export function PairComparison({
       >
         <div className="message-meta">
           <strong>You</strong>
-          <span>Visitor intervention · held fixed for both contexts</span>
+          <span>Visitor Intervention · Held Fixed for Both Contexts</span>
         </div>
         <MessageText body={view.visitor} />
       </article>
@@ -198,7 +199,9 @@ export function PairComparison({
             >
               <div className="message-meta">
                 <strong>Companion</strong>
-                <span>Generated · {statusLabel[c.status] || c.status}</span>
+                <span>
+                  Generated · {labelCase(statusLabel[c.status] || c.status)}
+                </span>
               </div>
               <div aria-live={view.pending ? "polite" : undefined}>
                 <MessageText
@@ -227,19 +230,19 @@ export function PairComparison({
           <i className="segment framing" /> Framing
         </li>
         <li>
-          <i className="segment kept" /> Shared recorded context
+          <i className="segment kept" /> Shared Recorded Context
         </li>
         <li>
           <i className="segment withheld" />
-          <i className="segment gap" /> Present in A, withheld in B
+          <i className="segment gap" /> Present in A, Withheld in B
         </li>
         {added.length > 0 && (
           <li>
-            <i className="segment added" /> Admitted in B by freed budget
+            <i className="segment added" /> Admitted in B by Freed Budget
           </li>
         )}
         <li>
-          <i className="segment branch" /> Your turns and earlier replies
+          <i className="segment branch" /> Your Turns and Earlier Replies
         </li>
       </ul>
     </section>

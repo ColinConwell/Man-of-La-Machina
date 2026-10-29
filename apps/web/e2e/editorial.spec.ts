@@ -9,7 +9,7 @@ test.skip(
 test("readings navigate, preserve an exploration, and keep citation targets", async ({
   page,
 }) => {
-  await page.goto("/?entry=test-3-9");
+  await page.goto("/?view=advanced&entry=test-3-9");
   await page
     .getByLabel("Write your next turn")
     .fill("Keep this unsent intervention.");

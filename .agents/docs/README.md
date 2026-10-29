@@ -13,6 +13,7 @@ Detailed operating notes for agents and maintainers. Human-facing documentation 
 | [DECK.md](DECK.md) | Project deck content locations, simulations, editing, slide schema |
 | [HOSTING.md](HOSTING.md) | Railway hosting, private content releases, public-tree checks |
 | [PRODUCTION_RECOVERY_2026-10-23.md](PRODUCTION_RECOVERY_2026-10-23.md) | Content-loader diagnostics, Railway credential recovery, exact deployment and reading-flow verification |
+| [GUIDED_READING.md](GUIDED_READING.md) | Selected studio design adoption, progressive conversation behavior, narration privacy, limits and local validation |
 | [DESIGN_PREVIEW.md](DESIGN_PREVIEW.md) | Synthetic landscape playground, artwork provenance, animation studies, private hosting and verification |
 | [IMPLEMENTATION.md](IMPLEMENTATION.md) | Implementation decisions and remaining exhibition work (September 2026) |
 | [VERIFICATION.md](VERIFICATION.md) | Prototype verification and design comparison (September 6–7, 2026) |

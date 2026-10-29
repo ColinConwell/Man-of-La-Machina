@@ -23,7 +23,6 @@ export function ReplyComposer({ suggestions = false, footer = false, inlineOrigi
   const id = useId();
   const input = useRef(null);
   const [draft, setDraft] = useState("");
-  const [originalOpen, setOriginalOpen] = useState(false);
   useLayoutEffect(() => {
     const field = input.current;
     let alive = true;
@@ -46,9 +45,8 @@ export function ReplyComposer({ suggestions = false, footer = false, inlineOrigi
   return <div className="reply-entry">
     <div className="reply-entry-invitation">
       <label className="reply-entry-label" htmlFor={id}>Enter the journey with your own reply...</label>
-      {inlineOriginal && <button type="button" className="inline-original-link" aria-expanded={originalOpen} aria-controls={`${id}-original`} onClick={() => setOriginalOpen(!originalOpen)}>or continue with the original</button>}
+      {inlineOriginal && <button type="button" className="inline-original-link" aria-controls={id} onClick={() => { setDraft("Let us walk far enough to see beyond the bend. We need not choose the whole journey before taking its first step."); input.current?.focus(); }}>or continue with the original</button>}
     </div>
-    {inlineOriginal && <div id={`${id}-original`} hidden={!originalOpen}><OriginalReply /></div>}
     <div className="reply-composer">
     <div className="reply-draft">
       <div className="reply-input-wrap" data-empty={!draft}>

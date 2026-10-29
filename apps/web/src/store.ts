@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import type { ContextOptions, PairWithholding, Settings } from "./types";
 const initial = new URLSearchParams(location.search);
+const savedTheme = () => {
+  try {
+    return localStorage.getItem("machina-theme") || "archive";
+  } catch {
+    return "archive";
+  }
+};
 const writeURL = (patch: Record<string, string>) => {
   const u = new URL(location.href);
   Object.entries(patch).forEach(([k, v]) =>
@@ -52,7 +59,7 @@ export const useExperience = create<State>((set) => ({
   granularity: initial.get("zoom") || "journey",
   first: initial.get("first") || "",
   last: initial.get("last") || "",
-  theme: localStorage.getItem("machina-theme") || "archive",
+  theme: savedTheme(),
   tab: "transcript",
   options: { ...defaultOptions },
   settings: {
@@ -84,7 +91,11 @@ export const useExperience = create<State>((set) => ({
     set({ granularity });
   },
   setTheme: (theme) => {
-    localStorage.setItem("machina-theme", theme);
+    try {
+      localStorage.setItem("machina-theme", theme);
+    } catch {
+      /* Preferences remain usable in memory. */
+    }
     set({ theme });
   },
   setRange: (first, last) => {

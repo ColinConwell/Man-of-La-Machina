@@ -1,3 +1,5 @@
+import { labelCase } from "../labels";
+import { RecordStatus } from "./RecordStatus";
 import { useEffect, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
@@ -61,7 +63,7 @@ export function HistoricalMessage({
       ? message.speaker_label
       : message.speaker === "mirrows"
         ? "Copilot / Mirrows"
-        : "Unresolved speaker";
+        : "Unresolved Speaker";
   return (
     <article
       className={"historical-message " + (selected ? "at-cutoff" : "")}
@@ -70,10 +72,10 @@ export function HistoricalMessage({
     >
       <div className="message-meta">
         <strong>{name}</strong>
-        <span>Recorded · {message.sequence + 1}</span>
-        {message.review_status !== "reviewed" && (
-          <small>Unreviewed source</small>
-        )}
+        <RecordStatus
+          sequence={message.sequence}
+          reviewed={message.review_status === "reviewed"}
+        />
       </div>
       <div className="message-content">
         <MessageText body={message.body} collapsible />
@@ -83,7 +85,7 @@ export function HistoricalMessage({
               className={selected ? "cutoff-label" : "text-button"}
               onClick={() => onSelect(message.id)}
             >
-              {selected ? "Selected cutoff" : "Enter here"}{" "}
+              {selected ? "Selected Cutoff" : "Enter here"}{" "}
               {!selected && <ArrowRight size={13} />}
             </button>
           )}
@@ -95,9 +97,9 @@ export function HistoricalMessage({
               {message.provenance.locator}
               <br />
               Disclosed: {message.disclosed_at || "Unknown"} ·{" "}
-              {message.time_precision} precision
+              {labelCase(message.time_precision)} Precision
               <br />
-              {message.provenance.text_kind} ·{" "}
+              {labelCase(message.provenance.text_kind)} ·{" "}
               {message.content_hash.slice(0, 12)}
             </small>
           </details>

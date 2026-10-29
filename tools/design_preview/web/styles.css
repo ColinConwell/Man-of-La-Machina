@@ -2537,3 +2537,23 @@ a {
   .journey-context-content { margin: 14px 5% 0; padding: 16px; }
   .journey-workspace.has-context .reading-area { padding-right: 5%; padding-left: 5%; }
 }
+
+/* The compact roadmap is the pinned chapter heading. */
+@container (max-width: 850px) {
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail {
+    position: sticky; top: 0; z-index: 5; padding: 12px 0 4px;
+    background: rgba(var(--paper), .96); backdrop-filter: blur(var(--glass-blur));
+    border-bottom: 1px solid var(--line); border-radius: 8px;
+  }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .chapter-heading { display: none; }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail li { padding: 20px 4px 0; text-align: center; }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail li::before { left: calc(50% - 5px); }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail li:not(:last-child)::after { left: calc(50% + 10px); right: calc(-50% + 10px); }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-stop { width: 100%; text-align: center; padding: 6px 4px; border-radius: 6px; }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .current .journey-stop { background: var(--line); box-shadow: inset 0 -2px var(--accent); }
+}
+
+@container (max-width: 850px) {
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail ol { background: linear-gradient(var(--muted),var(--muted)) left 5px / 100% 1px no-repeat; }
+  .journey-workspace:is(.roadmap-responsive, .roadmap-sidebar) .journey-rail li::after { display:none; }
+}

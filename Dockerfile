@@ -4,6 +4,7 @@ COPY apps/web/package.json apps/web/package-lock.json ./
 RUN npm ci
 COPY apps/web/index.html apps/web/tsconfig.json apps/web/vite.config.ts ./
 COPY apps/web/src/ src/
+COPY apps/web/public/ public/
 COPY themes/ /app/themes/
 RUN npm run build
 
