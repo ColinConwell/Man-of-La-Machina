@@ -232,9 +232,9 @@ export function EventTimeline({
         </button>
       </header>
       {query.isPending ? (
-        <section className="event-empty" aria-live="polite">
+        <section className="event-empty" role="status" aria-live="polite" aria-busy="true">
           <h2>Opening the Event Record…</h2>
-          <p>Loading extracted events and their source references.</p>
+          <p>Loading events and their source references. This may take a few moments.</p>
         </section>
       ) : !query.data && query.isError ? (
         <section className="event-empty" role="alert">
@@ -250,9 +250,9 @@ export function EventTimeline({
                 {query.isError
                   ? "Refresh failed. The previously loaded event record remains visible."
                   : query.data.status === "unavailable"
-                    ? "An event extraction has not been made available for this archive yet."
+                    ? "The event record is currently unavailable. This is not a loading delay. Please try again later."
                     : query.data.status === "stale"
-                      ? "The saved extraction does not match this archive version. Rebuild it to inspect events from the current record."
+                      ? "The event record needs an update to match this edition. Please try again later."
                       : "This extraction is incomplete. The events shown cover only the processed sources."}
               </div>
             )}
@@ -322,7 +322,7 @@ export function EventTimeline({
                 <p>
                   {query.data.events.length
                     ? "Choose another status to explore the record."
-                    : "No events are available. Refresh after the extraction has completed."}
+                    : "No events are available in this edition yet."}
                 </p>
               </section>
             ) : (

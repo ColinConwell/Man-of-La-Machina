@@ -7,7 +7,12 @@ credentials/
 PLAN.md
 .machina/
 context
-manuscript
+manuscript/*
+!manuscript/essay/
+manuscript/essay/*
+!manuscript/essay/main.tex
+!manuscript/essay/main.bib
+!manuscript/essay/neurips_2026.sty
 
 # IDE + AI
 .vscode/

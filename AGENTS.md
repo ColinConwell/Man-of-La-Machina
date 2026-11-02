@@ -36,7 +36,7 @@ Interactive components for *Don Qui-CoPilot: Man of La Machina*, a generative-ad
 ├── tools/                          # curator, results dashboard, deck, synthetic design preview
 ├── credentials/                    # gitignored
 ├── context/                        # gitignored private source archive
-└── manuscript/                     # gitignored private manuscript and deck
+└── manuscript/                     # tracked essay sources; private releases, mappings and deck
 ```
 
 ## Documentation

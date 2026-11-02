@@ -8,6 +8,8 @@ import sys
 
 
 def forbidden_path(name: str) -> bool:
+    if name in {"manuscript/essay/main.tex", "manuscript/essay/main.bib", "manuscript/essay/neurips_2026.sty"}:
+        return False
     p = PurePosixPath(name)
     return (
         p.parts[0] in {"context", "manuscript", "credentials"}

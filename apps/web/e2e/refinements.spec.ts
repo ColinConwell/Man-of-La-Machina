@@ -572,3 +572,19 @@ test("quiet source metadata, smaller traveler text and progressive audio sizing"
     ).violations,
   ).toEqual([]);
 });
+
+test("events distinguish pending loading from an unavailable release", async ({ page }) => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/v1/event-timeline", async route => {
+    await pending;
+    await route.fulfill({ json: { version: 1, status: "unavailable", events: [], coverage: {} } });
+  });
+  await page.goto("/?page=events");
+  await expect(page.getByRole("status")).toContainText("Loading events and their source references");
+  await expect(page.getByRole("status")).toHaveAttribute("aria-busy", "true");
+  release();
+  await expect(page.getByRole("status")).toContainText("This is not a loading delay");
+  await expect(page.getByText("Opening the Event Record…", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Refresh Events" })).toBeEnabled();
+});

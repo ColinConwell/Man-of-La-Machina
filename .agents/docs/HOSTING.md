@@ -78,3 +78,14 @@ The Railway service is connected directly to `ColinConwell/Man-of-La-Machina`, b
 Porkbun's apex ALIAS is changed from parking to the Railway-provided target. A `www` CNAME points to its Railway target. Existing mail, nameserver and verification records are preserved.
 
 References: [Railway private buckets](https://docs.railway.com/storage-buckets), [Railway API](https://docs.railway.com/integrations/api), [Porkbun DNS API](https://porkbun.com/api/json/v3/documentation).
+
+
+## Private Event Releases
+
+Raw transcripts and event annotations remain Git-ignored. They are deployed as private runtime objects in the existing content bucket, not bundled in a public Git checkout or Docker layer. The normalized transcript release already supplies the recorded conversations. The independent event release must also be uploaded and pinned; deploying application code alone does not upload local annotations.
+
+Upload the validated `content/generated/event-timeline.json` under an immutable `events/…json` key, verify its SHA-256 by reading it back, and set `MACHINA_TIMELINE_KEY` and `MACHINA_TIMELINE_SHA256` on the web service. The existing content-storage variables provide access. A configured event release is checked at startup and cached by object key/checksum; bad storage, checksum or archive/naming-policy identity fails startup rather than presenting a healthy empty event page. Local runs use the generated file, optionally overridden by `MACHINA_TIMELINE_FILE`. Explicit file arguments to offline tools remain local.
+
+Event identity includes the aliased archive. When the private naming policy changes, preserve the prior event artifact and validate a new projection against the new archive: every evidence quote must remain literal, all source links must resolve, and event IDs should remain stable. Preserve the original extraction/review receipts; do not rerun paid extraction merely to rename display labels. Pin the event release and naming policy together, and retain the previous pair for rollback. The public Events response excludes extraction receipt paths, chunk inventories and boundary supplements.
+
+Release verification must compare `/api/v1/event-timeline` as well as the essay, About, transcript pages and frontend assets. Check nonzero counts against the local reviewed inventory and test an event’s source link. The page reports pending loading separately from unavailable or stale content; a missing release is not a Railway propagation delay.

@@ -61,7 +61,8 @@ def build(source, about, output, edition):
     policy = json.loads(policy_path.read_text()) if policy_path.exists() else {}
     if not isinstance(policy, dict) or set(policy) - {"unaliased_sections", "preserve_phrases"}:
         raise ValueError("Invalid private editorial reading policy")
-    macros = json.loads((source / "macros.local.json").read_text())
+    macro_path = source / "macros.local.json"
+    macros = json.loads(macro_path.read_text()) if macro_path.exists() else {}
     text = prepare_tex((source / "main.tex").read_text(), macros)
     ast = json.loads(
         pandoc(

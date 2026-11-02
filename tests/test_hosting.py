@@ -85,11 +85,16 @@ def test_repository_content_guard():
         "screenshots/private.pdf",
         "accidental-copy/main.tex",
         "accidental-copy/main.bib",
+        "manuscript/essay/names.tex",
+        "manuscript/essay/macros.local.json",
+        "manuscript/editorial.local.json",
         "apps/web/test-results/capture.json",
     ]:
         assert forbidden_path(path)
     assert not forbidden_path("content/curation/archive.json")
     assert not forbidden_path("apps/api/main.py")
+    for path in ("manuscript/essay/main.tex", "manuscript/essay/main.bib", "manuscript/essay/neurips_2026.sty"):
+        assert not forbidden_path(path)
     assert is_content_bundle(b'{"messages":[],"content_version":"test"}')
     assert not is_content_bundle(b'{"threads":[],"note":"Metadata only"}')
     assert is_private_catalog(

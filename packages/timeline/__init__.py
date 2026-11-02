@@ -1,6 +1,7 @@
 """Grounded plain events with separate occurrence and disclosure chronologies."""
 from __future__ import annotations
 import json
+import os
 from datetime import date
 from pathlib import Path
 from typing import Literal
@@ -123,12 +124,27 @@ def eligible_events(timeline, cutoff, *, allowed_source_ids=None):
             and (allowed is None or set(e['provenance']['processing_source_ids']) <= allowed)]
 
 
-def load_timeline(bundle, path=DEFAULT_PATH):
+def load_timeline(bundle, path=None):
     unavailable = {'version':1,'status':'unavailable','content_version':bundle.content_version,'events':[], 'coverage':{}}
-    try:
-        timeline = json.loads(Path(path).read_text())
-    except (OSError, ValueError):
-        return unavailable
+    hosted = path is None and bool(os.getenv('MACHINA_TIMELINE_KEY') or os.getenv('MACHINA_TIMELINE_SHA256'))
+    if hosted:
+        from packages.timeline.storage import load_private_timeline
+        timeline = load_private_timeline(os.getenv('MACHINA_CONTENT_BUCKET'), os.getenv('MACHINA_TIMELINE_KEY'), os.getenv('MACHINA_TIMELINE_SHA256'))
+    else:
+        try:
+            timeline = json.loads(Path(path or os.getenv('MACHINA_TIMELINE_FILE', DEFAULT_PATH)).read_text())
+        except (OSError, ValueError):
+            return unavailable
     if timeline.get('content_version') != bundle.content_version or timeline.get('corpus_hash') != corpus_hash(bundle):
+        if hosted:
+            raise RuntimeError('Private event release does not match the configured archive and naming policy')
         return {**unavailable,'status':'stale'}
     return timeline
+
+
+def timeline_response(timeline):
+    """Expose event evidence without extraction receipts or local filesystem paths."""
+    result = {k: timeline[k] for k in ('version', 'status', 'content_version', 'asset_hash', 'events', 'coverage', 'semantic_review') if k in timeline}
+    if 'extraction' in timeline:
+        result['extraction'] = {'limitations': timeline['extraction'].get('limitations', [])}
+    return result

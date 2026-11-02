@@ -192,6 +192,9 @@ def create_app(
         }
 
     repo = ContentRepository(aliases.bundle(repo.bundle))
+    if os.getenv("MACHINA_TIMELINE_KEY") or os.getenv("MACHINA_TIMELINE_SHA256"):
+        from packages.timeline import load_timeline
+        load_timeline(repo.bundle)
     sessions = Sessions(repo.bundle.profile.session_ttl_seconds)
     generation_limits = GenerationLimits(
         per_hour=int(os.getenv("MACHINA_LIVE_GENERATIONS_PER_HOUR", "60")),
@@ -293,11 +296,11 @@ def create_app(
     def event_timeline():
         # Extraction is an explicit offline build. Requests never invoke providers.
         # Corpus identity prevents a private or stale asset crossing release boundaries.
-        from packages.timeline import load_timeline
+        from packages.timeline import load_timeline, timeline_response
 
         timeline = load_timeline(repo.bundle)
         return display_projection(
-            {k: v for k, v in timeline.items() if k != "chunks"}, aliases
+            timeline_response(timeline), aliases
         )
 
     @app.api_route(api + "/health", methods=["GET", "HEAD"])
