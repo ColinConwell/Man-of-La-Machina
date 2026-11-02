@@ -92,11 +92,17 @@ if __name__ == "__main__":
 
     os.environ["MACHINA_ESSAY_ENABLED"] = "true"
 
+    async def fixture_speech(text, voice, model):
+        # Playback tests intercept narration requests with invented audio.
+        # Enable the UI without credentials and never contact a speech provider.
+        raise RuntimeError("Browser playback tests must supply mocked audio")
+
     serve(
         create_app(
             exploration_bundle(),
             aliases=AliasRewriter(),
             editorial=invented_editorial(),
+            speech_synthesizer=fixture_speech,
         ),
         "exploration-fixture",
         access_log=False,
