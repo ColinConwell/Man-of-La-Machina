@@ -80,4 +80,5 @@ nav:
       - Run a counterfactual experiment: vignettes/counterfactual-experiment.md
       - Choose where a visit begins: vignettes/choose-beginnings.md
       - Present the project deck: vignettes/project-deck.md
+      - Experiment With Narration: vignettes/sound-studio.md
   - Reference: reference/

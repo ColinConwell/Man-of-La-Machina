@@ -2,6 +2,12 @@
 
 The application creates an aliased projection of its private archive before serving it or constructing model context. Original source documents and the pinned storage object remain unchanged. The substitution engine is application code; actual names, aliases, spelling variants, and contextual rules belong only in private configuration.
 
+## Current Local Naming Policy
+
+The November 2 owner review retains three role pseudonyms. Other configured contacts use first names, with owner-selected relationship labels and a public-artist exception. The previous contextual substitutions for an ambiguous first name were removed. The exact mapping, prior configuration and review record are private, ignored files under `content/curation/`; do not duplicate them in tracked documentation. The owner clarified that this policy should be saved privately on disk, excluded from Git and public assets.
+
+The local API was restarted with this policy. Twenty representative served transcript messages and the complete essay projection matched the expected replacements; citation authorship remains unchanged. This does not update the independent Railway configuration. Apply the reviewed private policy there only as part of an approved production release. The private name-review record distinguishes current narrative references from bibliography authorship and dormant source-macro definitions.
+
 ## Edit locally
 
 Edit `content/curation/aliases.local.json`, then restart the API. This file is ignored by Git and excluded from Docker, Railway uploads, and Python source distributions. It is never a web asset. `MACHINA_ALIASES_FILE` can select a different private file.
@@ -27,7 +33,7 @@ Hosted startup fails if the alias configuration is missing or invalid, and error
 
 ## What is covered
 
-About and Essay use the same aliases at the server boundary. Their source files and TeX name-macro mapping remain private; see [editorial readings](EDITORIAL.md). Changes to a name in the shared alias configuration apply to these readings after restarting the service, without rebuilding the essay. HTML replacements are escaped, and citation targets remain linked.
+About and Essay use the same aliases at the server boundary, with explicit exceptions described in [editorial readings](EDITORIAL.md#pseudonymization-exceptions). Citations and bibliography entries always preserve their names. Private release metadata can exempt named sections and specific phrases; Author Biographies is exempt in newly built essays by default. Source files, exception policy and TeX name-macro mappings remain private. Changes to the shared alias configuration apply outside these exemptions after restarting the service, without rebuilding the essay. HTML replacements are escaped, and citation targets remain linked.
 
 Substitution covers transcript text, source filenames and credits, annotations, titles, accessibility descriptions, profile text, search results, and model context. Human speakers use a generic role identifier. Visitor input is aliased before it enters context or saved branch messages. Provider output passes through a streaming filter that retains enough lookahead to handle names split across chunks; interrupted name fragments are withheld. Provider metadata and displayed errors are also filtered.
 

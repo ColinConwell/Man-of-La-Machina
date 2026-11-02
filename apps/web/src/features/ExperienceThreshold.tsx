@@ -1,5 +1,5 @@
 import type { Experience } from "../types";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Play } from "lucide-react";
 import { useExperience } from "../store";
 export function ExperienceThreshold({
   experience,
@@ -17,13 +17,23 @@ export function ExperienceThreshold({
           guided it, and the power of language in shaping the journeys of
           tomorrow.
         </p>
-        <p>
-          Enter the record. Choose what the model knows. Write the next human
-          turn, and see what follows.
+        <a
+          className="preview-video-link"
+          href="https://youtu.be/mmqkF_sg0n4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Play size={20} aria-hidden="true" />
+          Watch the Preview
+          <ArrowUpRight size={18} aria-hidden="true" />
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+        <p className="entry-invitation">
+          Enter the conversation. Follow the journey. Or change it with a new reply....
         </p>
       </div>
       <div className="beginnings">
-        <h2>Choose a beginning</h2>
+        <h2>Choose a Beginning</h2>
         {experience.profile.start_options.map((s) => (
           <button
             className="beginning"
@@ -40,14 +50,19 @@ export function ExperienceThreshold({
             }}
           >
             <span>
-              {s.title}
+              <span className="beginning-title">
+                {s.id === "naming-mirrows" ? "Naming the Bot" : s.title.split(" · ")[0]}
+              </span>
+              {s.title.includes(" · ") && (
+                <small className="beginning-date">{s.title.split(" · ").slice(1).join(" · ")}</small>
+              )}
               <small>{s.description}</small>
             </span>
             <ArrowUpRight size={22} />
           </button>
         ))}
         <p className="fine">
-          Each beginning has a context policy. The context workbench shows where
+          Each beginning has pre-loaded context. The context workbench shows where
           it begins and lets you change it before branching.
         </p>
         <p className="mode-note">

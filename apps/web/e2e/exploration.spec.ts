@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 async function enter(page: Page) {
   await page.goto("/?view=advanced");
-  await page.getByRole("button", { name: /Rain in Spain · May 8/ }).click();
+  await page.getByRole("button", { name: /Rain in Spain.*May 8/ }).click();
   await expect(
     page.getByRole("heading", { name: "Rain in Spain", exact: true }),
   ).toBeVisible();
@@ -20,7 +20,7 @@ test("complete-history, arbitrary boundaries, resolution, search and deep links"
     "Every conversation is a fork in the road",
   );
   await page
-    .getByRole("button", { name: /From the beginning · April 1/ })
+    .getByRole("button", { name: /From the beginning.*April 1/ })
     .click();
   await expect(
     page.getByRole("heading", { name: "Pink Moon", exact: true }),
@@ -170,7 +170,7 @@ test("May 8 intervention, mutations, immutable receipts, multi-turn compare, art
   expect((await dl).suggestedFilename()).toBe("la-machina-branch.json");
   await page.getByRole("button", { name: "Reset", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Choose a beginning", exact: true }),
+    page.getByRole("heading", { name: "Choose a Beginning", exact: true }),
   ).toBeVisible();
 });
 
@@ -179,7 +179,7 @@ test("keyboard entry, reduced motion, responsive geometry and accessibility", as
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/?view=advanced");
-  await page.getByRole("button", { name: /Rain in Spain · May 8/ }).focus();
+  await page.getByRole("button", { name: /Rain in Spain.*May 8/ }).focus();
   await page.keyboard.press("Enter");
   await expect(
     page.getByRole("heading", { name: "Rain in Spain", exact: true }),
@@ -290,7 +290,7 @@ test("theme contrast and provider-failure recovery", async ({ page }) => {
   );
   await page.getByRole("button", { name: "Reset", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Choose a beginning", exact: true }),
+    page.getByRole("heading", { name: "Choose a Beginning", exact: true }),
   ).toBeVisible();
 });
 

@@ -57,6 +57,10 @@ def prepare_tex(text, macros):
 
 def build(source, about, output, edition):
     source = source.resolve()
+    policy_path = source / "reading.local.json"
+    policy = json.loads(policy_path.read_text()) if policy_path.exists() else {}
+    if not isinstance(policy, dict) or set(policy) - {"unaliased_sections", "preserve_phrases"}:
+        raise ValueError("Invalid private editorial reading policy")
     macros = json.loads((source / "macros.local.json").read_text())
     text = prepare_tex((source / "main.tex").read_text(), macros)
     ast = json.loads(
@@ -119,6 +123,8 @@ def build(source, about, output, edition):
             deck="The essay behind the experience",
             body_html=html,
             edition=edition,
+            unaliased_sections=policy.get("unaliased_sections", ["author-biographies"]),
+            preserve_phrases=policy.get("preserve_phrases", []),
         ),
     )
     output.parent.mkdir(parents=True, exist_ok=True)

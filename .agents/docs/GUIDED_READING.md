@@ -1,5 +1,31 @@
 # Guided Reading and Narration
 
+## November 2 Production Candidate
+
+### Review Annotation Updates
+
+The landing invitation now follows the centered video button. Beginning dates occupy smaller, indented lines and the naming entry is labeled **Naming the Bot**, retaining its existing identity and navigation target. The context note now says **pre-loaded context**. Both editorial pages use **Shift+C** instead of bare C; Hide Contents is a real button with a bordered shift-icon key hint and restored focus. The collapsed rail uses opposing chevrons instead of a standalone C glyph.
+
+Editorial citation and bibliography names are now exempt from pseudonymization. The private reading policy also exempts Author Biographies and preserves the ambiguous cultural reference identified during review; the two biographies include requested role parentheticals in the private source. The subsequent owner mapping review retained three role pseudonyms and switched other contacts to first names with explicit exceptions; see [current naming policy](ALIASES.md#current-local-naming-policy). The new private release checksum is recorded in `manuscript/essay/provenance.local.json`; it supersedes the initial candidate checksum below. See [editorial exceptions](EDITORIAL.md#pseudonymization-exceptions) for policy and deployment compatibility.
+
+The local candidate retains the selected Rose & Graphite design and adds a landing-only **Watch the Preview** link to the published YouTube video. The link opens a new tab; it does not embed a player or add navigation chrome. Narration capabilities now gate mounting the whole player. Disabled, pending, or failed capability checks display no player, audio element, or narration disclosure. Unmounting the player retains its existing playback cleanup. **Delete Branch** continues deleting the branch and its audio without advertising an unavailable feature.
+
+Launch the production-built frontend with `MACHINA_TTS_ENABLED=false MACHINA_ESSAY_ENABLED=true .venv/bin/python -m apps.api.main`; the shared port registry selects and reports the address. These process-local overrides leave Sound Studio and provider configuration unchanged. Keep the server running during review. The frontend build alone does not disable narration on another server: the hosted environment must explicitly set `MACHINA_TTS_ENABLED=false`.
+
+### Essay Import Status
+
+The user restored the October 31 attachments on November 2. Both files were imported verbatim into the ignored manuscript sources and rebuilt with Pandoc/citeproc without warnings. The local candidate now serves **Reading Edition · October 31, 2026**, including active prose, author biographies and all 19 cited references. TeX comments are absent from the web edition; the original source comments remain private. About is unchanged. Private provenance records input SHA-256 hashes and the generated release checksum (`510258431471ecdb4ed9d8eb68d3e87e03c6cd3ff631f29e34b6b4a97d6edcb4`). The prior sources, provenance and release remain backed up under `manuscript/backups/pre-preview-20261102T003911-0500/`.
+
+### Release Preparation
+
+The candidate's code changes are limited to the landing and guided conversation components, narration player, landscape stylesheet, guided/exploration browser tests, editorial/narration backend tests, this guide and the new changelog entry. Existing Sound Studio changes, documentation/index additions, port changes and build recipes belong to separate work; do not stage them indiscriminately. The upgraded design is already in the current checkout's history, so compare the final code revision with the actual hosted revision before releasing.
+
+After the user reviews the completed local candidate and approves production: record the currently successful hosted code revision and editorial key/checksum, publish the generated editorial JSON to a new immutable private object, and pin that object's exact checksum. Enable the essay and explicitly disable TTS on the existing Railway web service. Deploy the reviewed code, then verify both public hosts, essay citations, the video link and narration capabilities. Keep the old editorial object and code revision for rollback. The main branch is connected to automatic deployment; do not push before approval. No private manuscript files, releases, screenshots or Sound Studio data belong in the public Git tree.
+
+### Candidate Verification
+
+The main build and 173 backend tests passed (one unrelated skip). All 23 Chromium fixture cases and seven real-archive demo cases passed across full and corrected-selector runs. New coverage verifies no narration UI while capabilities are pending, disabled or failing, zero narration mutations, landing-link geometry, and disabled server synthesis despite an API key. Existing enabled-player tests continue to pass. Manual Playwright inspection at 1440 and 390 pixels verified the real local app, preserved draft navigation, no horizontal overflow and no console warnings/errors. After the restored essay import, all 12 editorial/narration backend tests passed; the rendered edition was checked for 19 references, working citation targets, desktop/phone geometry and accessibility. Private screenshots remain outside the repository. Production deployment awaits user review; Safari/Firefox and physical-device checks remain outstanding.
+
 Updated October 27, 2026. This implementation is prepared for local review; production deployment requires the user's final review.
 
 ## Selected Design

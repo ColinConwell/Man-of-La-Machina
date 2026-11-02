@@ -16,7 +16,6 @@ manuscript
 .codex/
 .gemini/
 .cursorignore
-AGENTS.md
 CLAUDE.md
 
 # Jupyter
@@ -55,3 +54,15 @@ experiments/results/
 
 # MkDocs build output
 site/
+
+# ADE Cache
+.agents/
+.codex/
+mcp.json
+
+# Requested, indexed maintainer deliverable; other agent caches remain ignored.
+!.agents/
+.agents/*
+!.agents/docs/
+.agents/docs/*
+!.agents/docs/SOUND_STUDIO.md

@@ -25,9 +25,9 @@ test("landing copy, saved appearance controls, and all three beginnings", async 
   await page.getByLabel("Interface Palette").selectOption("rose");
   await page.getByRole("button", { name: "Close Settings" }).click();
   for (const [title, entry] of [
-    ["From the beginning · April 1", "test-0-0"],
-    ["Rain in Spain · May 8", "test-2-1"],
-    ["Naming Mirrows · May 10", "test-3-2"],
+    ["From the beginning.*April 1", "test-0-0"],
+    ["Rain in Spain.*May 8", "test-2-1"],
+    ["Naming the Bot.*May 10", "test-3-2"],
   ]) {
     await page.getByRole("button", { name: new RegExp(title) }).click();
     await expect(page).toHaveURL(new RegExp(`entry=${entry}`));

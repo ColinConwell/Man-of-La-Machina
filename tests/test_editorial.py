@@ -105,6 +105,55 @@ def test_private_release_failure_does_not_echo_source(tmp_path, monkeypatch):
     assert "DO-NOT-ECHO" not in str(error.value)
 
 
+def test_citations_and_references_keep_names_links_and_safe_markup():
+    from tests.test_aliases import rewriter
+    doc = EditorialDocument(title="Test", body_html='''
+      <p>Aster Riley met Maren.
+        <span class="citation"><a href="#ref-aster" title="Aster Riley">Riley <em>2026</em></a></span> Maren.
+      </p>
+      <div class="references"><div class="csl-entry" id="ref-aster">
+        Aster Riley. <a href="https://example.org/Maren">Maren</a>
+        <script>unsafe()</script><a href="javascript:alert(1)">Unsafe</a>
+      </div></div><p>Aster Riley and Maren.</p>''')
+    html = reading_document(doc, rewriter())["body_html"]
+    assert 'title="Aster Riley">Riley <em>2026</em>' in html
+    assert 'Aster Riley. <a href="https://example.org/Maren">Maren</a>' in html
+    assert "The Visitor met The Friend" in html
+    assert "The Visitor and The Friend" in html
+    assert not any(s in html for s in ("<script", "unsafe()", "javascript:"))
+    assert re.search(r'href="#([^"]+)"', html)[1] in re.findall(r'id="([^"]+)"', html)
+
+
+def test_explicit_sections_preserve_names_until_next_peer_heading():
+    from tests.test_aliases import rewriter
+    doc = EditorialDocument(
+        title="Test", unaliased_sections=("bios",),
+        body_html='''<h2 id="opening">Opening</h2><p>Aster Riley</p>
+        <h2 id="bios">Author Biographies</h2>
+        <p><strong><a href="https://example.org/Aster">Aster Riley</a></strong> ("The Visitor").<br>Maren.</p>
+        <h3 id="details">Details</h3><p>Aster Riley <em>Maren</em></p>
+        <script>Aster hidden</script><p onclick="bad()">Maren</p>
+        <h2 id="after">After</h2><p>Aster Riley met Maren.</p>''',
+    )
+    shown = reading_document(doc, rewriter())
+    html = shown["body_html"]
+    assert '<a href="https://example.org/Aster">Aster Riley</a>' in html
+    assert 'Aster Riley <em>Maren</em>' in html and '<br>Maren.' in html
+    assert '<p>The Visitor met The Friend.</p>' in html
+    assert '<p>The Visitor</p>' in html
+    assert 'onclick' not in html and 'hidden' not in html
+    assert 'unaliased_sections' not in shown
+
+
+def test_editorial_phrase_preservation_does_not_change_archive_aliases():
+    from tests.test_aliases import rewriter
+    aliases = rewriter()
+    doc = EditorialDocument(title="Test", preserve_phrases=("Maren",),
+                            body_html="<p>Maren’s work; MAREN and Aster Riley, marenite.</p>")
+    assert reading_document(doc, aliases)["body_html"] == '<p>Maren’s work; MAREN and The Visitor, marenite.</p>'
+    assert aliases.text("Maren") == "The Friend"
+
+
 def test_private_storage_pins_editorial_bytes_and_closes_stream(monkeypatch):
     body = invented_editorial().model_dump_json().encode()
     streams = []
@@ -143,7 +192,11 @@ def test_tex_export_keeps_citations_and_original_source(tmp_path):
 \begin{document}
 \maketitle
 \begin{abstract}An invented abstract with \Person{}.\end{abstract}
-\paragraph{An Argument}A choice with a reference \cite{example}.
+% Omitted draft paragraph with a missing reference \cite{commented}.
+\paragraph{An Argument}A choice with a reference \cite{example}. % Omitted inline note.
+An escaped percentage: 50\% remains visible.
+\section*{Author Biographies}
+\Person{} (``The Visitor'') wrote this invented essay.
 \bibliography{main}
 \end{document}"""
     (tmp_path / "main.tex").write_text(original)
@@ -160,10 +213,22 @@ def test_tex_export_keeps_citations_and_original_source(tmp_path):
     assert "An invented abstract" in release.essay.body_html
     assert 'class="citation"' in release.essay.body_html
     assert 'id="ref-example"' in release.essay.body_html
+    assert "Omitted" not in release.essay.body_html
+    assert "commented" not in release.essay.body_html
+    assert "50% remains visible" in release.essay.body_html
+    assert release.essay.unaliased_sections == ("author-biographies",)
     assert "Private Author" not in release.essay.body_html
     assert "private@example.org" not in output.read_text()
     assert output.stat().st_mode & 0o777 == 0o600
     export_html(release, tmp_path / "reading", load_aliases())
     exported = (tmp_path / "reading/essay.html").read_text()
     assert "<!doctype html>" in exported and "The Visitor" in exported
-    assert "Aster" not in exported and 'class="citation"' in exported
+    assert "Aster Riley" in exported and 'class="citation"' in exported
+    assert 'An invented abstract with The Visitor' in exported
+    (tmp_path / "reading.local.json").write_text(json.dumps({
+        "unaliased_sections": ["author-biographies", "another-section"],
+        "preserve_phrases": ["Maren"],
+    }))
+    rebuilt = build(tmp_path, about, output, "Test edition")
+    assert rebuilt.essay.preserve_phrases == ("Maren",)
+    assert rebuilt.essay.unaliased_sections == ("author-biographies", "another-section")

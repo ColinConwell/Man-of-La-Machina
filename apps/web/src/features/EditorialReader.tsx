@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, List } from "lucide-react";
+import { ChevronLeft, ChevronRight, List, ArrowBigUp } from "lucide-react";
 import { api } from "../api";
 
 interface Reading {
@@ -50,6 +50,7 @@ export function EditorialReader({
     const key = (event: KeyboardEvent) => {
       if (
         event.key.toLowerCase() !== "c" ||
+        !event.shiftKey ||
         event.repeat ||
         event.ctrlKey ||
         event.metaKey ||
@@ -148,8 +149,8 @@ export function EditorialReader({
                 aria-label="Table of Contents"
                 aria-expanded={contentsOpen}
                 aria-controls="reading-contents"
-                aria-keyshortcuts="c"
-                title={`${contentsOpen ? "Hide" : "Show"} Table of Contents (C)`}
+                aria-keyshortcuts="Shift+C"
+                title={`${contentsOpen ? "Hide" : "Show"} Table of Contents (Shift + C)`}
                 onClick={() => setContentsOpen(!contentsOpen)}
               >
                 {contentsOpen ? (
@@ -162,7 +163,7 @@ export function EditorialReader({
                     <List size={16} />
                     <ChevronRight size={14} />
                     <span>Contents</span>
-                    <kbd>C</kbd>
+                    <ChevronLeft size={14} aria-hidden="true" />
                   </>
                 )}
               </button>
@@ -178,9 +179,19 @@ export function EditorialReader({
                     {item.title}
                   </a>
                 ))}
-                <small className="contents-shortcut">
-                  <kbd>C</kbd> · Hide Contents
-                </small>
+                <button
+                  className="contents-shortcut"
+                  aria-label="Hide Contents (Shift + C)"
+                  aria-keyshortcuts="Shift+C"
+                  aria-controls="reading-contents"
+                  onClick={() => {
+                    setContentsOpen(false);
+                    toggle.current?.focus({ preventScroll: true });
+                  }}
+                >
+                  <ChevronLeft size={14} aria-hidden="true" /> Hide Contents
+                  <kbd aria-hidden="true"><ArrowBigUp size={13} /> C</kbd>
+                </button>
               </div>
             </nav>
             {/* Server-allowlisted HTML; only the bibliography heading label changes locally. */}

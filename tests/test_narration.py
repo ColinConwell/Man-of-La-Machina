@@ -85,6 +85,26 @@ def test_chunking_keeps_all_text():
     assert ''.join(chunks('a'*8000))=='a'*8000
 
 
+def test_explicit_disable_blocks_narration_even_with_provider_key(bundle, monkeypatch):
+    monkeypatch.setenv('OPENAI_API_KEY', 'invented-test-key')
+    monkeypatch.setenv('MACHINA_TTS_ENABLED', 'false')
+    calls = []
+
+    async def unexpected_speech(*args):
+        calls.append(args)
+        raise AssertionError('Disabled narration must never call a provider')
+
+    monkeypatch.setattr('apps.api.narration.synthesize', unexpected_speech)
+    app = create_app(bundle)
+    with TestClient(app) as client:
+        assert client.get('/api/v1/narration/capabilities').json()['available'] is False
+        response = client.post('/api/v1/narration', json={'message_id': 'm0'})
+        assert response.status_code == 503
+        assert not app.state.narration.jobs
+        assert not app.state.narration.usage
+        assert not calls
+
+
 def test_inflight_delete_cancels_and_never_restores_audio(bundle):
     async def slow(*_):
         await asyncio.sleep(30)

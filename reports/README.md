@@ -11,4 +11,6 @@ Reports preserve the reasoning behind high-level design choices. Use a stable se
 | 005 | 2026-10-16 | [Review of the Experience, Agentic Setups, and Exploration Interfaces](005-2026-10-16-review-and-recommendations.md) | Review with prioritized proposals; implemented local project deck |
 | 006 | 2026-10-23 | [Landscape Composition and Animation Authoring Studies](006-2026-10-23-landscape-animation-studies.md) | Native prototype and actual Rive/Lottie exports; researched alternatives and current video endpoints |
 
+| 007 | 2026-10-29 | [Sound Studio: Layered Narration And Evolving Voice Effects](007-2026-10-29-sound-studio.md) | Implemented local laboratory; bounded live provider checks; private S3 requires configuration |
+
 Implementation history belongs in the root [CHANGELOG](../CHANGELOG.md). Reports are not instructions to implement every proposal they contain.

@@ -24,7 +24,7 @@ def python_pages(nav: mkdocs_gen_files.Nav) -> None:
         for path in sorted((ROOT / package).rglob("*.py")):
             module = path.relative_to(ROOT).with_suffix("")
             parts = tuple(module.parts)
-            if parts[-1] == "__main__" or "node_modules" in parts:
+            if parts[-1] == "__main__" or "node_modules" in parts or ".venv" in parts or "tests" in parts:
                 continue
             doc = Path("python", *parts).with_suffix(".md")
             if parts[-1] == "__init__":

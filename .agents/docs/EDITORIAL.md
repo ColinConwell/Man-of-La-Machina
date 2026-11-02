@@ -4,7 +4,7 @@ The main navigation offers **Explore**, **About**, and optionally **Read the Ess
 
 ## Editable Private Sources
 
-The canonical local essay is `manuscript/essay/main.tex`, with `main.bib` and `names.tex`. These were copied from the current Overleaf source editor on September 14, 2026. The private `provenance.local.json` records provenance and hashes. The original files remain unchanged by the reading conversion. Keep citations and bibliography edits in TeX/BibTeX; do not maintain a separate hand-edited HTML essay. The workshop style is retained for the existing TeX workflow.
+The canonical local essay is `manuscript/essay/main.tex`, with `main.bib` and `names.tex`. The initial September 14 source was replaced by the user-supplied October 31 revision, imported on November 2. The private `provenance.local.json` records input hashes, requested local edits and release hashes. The source files remain unchanged by the reading conversion. Keep citations and bibliography edits in TeX/BibTeX; do not maintain a separate hand-edited HTML essay. The workshop style is retained for the existing TeX workflow.
 
 Edit About in `manuscript/about.md`. The entire `manuscript/` directory is ignored and excluded from the deployment build. Do not copy its contents into the public repository, a frontend module, `public/`, an issue, or a report.
 
@@ -23,6 +23,19 @@ This creates `manuscript/editorial.local.json` with owner-only permissions. It r
 `manuscript/essay/macros.local.json` maps the manuscript's semantic name macros to canonical names for conversion. This mapping stays private. The server applies the current [alias configuration](ALIASES.md) to both About and Essay, including titles and text. Updating aliases therefore does not require rebuilding TeX. When importing a revision, review new personal names and new macros. Keep cultural references and bibliography authors readable, subject to explicit private disambiguation rules where needed.
 
 The server strips unsupported markup, scripts, embedded media, active attributes, comments, and unsafe links before display. Alias replacements are escaped as text. The public API returns only the resulting reading document; it never returns TeX, BibTeX, macro mappings, original source paths, or the private release itself.
+
+## Pseudonymization Exceptions
+
+Citation text and bibliography entries must retain their original author names. The reading projection automatically exempts Pandoc `citation`, `references`, `csl-bib-body` and `csl-entry` elements and their descendants. Safe citation links and titles are retained; HTML sanitization and opaque internal IDs still apply.
+
+The optional private `manuscript/essay/reading.local.json` configures two fields copied into the private editorial release:
+
+- `unaliased_sections`: original HTML heading IDs. A matching heading and its section keep names verbatim through subordinate headings, ending at the next heading of equal or higher rank. The builder defaults to `["author-biographies"]`. An explicit list replaces that default; include it when adding further sections.
+- `preserve_phrases`: case-insensitive, word-bounded phrases to retain in otherwise aliased editorial prose. These are document-specific exceptions, including ambiguous cultural references, and do not change archive aliases.
+
+Both fields are omitted from public API responses. Section and phrase exemptions preserve text, link titles and safe external destinations without allowing scripts or other unsupported HTML. Keep actual names and exception phrases private. Add role parentheticals to the private TeX biography text; the renderer does not hard-code names or reverse pseudonyms. Rebuild and restart the API after editing this policy. Existing releases without either field remain readable.
+
+For deployment, the server must support these policy fields before selecting the new release. Older server schemas reject them. Roll back to a compatible prior code/release pair if reverting the parser.
 
 ## Visibility and Local Use
 

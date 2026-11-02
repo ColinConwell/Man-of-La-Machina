@@ -12,6 +12,70 @@ async function enter(page: import("@playwright/test").Page) {
   await expect(page.locator(".guided-message")).toHaveCount(2);
 }
 
+test("landing video link is prominent, accessible and limited to the entrance", async ({ page }) => {
+  await page.goto("/");
+  const link = page.getByRole("link", { name: "Watch the Preview", exact: false });
+  await expect(link).toHaveAttribute("href", "https://youtu.be/mmqkF_sg0n4");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(page.locator(".entry-invitation")).toHaveText("Enter the conversation. Follow the journey. Or change it with a new reply....");
+  await expect(page.locator(".beginnings > .fine")).toContainText("pre-loaded context");
+  await expect(page.locator(".beginning-title").last()).toHaveText("Naming the Bot");
+  for (const width of [1440, 967, 847, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(link).toBeVisible();
+    await link.focus();
+    await expect(link).toBeFocused();
+    const buttonBox = (await link.boundingBox())!;
+    const columnBox = (await page.locator(".threshold-copy").boundingBox())!;
+    const invitationBox = (await page.locator(".entry-invitation").boundingBox())!;
+    expect(Math.abs(buttonBox.x + buttonBox.width / 2 - columnBox.x - columnBox.width / 2)).toBeLessThan(2);
+    expect(invitationBox.y).toBeGreaterThan(buttonBox.y + buttonBox.height);
+    for (const card of await page.locator(".beginning").all()) {
+      const title = (await card.locator(".beginning-title").boundingBox())!;
+      const date = (await card.locator(".beginning-date").boundingBox())!;
+      expect(date.y).toBeGreaterThanOrEqual(title.y + title.height);
+      expect(date.x).toBeGreaterThan(title.x);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  }
+  await page.locator(".beginning").first().click();
+  await expect(page.getByRole("navigation", { name: "The Journey Roadmap" })).toBeVisible();
+  await expect(link).toHaveCount(0);
+});
+
+for (const result of ["disabled", "failed"] as const) {
+  test(`narration remains absent while loading and ${result}`, async ({ page }) => {
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    let mutations = 0;
+    page.on("request", (r) => {
+      if (r.url().includes("/narration") && r.method() !== "GET") mutations++;
+    });
+    await page.route("**/api/v1/narration/capabilities", async (route) => {
+      await pending;
+      await route.fulfill(result === "disabled"
+        ? { json: { available: false } }
+        : { status: 503, json: { detail: "Unavailable" } });
+    });
+    await enter(page);
+    await expect(page.locator(".read-aloud, audio")).toHaveCount(0);
+    const response = page.waitForResponse((r) => r.url().endsWith("/narration/capabilities"));
+    release();
+    await response;
+    if (result === "failed") {
+      await page.waitForResponse((r) => r.url().endsWith("/narration/capabilities"));
+    }
+    await expect(page.getByRole("textbox", { name: "Enter the journey with your own reply..." })).toBeVisible();
+    await expect(page.locator(".read-aloud, audio")).toHaveCount(0);
+    await expect(page.getByText("AI Voice · Privacy & Limits")).toHaveCount(0);
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      await expect(page.getByRole("button", { name: "Send", exact: true })).toBeVisible();
+    }
+    expect(mutations).toBe(0);
+  });
+}
+
 test("original insertion, recorded progression, edited branch, context and advanced controls", async ({
   page,
 }) => {
@@ -66,7 +130,7 @@ test("original insertion, recorded progression, edited branch, context and advan
   await expect(
     page.getByRole("article", { name: "Generated model reply", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Delete Branch & Its Audio" }).click();
+  await page.getByRole("button", { name: "Delete Branch", exact: true }).click();
   await expect(
     page.getByRole("article", { name: "Generated model reply", exact: true }),
   ).toHaveCount(0);

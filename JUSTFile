@@ -129,3 +129,23 @@ docs *args:
 # Build the documentation site into the ignored site/ directory, failing on warnings
 docs-build:
     {{ venv_python }} -m mkdocs build --strict
+
+# --- Sound Studio (isolated local audio environment) ---
+sound-setup:
+    UV_CACHE_DIR=.machina/uv-cache uv venv --python 3.11 tools/sound_studio/.venv
+    UV_CACHE_DIR=.machina/uv-cache uv pip install --python tools/sound_studio/.venv/bin/python -r tools/sound_studio/requirements.lock
+    npm ci --prefix tools/sound_studio
+
+sound-build:
+    npm run build --prefix tools/sound_studio
+
+sound *args: sound-build
+    tools/sound_studio/.venv/bin/python -m tools.sound_studio {{ args }}
+
+sound-alignment:
+    UV_CACHE_DIR=.machina/uv-cache uv pip install --python tools/sound_studio/.venv/bin/python -r tools/sound_studio/alignment-requirements.txt
+
+check-sound:
+    tools/sound_studio/.venv/bin/python -m pytest tools/sound_studio/tests -q
+    npm run build --prefix tools/sound_studio
+    npm run test:e2e --prefix tools/sound_studio

@@ -151,6 +151,34 @@
   font-family: var(--body);
   font-size: 20px;
 }
+.landscape-app .preview-video-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  margin: 24px auto;
+  padding: 16px 20px;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--reading-radius);
+  background: rgba(var(--paper), var(--reading-opacity));
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font: 16px var(--ui);
+  text-decoration: none;
+}
+.landscape-app .preview-video-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.landscape-app .preview-video-link svg {
+  flex-shrink: 0;
+}
+.landscape-app .beginning-date {
+  margin: 4px 0 0 14px;
+  font: 12px/1.5 var(--ui);
+  color: var(--muted);
+}
 .guided-experience {
   height: calc(100dvh - 114px);
   min-height: 460px;
@@ -1439,14 +1467,31 @@
   writing-mode: vertical-rl;
 }
 .contents-shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   color: var(--muted);
-  font: 10px/1.5 var(--ui);
-  padding: 10px 8px 0;
+  font: 11px/1.5 var(--ui);
+  margin-top: 12px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
 }
 .contents-toggle kbd,
 .contents-shortcut kbd {
   font: inherit;
   color: var(--muted);
+}
+.contents-shortcut kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 @media (max-width: 760px) {
   .landscape-app .editorial-layout,

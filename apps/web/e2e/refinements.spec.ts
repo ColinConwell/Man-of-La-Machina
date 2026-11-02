@@ -388,7 +388,10 @@ test("horizontal contents rail, keyboard shortcut, scroll tracking and justified
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     const openWidth = (await nav.boundingBox())!.width;
     const leftOpen = (await page.locator(".editorial-prose").boundingBox())!.x;
+    await expect(toggle).toHaveAttribute("aria-keyshortcuts", "Shift+C");
     await toggle.press("c");
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await toggle.press("Shift+C");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await expect
       .poll(async () => (await nav.boundingBox())!.width)
@@ -397,11 +400,16 @@ test("horizontal contents rail, keyboard shortcut, scroll tracking and justified
     expect(
       (await page.locator(".editorial-prose").boundingBox())!.x,
     ).toBeLessThan(leftOpen - 100);
-    await toggle.press("c");
+    await toggle.press("Shift+C");
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator(".contents-shortcut")).toContainText(
-      "C · Hide Contents",
+      "Hide Contents",
     );
+    await page.getByRole("button", { name: "Hide Contents (Shift + C)", exact: true }).click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toBeFocused();
+    await toggle.press("Shift+C");
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator(".editorial-prose p").first()).toHaveCSS(
       "text-align",
       "justify",
@@ -432,7 +440,7 @@ test("horizontal contents rail, keyboard shortcut, scroll tracking and justified
       }),
     ).toBeVisible();
     await page.getByRole("button", { name: "Settings", exact: true }).click();
-    await page.keyboard.press("c");
+    await page.keyboard.press("Shift+C");
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await page.getByRole("button", { name: "Close Settings" }).click();
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -446,7 +454,7 @@ test("horizontal contents rail, keyboard shortcut, scroll tracking and justified
     "16px",
   );
   await page.screenshot({ path: "/tmp/machina-review/editorial-sidebar.png" });
-  await page.getByRole("button", { name: "Table of Contents" }).press("c");
+  await page.getByRole("button", { name: "Table of Contents" }).press("Shift+C");
   await expect(page.locator("#reading-contents")).toBeHidden();
   await page.screenshot({ path: "/tmp/machina-review/editorial-tab.png" });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -461,7 +469,7 @@ test("horizontal contents rail, keyboard shortcut, scroll tracking and justified
     ),
   ).toBe(true);
   await expect(page.locator(".contents-shortcut")).toBeVisible();
-  await page.getByRole("button", { name: "Table of Contents" }).press("c");
+  await page.getByRole("button", { name: "Table of Contents" }).press("Shift+C");
   await expect(page.locator("#reading-contents")).toBeHidden();
   await page.emulateMedia({ reducedMotion: "reduce" });
   expect(

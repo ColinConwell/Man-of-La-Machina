@@ -42,6 +42,25 @@ export function ReadAloud({
     queryKey: ["narration-capabilities"],
     queryFn: () => api<Capabilities>("/narration/capabilities"),
   });
+  if (capabilities.isError || !capabilities.data?.available) return null;
+  return (
+    <ReadAloudPlayer
+      messages={messages}
+      scope={scope}
+      capabilities={capabilities.data}
+    />
+  );
+}
+
+function ReadAloudPlayer({
+  messages,
+  scope,
+  capabilities,
+}: {
+  messages: SpokenMessage[];
+  scope: string;
+  capabilities: Capabilities;
+}) {
   const audio = useRef<HTMLAudioElement>(null);
   const [panelSize, setPanelSize] = useState<0 | 1 | 2>(0);
   const panelToggle = useRef<HTMLButtonElement>(null);
@@ -379,7 +398,7 @@ export function ReadAloud({
             <button
               className="audio-play"
               aria-label={active ? "Pause Read Aloud" : "Play Read Aloud"}
-              disabled={!message || !capabilities.data?.available}
+              disabled={!message}
               onClick={playPause}
             >
               {active ? <Pause size={19} /> : <Play size={19} />}
@@ -491,22 +510,16 @@ export function ReadAloud({
               displayed messages and newly completed branch replies. Pause stops
               automatic narration. Audio stays in this server session for up to{" "}
               {Math.round(
-                (capabilities.data?.retention_seconds || 7200) / 3600,
+                (capabilities.retention_seconds || 7200) / 3600,
               )}{" "}
               hours, or until deletion or server restart. Resetting a branch
               also deletes its audio. OpenAI’s data policies apply to
               processing. This session can generate up to{" "}
-              {capabilities.data?.session_characters_per_hour?.toLocaleString() ||
+              {capabilities.session_characters_per_hour?.toLocaleString() ||
                 "24,000"}{" "}
               characters per hour. Deleting audio does not reset that allowance.
             </p>
           </details>
-          {capabilities.data && !capabilities.data.available && (
-            <p role="status">Read Aloud is not configured on this server.</p>
-          )}
-          {capabilities.isError && (
-            <p role="alert">Could not check narration availability.</p>
-          )}
           {error && <p role="status">{error}</p>}
         </div>
       </div>

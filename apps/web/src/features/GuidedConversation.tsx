@@ -523,7 +523,7 @@ export function GuidedConversation({
               </button>
               {branch.branch && (
                 <button onClick={() => void branch.reset()}>
-                  Delete Branch & Its Audio
+                  Delete Branch
                 </button>
               )}
               <small>

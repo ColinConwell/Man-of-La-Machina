@@ -55,6 +55,16 @@
       "port": 8137,
       "env": ["MACHINA_RESULTS_FIXTURE_PORT"],
       "description": "Browser-test results-dashboard fixture"
+    },
+    "sound": {
+      "port": 8006,
+      "env": ["MACHINA_SOUND_PORT"],
+      "description": "Sound Studio narration and effects laboratory"
+    },
+    "sound-fixture": {
+      "port": 8141,
+      "env": ["MACHINA_SOUND_FIXTURE_PORT"],
+      "description": "Sound Studio synthetic test fixture"
     }
   }
 }
